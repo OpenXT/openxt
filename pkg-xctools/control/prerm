@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set +e
+
+if [ -r /etc/redhat-release ] ; then
+    DISTRO=rhel
+else
+    DISTRO=debian
+fi
+
+xenstore-exists attr || xenstore-write "attr"
+xenstore-exists "attr/PVAddons" || xenstore-write "attr/PVAddons" ""
+xenstore-write "attr/PVAddons/Installed"  "0"
+xenstore-write "attr/PVAddonsUninstalled" "1"
+
+RUN_ONCE_SH="/usr/src/xenstore-agent-1.0/run-one-time.sh"
+[ -f "${RUN_ONCE_SH}" ] && rm -f ${RUN_ONCE_SH}
+
+if [ "$DISTRO" = rhel ] ; then
+    DKMS_RPM_SAFE="--rpm_safe_upgrade"
+else
+    DKMS_RPM_SAFE=
+fi
+
+NAME=xenclient-pv-drivers
+PACKAGE=${NAME}-dkms
+VERSION=1.0
+
+dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
+
+NAME=xenmou
+PACKAGE=${NAME}-dkms
+VERSION=1.0
+
+dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
+
+if [ "${DISTRO}" = rhel ] ; then
+    chkconfig --del xenstore-agent
+    chkconfig --del xblanker
+fi
+
+exit 0
+

@@ -1,0 +1,69 @@
+#! /bin/bash
+
+DAEMON=/usr/bin/xs-agent
+prog=`basename ${DAEMON}`
+AGENT_OPTS=
+
+### BEGIN INIT INFO
+# Provides:		xenstore-agent
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:
+# Short-Description:	xenstore-agent
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+RUN_ONCE_SH="/usr/src/xenstore-agent-1.0/run-one-time.sh"
+
+test -e ${DAEMON} || exit 0
+
+case "$1" in
+    start)
+        log_daemon_msg "Loading xc modules" "xc modules"
+	if ! ( modprobe xc-xen; modprobe xc-xenfs; modprobe xc-v4v; modprobe xc-ctxusb ); then
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+	( mount -t xenfs nodev /proc/xen ; exit 0 )
+	vm_path=$(xenstore-read vm)
+	AGENT_OPTS="xen_vm_path:${vm_path}:"
+
+	if [[ -x "${RUN_ONCE_SH}" ]]; then
+		${RUN_ONCE_SH}
+		rm -f ${RUN_ONCE_SH}
+	fi
+
+        log_daemon_msg "Starting xenstoreagent daemon for XenClient" "xenstore-agent"
+        if start-stop-daemon --start --quiet --oknodo --name ${prog} -b --exec ${DAEMON} -- ${AGENT_OPTS}; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+        ;;
+    stop)
+        log_daemon_msg "Stopping xenstore agent daemon for XenClient" "xenstore-agent"
+        if start-stop-daemon --stop --quiet --oknodo --name ${prog} --exec ${DAEMON}; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+        ;;
+    restart|reload|force-reload)
+        log_daemon_msg "Restarting xenstore agent daemon for XenClient" "xenstore-agent"
+        start-stop-daemon --stop --quiet --oknodo --name ${prog} -b --exec ${DAEMON} || log_end_msg 1
+        if start-stop-daemon --start --quiet --oknodo --name ${prog} --exec ${DAEMON} -- ${AGENT_OPTS}; then
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+        ;;
+    *)
+        log_action_msg "Usage: $0: {start|stop|restart|reload}"
+        exit 1
+        ;;
+esac
+
+exit 0

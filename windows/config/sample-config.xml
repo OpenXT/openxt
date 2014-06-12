@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WinbuildConfig>
+  <!-- Section 1: These nodes contain static values some of which are site specific -->
+  <LogDir>logs</LogDir>
+  <OutDir>output</OutDir>
+  <DdkDir>C:\WinDDK\6001.18002</DdkDir>
+  <VSDir>"C:\Program Files\Microsoft Visual Studio 11.0"</VSDir>
+  <MSBuild>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</MSBuild>
+  <GitUrl>git://github.com/OpenXT</GitUrl>
+  <dotNetURL>http://download.microsoft.com/download/9/5/A/95A9616B-7A37-4AF6-BC36-D6EA96C8DAAE/dotNetFx40_Full_x86_x64.exe</dotNetURL>
+  <DefaultEula>True</DefaultEula>
+  <CertName>Put Your Cert Name Here</CertName>
+  <CompanyName>Put Your Company Name Here</CompanyName>
+  <SignTool>"C:\Program Files\Windows Kits\8.0\bin\x86"</SignTool>
+
+  <!-- Section 2: These nodes are updated with the input to the build script for each build -->
+  <BuildTag></BuildTag>
+  <BuildBranch></BuildBranch>
+  <BuildNumber></BuildNumber>
+  <VerMajor></VerMajor>
+  <VerMinor></VerMinor>
+  <VerMicro></VerMicro>
+  <VerString></VerString>
+  <BuildType>Release</BuildType>
+  <Developer>false</Developer>
+  <License></License>
+
+  <!-- Section 3: These are the repos that are necessary to the build -->
+  <Steps>
+    <Step name="xc-windows" clone="true">
+      <Run execute="true" command="Powershell" path="xc-windows\do_build.ps1">
+        <Parameters>
+          <Param>DdkDir</Param>
+          <Param>License</Param>
+          <Param>BuildType</Param>
+          <Param>Developer</Param>
+          <Param>CertName</Param>
+          <Param>SignTool</Param>
+          <Param>DefaultEula</Param>
+          <Param>VSDir</Param>
+          <Param>VerString</Param>
+          <Param>VerMajor</Param>
+          <Param>VerMinor</Param>
+          <Param>VerMicro</Param>
+          <Param>BuildNumber</Param>
+          <Param>BuildTag</Param>
+          <Param>BuildBranch</Param>
+          <Param>MSBuild</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="idl" clone="true" />
+    <Step name="win-tools" clone="true">
+      <Run execute="true" command="Powershell" path="win-tools\do_build.ps1">
+        <Parameters>
+          <Param>BuildType</Param>
+          <Param>VerString</Param>
+          <Param>CertName</Param>
+          <Param>MSBuild</Param>
+          <Param>CompanyName</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="msi-installer" clone="true">
+      <Run execute="true" command="Powershell" path="BuildSupport\winbuild-installer.ps1">
+        <Parameters>
+          <Param>dotNetURL</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="Build MSIs" clone="false">
+      <Run execute="true" command="Powershell" path="msi-installer\installer\do_build.ps1">
+        <Parameters>
+          <Param>BuildTag</Param>
+          <Param>VerString</Param>
+          <Param>CertName</Param>
+          <Param>CompanyName</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="Build Setup" clone="false">
+      <Run execute="true" command="Powershell" path="msi-installer\bootstrapper\do_build.ps1">
+        <Parameters>
+          <Param>BuildType</Param>
+          <Param>CertName</Param>
+          <Param>VerString</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="SDK" clone="false">
+      <Run execute="true" command="Powershell" path="BuildSupport\winbuild-sdk.ps1">
+        <Parameters>
+          <Param>BuildType</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="Stage" clone="false">
+      <Run execute="true" command="Powershell" path="BuildSupport\winbuild-stage.ps1">
+        <Parameters>
+          <Param>OutDir</Param>
+        </Parameters>
+      </Run>
+    </Step>
+  </Steps>
+</WinbuildConfig>

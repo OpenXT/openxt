@@ -1,0 +1,11 @@
+To install the XenClient tools for Linux, open a terminal window, change
+to this directory and execute:
+
+ $ sudo ./install.sh
+
+If you would like to use graphics pass-through on an Intel 915 based system,
+please also run:
+
+ $ sudo ./fix-i915-passthrough.sh
+
+NOTE: This may download a lot of data and take a while to complete.

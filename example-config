@@ -1,0 +1,44 @@
+# Branch to build.
+BRANCH="master"
+
+# OpenXT git repositories. Optionally replace with a local mirror.
+OPENXT_GIT_MIRROR="git://github.com/OpenXT"
+
+# Optional mirror of upstream OpenEmbedded git repositories.
+OE_GIT_MIRROR=
+
+# Downloads needed for OpenXT build. Optionally replace with a local mirror.
+OPENXT_MIRROR="http://openxt.xci-test.com/mirror"
+
+# Used to construct build name.
+NAME_SITE="openxt"
+BUILD_TYPE="dev"
+
+# Disables bitbake's "rm_work" task. Leaves sources in build tree at end.
+INHIBIT_RMWORK="yes"
+
+# Uncomment for more verbose build output.
+#DEBUG="yes"
+
+# Certificates for signing OpenXT install/upgrade repositories:
+#
+#   - development CA cert, included in dom0 filesystem
+#   - development signing cert (child of CA cert) and private key
+#   - production CA cert, also included in dom0 filesystem
+#
+# Every build is signed by the development signing key. Release builds can
+# then be re-signed by the production signing key.
+#
+# TODO: Explain how to generate these files.
+REPO_PROD_CACERT=
+REPO_DEV_CACERT=
+REPO_DEV_SIGNING_CERT=
+REPO_DEV_SIGNING_KEY=
+
+# TODO: Add descriptions for:
+#   - BUILD_RSYNC_DESTINATION
+#   - FREEZE_URIS
+#   - NETBOOT_HTTP_URL
+#   - NEVER_GET_LOG
+#   - OE_BB_THREADS
+#   - OE_TARBALL_MIRROR

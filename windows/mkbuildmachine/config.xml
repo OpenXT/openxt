@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WinbuildConfig>
+  <!-- Important you leave this be! -->
+  <RebootCount>0</RebootCount>
+  <!-- Override locations if you want -->
+  <LogDir></LogDir>
+  <HelperDir></HelperDir>
+  <!-- Set these URLs to ones that make sense for you... -->
+  <HelperURL>http://git/cgit.cgi/xenclient/build-scripts.git/plain/windows/mkbuildmachine/</HelperURL>
+  <CygwinSrc>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/cygwin/setup.exe</CygwinSrc>
+  <CygwinMirror>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/cygwin/mirror</CygwinMirror>
+  <NSISSrc>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/nsis/nsis-2.23-setup.exe</NSISSrc>
+  <NSISZip>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/nsis/nsis-2.23-log.zip</NSISZip>
+  <WinDDK6001>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.6001.18002\unpacked</WinDDK6001>
+  <WinDDK701>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.7.1.0\unpacked</WinDDK701>
+  <WST>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/WinqualSubmissionTool/WinqualSubmissionTool.msi</WST>
+  <DotNet45>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/FrameWorks/dotNetFx45_Full_setup.exe</DotNet45>
+  <SQLSCE32>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/packages/SSCE40/SSCERuntime_x86-ENU</SQLSCE32>
+  <SQLSCE64>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/packages/SSCE40/SSCERuntime_x64-enu</SQLSCE64>
+  <VS2012P>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\visual_studio_2012_P</VS2012P>
+  <SDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\SDK</SDKWin8>
+  <WDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\WDK</WDKWin8>
+  <Wix>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/Wix/wix37.exe</Wix>
+  <CAPICOM>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/capicom.msi</CAPICOM>
+  <VS2012U4>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/VS2012.4.exe</VS2012U4>
+  <!-- These are the steps taken to create a build machine -->
+  <Steps>
+    <Step name="cygwin" helper="install-cygwin.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>CygwinSrc</Param>
+          <Param>CygwinMirror</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="NSIS" helper="install-nsis.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>NSISSrc</Param>
+          <Param>NSISZip</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="WinDDK-6001" helper="install-winddk-6001.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>WinDDK6001</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="WinDDK-7.1.0" helper="install-winddk-7.1.0.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>WinDDK701</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="WST" helper="install-wst.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>WST</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="Configure" helper="winbuild-configure.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="DotNet4.5" helper="install-framework-45.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>DotNet45</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="SQL Server Compact 4 x32" helper="install-SQLSCE32.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>SQLSCE32</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="SQL Server Compact 4 x64" helper="install-SQLSCE64.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>SQLSCE64</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="VS2012P" helper="install-vs2012P.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>VS2012P</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="MSMS" helper="install-msms.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>MSMSrc</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="SDKWin8" helper="install-sdk-win8.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>SDKWin8</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="WDKWin8" helper="install-wdk-win8.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>WDKWin8</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="Wix" helper="install-wix.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>Wix</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+    <Step name="CAPICOM 2.1.0.2" helper="install-capicom.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>CAPICOM</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="VS2012 Update 4" helper="install-VS2012U4.ps1">
+      <Run execute="true" command="Powershell">
+        <Parameters>
+          <Param>HelperDir</Param>
+          <Param>VS2012U4</Param>
+        </Parameters>
+      </Run>
+    </Step>
+    <Step name="REBOOT" />
+  </Steps>
+</WinbuildConfig>

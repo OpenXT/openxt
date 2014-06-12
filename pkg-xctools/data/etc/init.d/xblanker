@@ -1,0 +1,60 @@
+#! /bin/bash
+
+DAEMON=/usr/local/bin/xblanker
+prog=`basename ${DAEMON}`
+XBLANKER_OPTS=
+
+### BEGIN INIT INFO
+# Provides:		xblanker
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:
+# Short-Description:	xblanker
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+test -e ${DAEMON} || exit 0
+
+case "$1" in
+    start)
+        log_daemon_msg "Loading xc-xenfs module" "xenfs module"
+	if ! ( modprobe xc-xenfs ); then
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+	( mount -t xenfs nodev /proc/xen ; exit 0 )
+        log_daemon_msg "Starting xblanker daemon for XenClient" "xblanker"
+        if start-stop-daemon --start --quiet --oknodo --name ${prog} -b --exec ${DAEMON} -- ${XBLANKER_OPTS}; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+        ;;
+    stop)
+        log_daemon_msg "Stopping xblanker daemon for XenClient" "xblanker"
+        if start-stop-daemon --stop --quiet --oknodo --name ${prog} --exec ${DAEMON}; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+        ;;
+    restart|reload|force-reload)
+        log_daemon_msg "Restarting xblanker daemon for XenClient" "xblanker"
+        start-stop-daemon --stop --quiet --oknodo --name ${prog} --exec ${DAEMON} || log_end_msg 1
+        if start-stop-daemon --start --quiet --oknodo --name ${prog} -b --exec ${DAEMON} -- ${RPC_AGENT_OPTS}; then
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+        ;;
+    *)
+        log_action_msg "Usage: $0: {start|stop|restart|reload}"
+        exit 1
+        ;;
+esac
+
+exit 0
+

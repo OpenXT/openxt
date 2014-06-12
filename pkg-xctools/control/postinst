@@ -1,0 +1,255 @@
+#! /bin/bash
+
+set -e
+
+XENCLIENT_TOOLS="@XENCLIENT_TOOLS@"
+
+if [ -r /etc/redhat-release ] ; then
+    DISTRO=rhel
+else
+    DISTRO=debian
+fi
+
+if [ "${DISTRO}" = rhel -a "$(uname -m)" = x86_64 ] ; then
+    LIBDIR=/usr/lib64
+    LOCALLIBDIR=/usr/local/lib64
+else
+    LIBDIR=/usr/lib
+    LOCALLIBDIR=/usr/local/lib
+fi
+
+#
+# Deals with pv-drivers
+#
+NAME=xenclient-pv-drivers
+PACKAGE=${NAME}-dkms
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+
+# Usage: do_dkms_stage stage name version [kernel]
+do_dkms_stage()
+{
+    local stage="$1"
+    local pkg="$2"
+    local ver="$3"
+    local kernel="${4:+-k} $4"
+    local rpm_safe=
+
+    if [ "${DISTRO}" = rhel ] ; then
+        rpm_safe="--rpm_safe_upgrade"
+    fi
+
+    dkms $stage -m $pkg -v $ver $kernel $rpm_safe
+}
+
+pushd ${SRCS}
+    echo "${PACKAGE}-${VERSION} installing ..."
+
+    # RHEL/CentOS: equivalent is /etc/dracut.conf.d/xc-tools in the RPM.
+    if [ "${DISTRO}" = debian ] ; then
+        initrd_mod_file=/etc/initramfs-tools/modules
+        if [ -f $initrd_mod_file ]; then
+            for md in xc-ctxusb xc-v4v xc-netfront xc-blkfront xc-xenfs xc-xen; do
+                egrep -q "${md}\$" $initrd_mod_file || sed -i "1i${md}" $initrd_mod_file
+            done
+        fi
+    fi
+
+    do_dkms_stage add ${PACKAGE} ${VERSION}
+    do_dkms_stage build ${PACKAGE} ${VERSION}
+    do_dkms_stage install ${PACKAGE} ${VERSION}
+
+    if [ "${DISTRO}" = rhel ] ; then
+        # FIXME: Run dracut? dkms does this already - but not for all kernels?
+        :
+    else
+        update-initramfs -u -k all
+    fi
+
+    echo "${PACKAGE}-${VERSION} installed."
+
+    echo "${PACKAGE}-${VERSION} headers installing ..."
+    make install
+    echo "${PACKAGE}-${VERSION} headers installed."
+
+    modprobe xc-xen
+    modprobe xc-xenfs
+    modprobe xc-v4v
+    ( set +e; modprobe xc-ctxusb; exit 0 )
+popd
+
+
+#
+# Deals with xenmou
+#
+NAME=xenmou
+PACKAGE=${NAME}-dkms
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+
+pushd ${SRCS}
+    
+    echo "${PACKAGE}-${VERSION} installing ..."
+
+    do_dkms_stage add ${PACKAGE} ${VERSION}
+    do_dkms_stage build ${PACKAGE} ${VERSION}
+    do_dkms_stage install ${PACKAGE} ${VERSION}
+    echo "${PACKAGE}-${VERSION} installed."
+
+    modprobe xenmou
+popd
+
+#
+# Deals with xenstore-tools
+#
+NAME=xenstore-tools
+PACKAGE=${NAME}
+SRCS=/usr/src/${PACKAGE}-xc
+pushd ${SRCS}
+    echo "xenstore-tools building ..."
+    DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore libxenstore.so
+    DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore clients
+    ( cd tools/xenstore && cp -a libxenstore.so* "${LIBDIR}" )
+    ( cd tools/xenstore && cp xenstore.h xenstore_lib.h /usr/include )
+    ( cd tools/xenstore && cp -a xenstore xenstore-chmod xenstore-control xenstore-exists \
+       xenstore-list xenstore-ls xenstore-read xenstore-rm xenstore-watch xenstore-write /usr/bin/ )
+    tmp=`mktemp -d`
+    cp -r "/usr/include/xen" "${tmp}"
+    ( cd tools/include && cp -r xen /usr/include )
+    cp -r "${tmp}/xen/"* "/usr/include/xen"
+    rm -rf "${tmp}"
+    echo "xenstore-tools installed."
+popd
+
+#
+# Deals with libv4v
+#
+NAME=libv4v
+PACKAGE=${NAME}
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+pushd ${SRCS}
+    echo "${PACKAGE}-${VERSION} building ..."
+    ./autogen.sh
+    ./configure --prefix=/usr --libdir=${LIBDIR}
+
+    make install
+
+    if [ "${DISTRO}" = rhel ] ; then
+        /sbin/ldconfig
+    fi
+
+    echo "${PACKAGE}-${VERSION} installed."
+popd
+
+
+
+#
+# Deals with xblanker
+#
+NAME=xblanker
+PACKAGE=${NAME}
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+pushd ${SRCS}
+    echo "libxenstore building ..."
+    ./autogen.sh
+    ./configure
+    make install
+    echo "libxenstore installed."
+    if [ "${DISTRO}" = rhel ] ; then
+        # FIXME: Check priority on RHEL/CentOS. Needs to be after
+        # xenstore-agent?
+        /sbin/chkconfig --add xblanker
+    else
+        update-rc.d xblanker start 76 S .
+    fi
+popd
+
+
+#
+# Deals with xenstore-agent
+#
+NAME=xenstore-agent
+PACKAGE=${NAME}
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+pushd ${SRCS}
+    echo "${PACKAGE}-${VERSION} building ..."
+    make all
+
+    echo "${PACKAGE}-${VERSION} installing ..."
+    make install
+    echo "${PACKAGE}-${VERSION} installed."
+    if [ "${DISTRO}" = rhel ] ; then
+        # FIXME: Check priority on RHEL/CentOS.
+        /sbin/chkconfig --add xenstore-agent
+    else
+        update-rc.d xenstore-agent start 75 S .
+    fi
+popd
+
+#
+# Deals with xf86-video-vesa
+#
+NAME=xf86-video-vesa
+PACKAGE=${NAME}
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+if [ "${DISTRO}" = rhel ] ; then
+pushd ${SRCS}
+    echo "${PACKAGE}-${VERSION} building ..."
+    ./configure --libdir=${LOCALLIBDIR}
+    make
+
+    echo "${PACKAGE}-${VERSION} installing ..."
+    make install
+    mkdir -p /etc/X11/xorg.conf.d/
+    cp 13-xorg-modules-path.conf /etc/X11/xorg.conf.d/
+    echo "${PACKAGE}-${VERSION} installed."
+popd
+fi
+
+#
+# Fix text mode (remove bochs from the grub video list)
+#
+if [ -f /boot/grub/video.lst ]; then
+    sed -i'' -re 's/video_bochs//' '/boot/grub/video.lst'
+    update-grub
+fi
+(
+	set +e;
+	modprobe xc-xen; modprobe xc-xenfs; modprobe xc-v4v; modprobe xc-ctxusb;
+	chmod 0666 /dev/v4v_*;
+	exit 0
+)
+( set +e; mount -t xenfs nodev /proc/xen; exit 0 ) 
+
+## do it at next reboot
+##( set +e; /etc/init.d/xenstore-agent start; exit 0 )
+
+( set +e; /etc/init.d/xblanker start; exit 0 )
+
+XCT_MAJORVERSION=$(echo "${XENCLIENT_TOOLS}" | cut -d. -f1)
+XCT_MINORVERSION=$(echo "${XENCLIENT_TOOLS}" | cut -d. -f2)
+XCT_MICROVERSION=$(echo "${XENCLIENT_TOOLS}" | cut -d. -f3)
+XCT_BUILDVERSION=$(echo "${XENCLIENT_TOOLS}" | cut -d. -f4)
+
+cat <<EOF > "/usr/src/xenstore-agent-1.0/run-one-time.sh"
+#!/bin/sh
+
+export PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/local/bin"
+xenstore-exists attr || xenstore-write "attr"
+xenstore-exists "attr/PVAddons" || xenstore-write "attr/PVAddons" ""
+xenstore-write "attr/PVAddons/Installed"  "1"
+xenstore-write "attr/PVAddons/MajorVersion"  "${XCT_MAJORVERSION}"
+xenstore-write "attr/PVAddons/MinorVersion"  "${XCT_MINORVERSION}"
+xenstore-write "attr/PVAddons/MicroVersion"  "${XCT_MICROVERSION}"
+xenstore-write "attr/PVAddons/BuildVersion"  "${XCT_BUILDVERSION}"
+
+exit 0
+EOF
+
+chmod 755 "/usr/src/xenstore-agent-1.0/run-one-time.sh"
+
+exit 0

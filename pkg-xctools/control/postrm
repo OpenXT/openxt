@@ -1,0 +1,58 @@
+#! /bin/bash
+
+set +e
+
+if [ -r /etc/redhat-release ] ; then
+    DISTRO=rhel
+else
+    DISTRO=debian
+fi
+
+inc=/usr/include
+src=/usr/src
+bin=/usr/bin
+
+if [ "${DISTRO}" = rhel -a "$(uname -m)" = x86_64 ] ; then
+    lib=/usr/lib64
+    locallib=/usr/local/lib64
+else
+    lib=/usr/lib
+    locallib=/usr/local/lib
+fi
+
+# dkms cleans v4v-dkms, except postinst (make install)
+rm -rf ${inc}/linux/v4v_dev.h ${inc}/xen/v4v.h ${src}/v4v-dkms-1.0
+
+# libv4v is post-installed. Which means ...
+rm -rf ${src}/libv4v-1.0 ${lib}/libv4v{,_nointerposer}.{la,so,a} \
+       ${lib}/libv4v{,_nointerposer}-1.0* ${lib}/pkgconfig/libv4v.pc \
+       ${bin}/libv4v-config ${bin}/ttcp-v4v ${bin}/v4v-proxy ${bin}/viptables \
+       ${inc}/libv4v.h
+
+# xenstore-agent post-installed binary
+rm -f ${bin}/xs-agent
+rm -rf ${src}/xenstore-agent-1.0
+if [ "${DISTRO}" = debian ] ; then
+    update-rc.d -f xenstore-agent remove
+fi
+
+# xblanker post-installed binary
+rm -f /usr/local/bin/xblanker
+rm -rf ${src}/xblanker-1.0
+if [ "${DISTRO}" = debian ] ; then
+    update-rc.d -f xblanker remove
+fi
+
+# xf86-video-vesa post-installed binary
+if [ "${DISTRO}" = rhel ] ; then
+    rm -f ${locallib}/xorg/modules/drivers/vesa_drv.*
+    rm -rf ${src}/xf86-video-vesa-1.0
+    rm -r /etc/X11/xorg.conf.d/13-xorg-modules-path.conf
+fi
+
+# xenstore-tools-4.1 post-installed stuff
+rm -rf ${src}/xenstore-tools-xc ${inc}/xenstore_lib.h ${inc}/xenstore.h ${lib}/libxenstore*
+( cd ${bin} && rm -f xenstore xenstore-chmod xenstore-control xenstore-exists xenstore-list xenstore-ls xenstore-read xenstore-rm xenstore-watch xenstore-write )
+
+
+exit 0

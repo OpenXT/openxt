@@ -1,0 +1,2 @@
+# Allowing root to contact the X server, for xblanker to get the display resolution
+xhost +si:localuser:root

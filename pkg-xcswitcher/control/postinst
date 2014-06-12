@@ -1,0 +1,56 @@
+#! /bin/bash
+
+set -e
+
+XENCLIENT_SWITCHER="@XENCLIENT_TOOLS@"
+
+if [ -r /etc/redhat-release ] ; then
+    DISTRO=rhel
+else
+    DISTRO=debian
+fi
+
+if [ "${DISTRO}" = rhel -a "$(uname -m)" = x86_64 ] ; then
+    LIBDIR=/usr/lib64
+else
+    LIBDIR=/usr/lib
+fi
+
+#
+# Deals with xc-switcher
+#
+NAME=xc-switcher
+PACKAGE=${NAME}
+VERSION=1.0
+SRCS=/usr/src/${PACKAGE}-${VERSION}
+## does not work for squeeze
+if [[ ${deb_codename} != 'squeeze' ]]; then
+	pushd ${SRCS}
+	    echo "${PACKAGE}-${VERSION} building ..."
+	    if [ "${DISTRO}" = rhel ] ; then
+		make all
+	    else
+		make all LIBAPPINDICATOR=1
+	    fi
+	    echo "${PACKAGE}-${VERSION} installing ..."
+	    install -m 0755 xc-switcher-run /usr/bin/xc-switcher
+            sed -i "s|@LIBDIR@|${LIBDIR}|" /usr/bin/xc-switcher
+	    install -m 0755 xc-switcher /usr/bin/xc-switcher.bin
+	    [[ -d /etc/xdg/autostart ]] && \
+		cat - > /etc/xdg/autostart/xc-switcher.desktop <<EOFXC
+[Desktop Entry]
+Name=XCSwitcher
+Comment=XenClient VM switcher
+Exec=xc-switcher
+Terminal=false
+Type=Application
+NoDisplay=true
+NotShowIn=KDE;
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Component=general
+X-GNOME-Autostart-enabled=true
+X-Ubuntu-Gettext-Domain=xc-switcher
+EOFXC
+	    echo "${PACKAGE}-${VERSION} installed."
+	popd
+fi
