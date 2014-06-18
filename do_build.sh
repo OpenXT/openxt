@@ -1,6 +1,6 @@
 #! /bin/bash -e
 set -o pipefail
-STEPS="setupoe,xctools,initramfs,stubinitramfs,dom0,uivm,ndvm,nilfvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship,copy,extra_pkgs,packages_tree"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,nilfvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship,copy,extra_pkgs,packages_tree"
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
