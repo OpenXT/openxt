@@ -46,6 +46,7 @@
           <Param>BuildTag</Param>
           <Param>BuildBranch</Param>
           <Param>MSBuild</Param>
+          <Param>GitUrl</Param>
         </Parameters>
       </Run>
     </Step>
