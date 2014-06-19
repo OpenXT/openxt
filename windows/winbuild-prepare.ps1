@@ -18,7 +18,8 @@ function usage([string]$cmdinv)
     Write-Host $cmdinv ": Must supply config, tag and build args"
     Write-Host "Usage:"
     Write-Host "  config=<config-file>"
-    Write-Host "  build=<build-number>"
+    Write-Host "  branch=<build-branch> [optional, default is master]"
+    Write-Host "  build=<build-number> [optional]"
     Write-Host "  tag=<build-tag> [optional, default is no tag]" 
     Write-Host "  type=Release|Debug [optional, default is Release]"
     Write-Host "  developer=true|false [optional, default is false (i.e. release build)]"
@@ -85,7 +86,29 @@ function update-config-file($argtable)
     update-version-value -name "VerMicro" -value $versionValues["XC_TOOLS_MICRO"].replace('"', '')
     update-version-value -name "BuildNumber" -value $argtable["build"]
 
-    if ($argtable["tag"].Length -gt 0)
+    if ($argtable["branch"].Length -gt 0)
+    {
+        $ret = write-config-value -config $global:cfgfile -name "BuildBranch" -value $argtable["branch"]
+        if (!$ret)
+        {
+            throw "Failed to update config file with branch value!"
+        }
+    }
+    else
+    {
+        if ($argtable["tag"].Length -eq 0)
+        {
+            $ret = write-config-value -config $global:cfgfile -name "BuildBranch" -value "master"
+            if (!$ret)
+            {
+                throw "Failed to update config file with branch value!"
+            }
+        } else {
+            Write-Output "as you did not provide any branch we will use the tag value"
+        }
+    }
+
+    if (($argtable["tag"].Length -gt 0) -and ($argtable["branch"].Length -eq 0))
     {
         $ret = write-config-value -config $global:cfgfile -name "BuildTag" -value $argtable["tag"]
         if (!$ret)
@@ -473,7 +496,7 @@ if (($args.Length -eq 1) -and ($args[0].ToLower().CompareTo("--help") -eq 0))
     ExitWithCode -exitcode $global:failure
 }
 
-if (($args.Length -lt 2) -or ($args.Length -gt 11))
+if (($args.Length -lt 2) -or ($args.Length -gt 12))
 {
     usage -cmdinv $MyInvocation.MyCommand.Name
     ExitWithCode -exitcode $global:failure
