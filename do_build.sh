@@ -18,7 +18,6 @@ export HOME
 # make git not complain about user not being set
 export GIT_AUTHOR_NAME="Build user at `hostname`" 
 OE_BUILD_CACHE="$MISC_DIR/oe"
-OE_BB_THREADS=9
 BRANCH=master
 export HOME
 BUILD_UID=`id -u`
