@@ -1292,6 +1292,12 @@ do_xctools_win()
     local path="$1"
     local uid="$NAME"
 
+    if [ -z "${WIN_BUILD_OUTPUT}" ] ; then
+        echo "Error: WIN_BUILD_OUTPUT must be set in .config or passed in via" \
+             "the -w option." >&2
+        false
+    fi
+
     mkdir -p "$path"
     pushd "$path"
     
