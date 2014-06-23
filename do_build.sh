@@ -141,6 +141,24 @@ EOF
                 fi
         fi
 
+        if [ -z "$REPO_PROD_CACERT" ] ; then
+                echo "Error: REPO_PROD_CACERT must be set in .config." >&2
+                exit 1
+        fi
+
+        if [ -z "$REPO_DEV_CACERT" ] ; then
+                echo "Error: REPO_DEV_CACERT must be set in .config." >&2
+                exit 1
+        fi
+
+        local REPO_PROD_CACERT_PATH="$(resolve_path "$TOPDIR" "$REPO_PROD_CACERT")"
+        local REPO_DEV_CACERT_PATH="$(resolve_path "$TOPDIR" "$REPO_DEV_CACERT")"
+
+        check_repo_signing_file "$REPO_PROD_CACERT_PATH" \
+                "Production repository-signing CA certificate"
+        check_repo_signing_file "$REPO_DEV_CACERT_PATH" \
+                "Development repository-signing CA certificate"
+
         [ "x$ORIGIN_BRANCH" != "x" ] && branch="$ORIGIN_BRANCH"
 
         oedl="$OE_BUILD_CACHE/oe-download"
@@ -204,14 +222,6 @@ XEN_SRC_MD5SUM="${XEN_SRC_MD5SUM}"
 XEN_SRC_SHA256SUM="${XEN_SRC_SHA256SUM}"
 
 EOF
-
-                local REPO_PROD_CACERT_PATH="$(resolve_path "$TOPDIR" "$REPO_PROD_CACERT")"
-                local REPO_DEV_CACERT_PATH="$(resolve_path "$TOPDIR" "$REPO_DEV_CACERT")"
-
-                check_repo_signing_file "$REPO_PROD_CACERT_PATH" \
-                    "Production repository-signing CA certificate"
-                check_repo_signing_file "$REPO_DEV_CACERT_PATH" \
-                    "Development repository-signing CA certificate"
 
                 cat >> xenclient/conf/local.conf <<EOF
 # Production and development repository-signing CA certificates
@@ -1294,6 +1304,12 @@ do_xctools_win()
 {
     local path="$1"
     local uid="$NAME"
+
+    if [ -z "${WIN_BUILD_OUTPUT}" ] ; then
+        echo "Error: WIN_BUILD_OUTPUT must be set in .config or passed in via" \
+             "the -w option." >&2
+        false
+    fi
 
     mkdir -p "$path"
     pushd "$path"
