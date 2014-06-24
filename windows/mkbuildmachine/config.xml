@@ -11,7 +11,6 @@
   <CygwinMirror>http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/</CygwinMirror>
   <NSISSrc>http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe</NSISSrc>
   <NSISZip>http://prdownloads.sourceforge.net/nsis/nsis-2.46-log.zip</NSISZip>
-  <WinDDK6001>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.6001.18002\unpacked</WinDDK6001>
   <WinDDK701>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.7.1.0\unpacked</WinDDK701>
   <DotNet45>http://download.microsoft.com/download/B/A/4/BA4A7E71-2906-4B2D-A0E1-80CF16844F5F/dotNetFx45_Full_setup.exe</DotNet45>
   <SQLSCE32>http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x86-ENU.exe</SQLSCE32>
@@ -40,14 +39,6 @@
           <Param>HelperDir</Param>
           <Param>NSISSrc</Param>
           <Param>NSISZip</Param>
-        </Parameters>
-      </Run>
-    </Step>
-    <Step name="WinDDK-6001" helper="install-winddk-6001.ps1">
-      <Run execute="true" command="Powershell">
-        <Parameters>
-          <Param>HelperDir</Param>
-          <Param>WinDDK6001</Param>
         </Parameters>
       </Run>
     </Step>
