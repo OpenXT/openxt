@@ -285,7 +285,7 @@ function check-platform()
     Write-Output "Found WINDDK release notes: $reldst ..."
 
     #Certificate verification bits
-    $signtool = $ddkdir + "\bin\catalog\signtool.exe"
+    $signtool = $ddkdir + "\bin\x86\signtool.exe"
     try-command -command $signtool
     Write-Output "Found SIGNTOOL command ..."
 
