@@ -1,6 +1,10 @@
 #! /bin/bash -e
 set -o pipefail
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,nilfvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship,copy,extra_pkgs,packages_tree"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+# Additional steps:
+# copy: Copies the build output to a web/pxe server. See do_copy() for more details.
+# extra_pkgs: Builds a bunch of extra OpenEmbedded packages, that will be installable separately.
+# packages_tree: Adds the built packages to an OpenEmbedded repository pool, that uses hardlinks to save disk space.
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
