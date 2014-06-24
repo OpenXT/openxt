@@ -309,21 +309,7 @@ function check-platform()
         throw "Certificate `"$certname`" is due to expire VERY soon, failing build"
     }
 
-    # MS Wiqual is a 32bit app
-    #
-    $winqual = get-program-files-path32 -file "Microsoft Winqual Submission Tool"
-    if (!(Test-Path -Path $winqual -PathType Container))
-    {
-        $winqual = get-program-files-path32 -file "Microsoft Winqual Submission Tool 2"
-        if (!(Test-Path -Path $winqual -PathType Container))
-        {
-            throw "Check for WINQUAL failed, not present"
-        }        
-    }
-    $wstver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($winqual + "\WST.exe").FileVersion
-    Write-Output "Found WINQUAL version: $wstver ..."
-
-    try-command -command ($winqual + "\inf2cat.exe")
+    try-command -command ("inf2cat.exe")
     Write-Output "Found INF2CAT command ..."
 
     # For Visual Studio, just find the value that specifies the location of
