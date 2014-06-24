@@ -171,7 +171,7 @@ foreach($step in $xmlroot.Steps.ChildNodes)
             if($global:RebootCount -eq 0){
                 if ($step.helper.Length -gt 0)
                 {
-                    $HelperURL = $global:HelperURL + $step.helper + "?h=libre"
+                    $HelperURL = $global:HelperURL + $step.helper
                     log-info -info ("Downloading helper: " + $HelperURL)
 
                     #Download the helper file

@@ -257,7 +257,8 @@ function check-platform()
     $tmparr = @(0..1)
     $tmparr[0] = (Get-ItemProperty $nsiskey VersionMajor).VersionMajor
     $tmparr[1] = (Get-ItemProperty $nsiskey VersionMinor).VersionMinor
-    if (($tmparr[0] -ne 2) -or ($tmparr[1] -ne 23))
+    # NSIS Check we are running grater than 2.23
+    if (($tmparr[0] -ne 2) -or ($tmparr[1] -lt 23))
     {
         throw ("NSIS invalid version - major: " + $tmparr[0] + " minor: " + $tmparr[1])
     }

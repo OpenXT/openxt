@@ -33,5 +33,5 @@ $client.DownloadFile($download, $setup)
 # 5. Overwrite setup.ini and setup.bz2 in the root of the mirror with these new files.
 
 # Piping the output to Write-Host forces the script to wait for Cygwin and gives us nice logs
-& $setup -q -X -O -s $mirror | Write-Host
+& $setup -q -X -O -s $mirror -P "git,zip,unzip" | Write-Host
 

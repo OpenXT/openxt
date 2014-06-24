@@ -6,23 +6,24 @@
   <LogDir></LogDir>
   <HelperDir></HelperDir>
   <!-- Set these URLs to ones that make sense for you... -->
-  <HelperURL>http://git/cgit.cgi/xenclient/build-scripts.git/plain/windows/mkbuildmachine/</HelperURL>
-  <CygwinSrc>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/cygwin/setup.exe</CygwinSrc>
-  <CygwinMirror>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/cygwin/mirror</CygwinMirror>
-  <NSISSrc>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/nsis/nsis-2.23-setup.exe</NSISSrc>
-  <NSISZip>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/nsis/nsis-2.23-log.zip</NSISZip>
+  <HelperURL>https://raw.githubusercontent.com/OpenXT/openxt/master/windows/mkbuildmachine/</HelperURL>
+  <CygwinSrc>https://www.cygwin.com/setup-x86.exe</CygwinSrc>
+  <CygwinMirror>http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/</CygwinMirror>
+  <NSISSrc>http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe</NSISSrc>
+  <NSISZip>http://prdownloads.sourceforge.net/nsis/nsis-2.46-log.zip</NSISZip>
   <WinDDK6001>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.6001.18002\unpacked</WinDDK6001>
   <WinDDK701>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.7.1.0\unpacked</WinDDK701>
   <WST>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/WinqualSubmissionTool/WinqualSubmissionTool.msi</WST>
-  <DotNet45>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/FrameWorks/dotNetFx45_Full_setup.exe</DotNet45>
-  <SQLSCE32>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/packages/SSCE40/SSCERuntime_x86-ENU</SQLSCE32>
-  <SQLSCE64>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/visual_studio_2012_P/packages/SSCE40/SSCERuntime_x64-enu</SQLSCE64>
+  <DotNet45>http://download.microsoft.com/download/B/A/4/BA4A7E71-2906-4B2D-A0E1-80CF16844F5F/dotNetFx45_Full_setup.exe</DotNet45>
+  <SQLSCE32>http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x86-ENU.exe</SQLSCE32>
+  <SQLSCE64>http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x64-ENU.exe</SQLSCE64>
   <VS2012P>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\visual_studio_2012_P</VS2012P>
   <SDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\SDK</SDKWin8>
   <WDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\WDK</WDKWin8>
-  <Wix>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/Wix/wix37.exe</Wix>
-  <CAPICOM>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/capicom.msi</CAPICOM>
-  <VS2012U4>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/VS2012.4.exe</VS2012U4>
+  <Wix>"WixURLisNowHardcodedInInstall-wix.ps1"</Wix>
+  <CAPICOM>http://download.microsoft.com/download/7/7/0/7708ec16-a770-4777-8b85-0fcd05f5ba60/capicom_dc_sdk.msi</CAPICOM>
+  <VS2012U4>http://download.microsoft.com/download/D/4/8/D48D1AC2-A297-4C9E-A9D0-A218E6609F06/VSU4/VS2012.4.exe</VS2012U4>
+  <MSMSrc>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\visual_studio_2005_MSM\MSM_files\*</MSMSrc>
   <!-- These are the steps taken to create a build machine -->
   <Steps>
     <Step name="cygwin" helper="install-cygwin.ps1">

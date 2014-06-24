@@ -21,8 +21,8 @@ if (!($args.Length -ieq 3))
 }
 
 $folder =    ("{0}\nsis" -f $args[0])
-$setup =     ("{0}\nsis-2.23-setup.exe" -f $folder)
-$zip =       ("{0}\nsis-2.23-log.zip" -f $folder)
+$setup =     ("{0}\nsis-2.46-setup.exe" -f $folder)
+$zip =       ("{0}\nsis-2.46-log.zip" -f $folder)
 $download1 = $args[1]
 $download2 = $args[2]
 

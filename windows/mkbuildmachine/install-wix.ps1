@@ -7,7 +7,7 @@ if (!($args.Length -ieq 2))
 
 $folder = ("{0}\Wix" -f $args[0])
 $setup = ("{0}\wix.exe" -f $folder)
-$download = $args[1]
+$download = "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=20911"
 
 if ([IO.Directory]::Exists($folder))
 {
