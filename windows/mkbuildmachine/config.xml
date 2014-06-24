@@ -11,13 +11,11 @@
   <CygwinMirror>http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/</CygwinMirror>
   <NSISSrc>http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe</NSISSrc>
   <NSISZip>http://prdownloads.sourceforge.net/nsis/nsis-2.46-log.zip</NSISZip>
-  <WinDDK6001>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.6001.18002\unpacked</WinDDK6001>
   <WinDDK701>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\WinDDK.7.1.0\unpacked</WinDDK701>
-  <WST>http://www.cam.xci-test.com/xc_dist/winbuild/Version001/WinqualSubmissionTool/WinqualSubmissionTool.msi</WST>
   <DotNet45>http://download.microsoft.com/download/B/A/4/BA4A7E71-2906-4B2D-A0E1-80CF16844F5F/dotNetFx45_Full_setup.exe</DotNet45>
   <SQLSCE32>http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x86-ENU.exe</SQLSCE32>
   <SQLSCE64>http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x64-ENU.exe</SQLSCE64>
-  <VS2012P>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\visual_studio_2012_P</VS2012P>
+  <VS2012P>http://download.microsoft.com/download/1/3/1/131D8A8C-95D8-41D4-892A-1DF6E3C5DF7D/vs_premium.exe</VS2012P>
   <SDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\SDK</SDKWin8>
   <WDKWin8>\\stove.cam.xci-test.com\xc_dist\winbuild\Version001\SDK_WDK_Win8\WDK</WDKWin8>
   <Wix>"WixURLisNowHardcodedInInstall-wix.ps1"</Wix>
@@ -44,27 +42,11 @@
         </Parameters>
       </Run>
     </Step>
-    <Step name="WinDDK-6001" helper="install-winddk-6001.ps1">
-      <Run execute="true" command="Powershell">
-        <Parameters>
-          <Param>HelperDir</Param>
-          <Param>WinDDK6001</Param>
-        </Parameters>
-      </Run>
-    </Step>
     <Step name="WinDDK-7.1.0" helper="install-winddk-7.1.0.ps1">
       <Run execute="true" command="Powershell">
         <Parameters>
           <Param>HelperDir</Param>
           <Param>WinDDK701</Param>
-        </Parameters>
-      </Run>
-    </Step>
-    <Step name="WST" helper="install-wst.ps1">
-      <Run execute="true" command="Powershell">
-        <Parameters>
-          <Param>HelperDir</Param>
-          <Param>WST</Param>
         </Parameters>
       </Run>
     </Step>
