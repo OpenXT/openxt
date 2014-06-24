@@ -3,7 +3,7 @@
   <!-- Section 1: These nodes contain static values some of which are site specific -->
   <LogDir>logs</LogDir>
   <OutDir>output</OutDir>
-  <DdkDir>C:\WinDDK\6001.18002</DdkDir>
+  <DdkDir>C:\WinDDK\7600.16385.1</DdkDir>
   <VSDir>"C:\Program Files\Microsoft Visual Studio 11.0"</VSDir>
   <MSBuild>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</MSBuild>
   <GitUrl>git://github.com/OpenXT</GitUrl>
