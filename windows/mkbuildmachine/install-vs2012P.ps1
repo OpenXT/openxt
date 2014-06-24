@@ -1,6 +1,6 @@
 # arguments expected
 #   0: build directory
-#   1: cis/smb share
+#   1: URL
 
 if (!($args.Length -ieq 2))
 {
@@ -17,9 +17,10 @@ if ([IO.Directory]::Exists($folder))
 {
     [IO.Directory]::Delete($folder, $true)
 }
+[IO.Directory]::CreateDirectory($folder)
 
-# Copy this junk to avoid miserable moronic muppetry
-Copy-Item $download $folder -Recurse
+$client = New-Object System.Net.WebClient
+$client.DownloadFile($download, $setup)
 
 # Piping the output to Out-File forces the script to wait to for the command to finish before continuing - cunning eh...
 Write-Host "Installing VS2012 Premium"
