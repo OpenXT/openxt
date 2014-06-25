@@ -357,15 +357,6 @@ function check-platform()
     try-command -command $msbuild
     Write-Output "Found MSBUILD command ..."
 
-    # Check that the Studio 8.0 MSM files were copied
-    
-    $vc80crt = get-program-files-path32 -file "Common Files\Merge Modules\Microsoft_VC80_CRT_x86.msm"
-    if (!(Test-Path -Path $vc80crt -PathType Leaf))
-    {
-        throw "Check for VS8.0 MSMs failed, not installed"
-    }
-    Write-Output "Found VS8.0 MSMs ..."
-
     #Check for Win8 SDK
     $sdkKey = get-software-key-path32 -key "Microsoft\Microsoft SDKs\Windows\v8.0"
     $sdkDir = (Get-ItemProperty -Path $sdkKey).InstallationFolder
