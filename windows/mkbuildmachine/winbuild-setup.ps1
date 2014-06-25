@@ -246,4 +246,6 @@ foreach($step in $xmlroot.Steps.ChildNodes)
 
 Remove-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -name "Restart-And-Resume"
 log-info -info  ("Completed " + $cmdinv)
+Write-Host "Completed Installation of Tools - Press enter to exit"
+$null = Read-Host
 ExitWithCode -exitcode 0
