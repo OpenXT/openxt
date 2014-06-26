@@ -14,9 +14,11 @@ if ([IO.Directory]::Exists($folder))
 {
     [IO.Directory]::Delete($folder, $true)
 }
+[IO.Directory]::CreateDirectory($folder)
 
-# Copy this junk to avoid miserable moronic muppetry
-Copy-Item $download $folder -Recurse
+#Download files
+$client = new-object System.Net.WebClient
+$client.DownloadFile($download, $setup)
 
 Write-Host "Installing Windows 8 SDK"
 & $setup /q /norestart /Log $vs_log | Write-Host
