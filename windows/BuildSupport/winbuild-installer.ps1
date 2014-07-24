@@ -6,7 +6,6 @@ $dotNetURL = $argtable["dotNetURL"]
 
 #Set up web client to download stuff
 [System.Net.WebClient] $wclient = New-Object System.Net.WebClient
-$wclient.Proxy = $null
 
 # Create directory to store bootstrapper packages
 new-item -ItemType directory -Path ".\msi-installer\bootstrapper\packages" -Force
