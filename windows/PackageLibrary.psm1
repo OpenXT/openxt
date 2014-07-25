@@ -49,7 +49,7 @@ if ($arch -eq "AMD64") {
     $programFiles32 = ([System.Environment]::GetEnvironmentVariable("ProgramFiles"))
 }
 $nsisdest = $programFiles32 + "\NSIS"
-$pathelements = @( $nsisdest, "C:\cygwin\bin", "C:\WinDDK\7600.16385.1\bin\selfsign")
+$pathelements = @( $nsisdest, "C:\cygwin\bin", "C:\WinDDK\7600.16385.1\bin\selfsign", $programFiles32+"\Windows Kits\8.0\bin\x86")
 
 Function Test-NSIS {
   return (Test-Path ("$nsisdest\makensis.exe"))
@@ -122,7 +122,7 @@ function Test-DotNet45 {
   if (-Not (Test-Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full')) {
     return $false
   }
-  $instVerObject = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name "Version"
+  $instVerObject = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name "Version" -ErrorAction SilentlyContinue
   $instVer = [version]$instVerObject.Version
   return ($instVer -ge [version]"4.5")
 }
@@ -158,7 +158,7 @@ function Test-WDK8 {
   } else {
     $regPath = "HKLM:\Software\Microsoft\Windows Kits\WDK"
   }
-  $version = [version](Get-ItemProperty $regPath -name "WDKProductVersion").WDKProductVersion
+  $version = [version](Get-ItemProperty $regPath -name "WDKProductVersion" -ErrorAction SilentlyContinue).WDKProductVersion
   return ($version -ge [version]"8.59.29757")
 }
 
@@ -293,7 +293,7 @@ function Install-CAPICOM {
 }
 
 function Test-VS2012U4 {
-  $reg = (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | where {$_.DisplayName -like '*Visual Studio 2012 update 4*'})
+  $reg = ((Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue) | where {$_.DisplayName -like '*Visual Studio 2012 update 4*'})
   if ($reg.Installed -ne 1) {
     return $false
   }
