@@ -49,7 +49,7 @@ if ($arch -eq "AMD64") {
     $programFiles32 = ([System.Environment]::GetEnvironmentVariable("ProgramFiles"))
 }
 $nsisdest = $programFiles32 + "\NSIS"
-$pathelements = @( $nsisdest, "C:\cygwin\bin", "C:\WinDDK\7600.16385.1\bin\selfsign", "C:\Program Files\Windows Kits\8.0\bin\x86")
+$pathelements = @( $nsisdest, "C:\cygwin\bin", "C:\WinDDK\7600.16385.1\bin\selfsign", $programFiles32+"\Windows Kits\8.0\bin\x86")
 
 Function Test-NSIS {
   return (Test-Path ("$nsisdest\makensis.exe"))
