@@ -9,6 +9,12 @@ if (!(Test-Path -Path ".\msi-installer\iso\windows\setup.exe"))
 
 $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[$matches[1]] = $matches[2];}}
 $OutDir = $argtable["OutDir"]
+$zip = "$env:programfiles\7-zip\7z.exe"
+if (!(Test-Path -Path ("$zip") -PathType Leaf))
+{
+    Write-Host "7-zip not found at $zip, assuming 32-bit install on 64-bit Windows"
+    $zip = "$env:programfiles(x86)\7-zip\7z.exe"
+}
 
 #Create output directory
 New-Item -Path $outdir -Type Directory -Force > $null
@@ -16,45 +22,21 @@ Write-Host ("Created output directory: " + $outdir)
 
 # Zip some bad boys up
 Write-Host "Zipping up xc-windows build."
-& zip -r xc-windows xc-windows 2>&1
-if (!(Test-Path -Path "xc-windows.zip" -PathType Leaf))
-{
-	Write-Host ("Error: Check for xc-windows.zip failed.")
-	ExitWithCode -exitcode $global:failure
-}
-Move-Item -Path "xc-windows.zip" -Destination $outdir -Force
+& "$zip" a -bd "$OutDir\xc-windows.zip" xc-windows 2>&1
 
 Write-Host "Zipping up win-tools build."
-& zip -r win-tools win-tools 2>&1
-if (!(Test-Path -Path "win-tools.zip" -PathType Leaf))
-{
-	Write-Host ("Error: Check for win-tools.zip failed.")
-	ExitWithCode -exitcode $global:failure
-}
-Move-Item -Path "win-tools.zip" -Destination $outdir -Force
+& "$zip" a -bd "$OutDir\win-tools.zip" win-tools 2>&1
 
 Push-Location -Path "msi-installer\iso"
 Write-Host "Zipping up xctools-iso directory."
-& zip -r ../iso . 2>&1
-if (!(Test-Path -Path "..\iso.zip" -PathType Leaf))
-{
-	Write-Host ("Error: Check for iso.zip failed.")
-	ExitWithCode -exitcode $global:failure
-}
+& "$zip" a -bd "..\..\$OutDir\xctools-iso.zip" . 2>&1
 Pop-Location
-Move-Item -Path ".\msi-installer\iso.zip" -Destination ($outdir + "\xctools-iso.zip") -Force
 
 # Create sdk zip.
 Write-Host "Zipping up sdk directory."
 Push-Location -Path "sdk"
-& zip -r ../sdk . 2>&1
-if (!(Test-Path -Path "..\sdk.zip" -PathType Leaf))
-{
-	Write-Host ("Error: Check for sdk.zip failed.")
-	ExitWithCode -exitcode $global:failure
-}
+& "$zip" a -bd "..\$OutDir\sdk.zip"  . 2>&1
 Pop-Location
-Move-Item -Path ".\sdk.zip" -Destination ($outdir + "\sdk.zip") -Force
 
 if (!(Test-Path -Path ($outdir + "\xc-windows.zip") -PathType Leaf))
 {
