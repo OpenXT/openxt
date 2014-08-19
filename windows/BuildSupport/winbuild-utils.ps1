@@ -93,10 +93,11 @@ function parse-version-string([string]$strver)
              $result[0].Groups[4].Value)
 }
 
+# Now we use Start-Transcript for logging we don't need this but keep it 
+# for now until all the calls have been replaced with Write-Host commands
 function log-info([string]$info)
 {
     Write-Host $info
-    Add-Content -Path $global:logfile -Value $info
 }
 
 function log-script-end()
@@ -113,10 +114,11 @@ function log-info-wrap([string]$info)
 	log-info -info "--------------------------------------------------------"
 }
 
+# Now we use Start-Transcript for logging we don't need this but keep it 
+# for now until all the calls have been replaced with Write-Host commands
 function log-error([string]$err)
 {
     Write-Host $err
-    Add-Content -Path $global:logfile -Value ("ERROR: " + $err)
 }
 
 function execute-log-and-out([string]$command)
@@ -124,7 +126,6 @@ function execute-log-and-out([string]$command)
        $out = Invoke-Expression $command #Do the command
        #Write-Host $out #To stdout
        $out | Foreach-Object {$_.ToString()} | Write-Host
-       $out | Foreach-Object {$_.ToString()} | Out-File $global:logfile -Append -Encoding ASCII #To Log
                
 }
 
@@ -156,8 +157,11 @@ function common-init([string]$cmdinv)
     {
         New-Item -Path $global:logdir -Type Directory -Force
     }
-    $global:logfile = $global:logdir + "\" + $cmdinv + ".log"
-
+    $ts = get-date -uformat "%Y-%m-%d-%H%M%S"
+    $global:logfile = $global:logdir + "\" + $cmdinv + "_"+ $ts +".log"
+    Write-Host "Logging to [$global:logfile]"
+    Start-Transcript $global:logfile
+    Write-Host "Logging started to [$global:logfile]"
     # Trace out a basic log header
     log-info -info "--------------------------------------------------------"
     log-info -info ("Windows Build Log - " + (Get-Date))

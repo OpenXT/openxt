@@ -246,8 +246,6 @@ function check-platform()
     $cygver = & uname -r
     Write-Output ("Found CYGWIN version: $cygver rootdir: $cygdir ...")
 
-    try-command -command "git"
-    Write-Output "Found GIT command ..."
 
     try-command -command "unzip"
     Write-Output "Found UNZIP command ..."
@@ -458,11 +456,6 @@ function winbuild-main([string]$cmdinv, $argtable)
     # Do a platform sanity check
     check-platform
 
-    #Output the contents of the newly generated config file
-    Write-Output ("Contents of newly generated config file:`n" + $global:cfgfile)
-    $readConfig = Get-Content $global:cfgfile
-    $readConfig = ([string]::Join([Environment]::NewLine, $readConfig))
-    Write-Output $readConfig
 }
 
 #########################################################

@@ -4,6 +4,12 @@
 $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[$matches[1]] = $matches[2];}}
 $dotNetURL = $argtable["dotNetURL"]
 
+$setupFile = ".\xc-windows\install\xensetup.exe"
+if (!(Test-Path -Path $setupFile)) {
+    throw "$setupFile not found"
+}
+
+
 #Set up web client to download stuff
 [System.Net.WebClient] $wclient = New-Object System.Net.WebClient
 
@@ -13,21 +19,20 @@ new-item -ItemType directory -Path ".\msi-installer\bootstrapper\packages" -Forc
 # Download dotNet installer
 Write-Host ("Downloading dotNet from $dotNetURL")
 $wclient.DownloadFile($dotNetURL, "./msi-installer/iso/windows/dotNetFx40_Full_x86_x64.exe")
-if (!(Test-Path -Path "./msi-installer/iso/windows/dotNetFx40_Full_x86_x64.exe"))
-{
-	Write-Host ("Error: Failed to download: dotNetFx40_Full_x86_x64.exe")
-	Write-Host ("Will try once more & once more only.")
-        $wclient.DownloadFile($dotNetURL, "./msi-installer/iso/windows/dotNetFx40_Full_x86_x64.exe")
+if (-Not ($?)) {
+    throw "DotNet download failed"
 }
 
 if (!(Test-Path -Path "./msi-installer/iso/windows/dotNetFx40_Full_x86_x64.exe"))
 {
-	Write-Host ("Error: Failed to download: dotNetFx40_Full_x86_x64.exe both times! Giving up.")
-	ExitWithCode -exitcode $global:failure
+    throw ("Error: Failed to download: dotNetFx40_Full_x86_x64.exe; file did not appear")
 }
 
 # Move the newly compiled xensetup package to the packages directory
-Copy-Item .\xc-windows\install\xensetup.exe .\msi-installer\bootstrapper\packages -Force -V
+Copy-Item $setupFile .\msi-installer\bootstrapper\packages -Force -V
+if (-Not ($?)) {
+    throw "Unable to copy xensetup.exe"
+}
 
 # Create directory to store the necessary merge modules
 new-item -ItemType directory -Path ".\msi-installer\installer\Modules" -Force
