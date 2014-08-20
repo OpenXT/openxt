@@ -275,7 +275,7 @@ function Test-Wix {
 
 function Install-Wix {
   $wix = $env:temp +'\wix.exe' 
-  PerformDownload "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=20911" $wix
+  PerformDownload "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=20928" $wix
   Invoke-CommandChecked $wix -passive
 } 
 
