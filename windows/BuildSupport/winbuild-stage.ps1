@@ -9,11 +9,11 @@ if (!(Test-Path -Path ".\msi-installer\iso\windows\setup.exe"))
 
 $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[$matches[1]] = $matches[2];}}
 $OutDir = $argtable["OutDir"]
-$zip = "$env:programfiles\7-zip\7z.exe"
+$zip = "${env:programfiles}\7-zip\7z.exe"
 if (!(Test-Path -Path ("$zip") -PathType Leaf))
 {
     Write-Host "7-zip not found at $zip, assuming 32-bit install on 64-bit Windows"
-    $zip = "$env:programfiles(x86)\7-zip\7z.exe"
+    $zip = "${env:programfiles(x86)}\7-zip\7z.exe"
 }
 
 #Create output directory
