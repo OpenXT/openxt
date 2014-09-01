@@ -307,9 +307,6 @@ function check-platform()
         throw "Certificate `"$certname`" is due to expire VERY soon, failing build"
     }
 
-    try-command -command ("inf2cat.exe")
-    Write-Output "Found INF2CAT command ..."
-
     # For Visual Studio, just find the value that specifies the location of
     # devenv.exe and try to run it. If this needs to be extended, checks
     # for C++ and C# can be added.
