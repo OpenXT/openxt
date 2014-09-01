@@ -25,6 +25,7 @@ function usage([string]$cmdinv)
     Write-Host "  developer=true|false [optional, default is false (i.e. release build)]"
     Write-Host "  certname=<signing-certificate-name> [optional]"
     Write-Host "  license=<license-text-file> [optional]"
+    Write-Host "  giturl=<git repos URL> [optional]"
 }
 
 function update-version-value($name, $value)
@@ -208,6 +209,16 @@ function update-config-file($argtable)
         {
             throw "Failed to update config file with VS path (32bit) - value: $vsdir"
         }
+    }
+
+    if ($argtable["giturl"].Length -gt 0) 
+    {
+        $ret = write-config-value -config $global:cfgfile -name "GitUrl" -value $argtable["giturl"]
+        if (!$ret)
+        {
+            throw ("Failed to update config file with giturl! - value: " + $argtable["giturl"])
+        }
+         
     }
 }
 
