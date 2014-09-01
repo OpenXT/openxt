@@ -79,20 +79,7 @@ foreach($step in $xmlroot.Steps.ChildNodes)
 
     if ($doclone) {
        $gitsrc = $giturl + "/" + $step.name +  ".git"
-       # If a local reference repo exists, use that for the clone to speed things up
-       if(Test-Path -Path ("../../reference/" + $step.name +  ".reference")){
-           Write-Host "Cloning: " + $gitsrc + " To: " + $gitdst + " via reference repo"
-           & $gitbin clone -n --reference ("../../reference/" + $step.name +  ".reference") $gitsrc  | Out-Host
-       }else{
-           Write-Host "Cloning:" $gitsrc  " To: "  $gitdst
-           & $gitbin clone -n $gitsrc | Out-Host
-       }
-
-       # Check everything went okay
-       if($LastExitCode -ne $global:success)
-       {
-           throw "unable to clone "+$gitsrc+" exit code $LastExitCode"
-       }
+       Invoke-CommandChecked "git clone $gitsrc" $gitbin clone -n $gitsrc
        
        # If a branch has been specified in the config, checkout HEAD of that branch over tag info
        if ($branch.Length -gt 0)
