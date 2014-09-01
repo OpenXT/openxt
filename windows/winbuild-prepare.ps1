@@ -63,12 +63,14 @@ function update-config-file($argtable)
     Write-Output "Version File Contents:"
     $versionValues | Out-String | Write-Output
 
-    # This argument has to be here as it is mandatory
+    # This argument has to be here as it is used to calculate values we need
     if ($argtable["build"].Length -lt 1)
     {
         throw "No build number value specified in the input!"
     }
-
+    if (($argtable["branch"] -gt 0) -and ($argtable["tag"] -gt 0)) {
+        throw "Specify either branch $branch or tag $tag but not both"
+    }
     # The Windows tools build number is truncated from the XenClient
     # build number using the following arguments. Note if the Windows
     # build number is explicitly used, it will pass through the following
@@ -95,31 +97,14 @@ function update-config-file($argtable)
             throw "Failed to update config file with branch value!"
         }
     }
-    else
-    {
-        if ($argtable["tag"].Length -eq 0)
-        {
-            $ret = write-config-value -config $global:cfgfile -name "BuildBranch" -value "master"
-            if (!$ret)
-            {
-                throw "Failed to update config file with branch value!"
-            }
-        } else {
-            Write-Output "as you did not provide any branch we will use the tag value"
-        }
-    }
 
-    if (($argtable["tag"].Length -gt 0) -and ($argtable["branch"].Length -eq 0))
+    if ($argtable["tag"].Length -gt 0)
     {
         $ret = write-config-value -config $global:cfgfile -name "BuildTag" -value $argtable["tag"]
         if (!$ret)
         {
             throw "Failed to update config file with tag value!"
         }
-    }
-    else
-    {
-        Write-Output "Config not using build tag in build."
     }
 
     $ret = write-config-value -config $global:cfgfile -name "VerString" -value (get-version-string)
