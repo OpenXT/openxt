@@ -75,56 +75,39 @@ foreach($step in $xmlroot.Steps.ChildNodes)
          }
     } else {
          $doclone = $false
+	 Write-Host "Clone disabled for $step.name"
     }
 
     if ($doclone) {
        $gitsrc = $giturl + "/" + $step.name +  ".git"
-       # If a local reference repo exists, use that for the clone to speed things up
-       if(Test-Path -Path ("../../reference/" + $step.name +  ".reference")){
-           Write-Host "Cloning: " + $gitsrc + " To: " + $gitdst + " via reference repo"
-           & $gitbin clone -n --reference ("../../reference/" + $step.name +  ".reference") $gitsrc  | Out-Host
-       }else{
-           Write-Host "Cloning:" $gitsrc  " To: "  $gitdst
-           & $gitbin clone -n $gitsrc | Out-Host
-       }
-
-       # Check everything went okay
-       if($LastExitCode -ne $global:success)
-       {
-           throw "unable to clone "+$gitsrc+" exit code $LastExitCode"
-       }
+       Invoke-CommandChecked "git clone $gitsrc" $gitbin clone -n $gitsrc
        
        # If a branch has been specified in the config, checkout HEAD of that branch over tag info
        if ($branch.Length -gt 0)
        {
            Push-Location -Path $step.name
            log-info -info ("Checking out: " + $branch + " For: " + $step.name)
-	   & $gitbin fetch origin | Out-Host
+	   Invoke-CommandChecked "git fetch origin" $gitbin fetch origin
+	   & $gitbin checkout $branch | Out-Host
 	   if ($LastExitCode -ne 0) {
-               throw "unable to fetch in $step.name"
-           }
-           if ($branch.CompareTo("master") -eq 0) {
-               & $gitbin checkout -q $branch | Out-Host
-           } else {
-               & $gitbin checkout -q origin/$branch -b $branch | Out-Host
-               #If error, just do a checkout defaulted to master
-               if($LastExitCode -ne 0){
-		    & gitbin checkout -q -b $branch | Out-Host
-               }
-           }
-           
+	       Write-Host "git checkout $branch failed; using master"
+	       Invoke-CommandChecked "git checkout master" $gitbin checkout master
+           }            
            Pop-Location
        }elseif ($tag.Length -gt 0)
        {
            Push-Location -Path $step.name
            Write-Host ("Checking out: " + $tag + " For: " + $step.name)
-		& $gitbin checkout -q -b $tag $tag | Out-Host
-		if ($LastExitCode -ne 0) {
-		    throw "unable to checkout tag $tag for $step.name"
-           }
-           Pop-Location
+	   Invoke-CommandChecked "git checkout tag" $gitbin checkout $tag
+	   Pop-Location
        } else {
-	        throw "Need either tag or branch"
+	   throw "Need either tag or branch"
+       }
+
+       if (!(Test-Path $gitdst)) {
+           throw "$gitdst missing after clone"
+       } else {
+           Write-Host "$gitdst exists"
        }
    }
 
