@@ -95,7 +95,7 @@ do_sim()
         mkdir -p "$path"
         pushd "$path"
 
-        git_clone "xc-test" "$OPENXT_GIT_MIRROR/xc-test.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
+        git_clone "xc-test" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xc-test.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
 
         pushd "xc-test/xc-sim"
 
@@ -121,7 +121,7 @@ do_oe_setup()
         mkdir -p "$path"
         pushd "$path" > /dev/null
 
-        git_clone "oe" "$OPENXT_GIT_MIRROR/xenclient-oe.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
+        git_clone "oe" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
 
         pushd "oe" > /dev/null
 
@@ -129,8 +129,8 @@ do_oe_setup()
 
         if [ ! -f "local.settings" ]; then
                 cat > local.settings <<EOF
-META_SELINUX_REPO=$OPENXT_GIT_MIRROR/meta-selinux.git
-EXTRA_REPO=$OPENXT_GIT_MIRROR/xenclient-oe-extra.git
+META_SELINUX_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/meta-selinux.git
+EXTRA_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe-extra.git
 EXTRA_DIR=extra
 EXTRA_TAG="$BRANCH"
 EOF
@@ -1053,7 +1053,7 @@ do_sdk()
 	mkdir -p ${workdir}/openxt-sdk/
 
 	echo "Clone xenclient/sdk.git"
-	git_clone "${workdir}/openxt-sdk" "$OPENXT_GIT_MIRROR/sdk.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
+	git_clone "${workdir}/openxt-sdk" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/sdk.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
 
 	echo "Get the windows stuff"
 	if [ -e  "$xct/sdk.zip" ];
