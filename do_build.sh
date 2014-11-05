@@ -453,8 +453,8 @@ do_oe_syncui_copy()
         local path="$1"
         pushd "$path/oe"
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
-        cp tmp-eglibc/deploy/tar/sync-wui-git-*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
-        cp tmp-eglibc/deploy/tar/sync-wui-sources-git-*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
+        cp tmp-eglibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
+        cp tmp-eglibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
         popd
 }
 
