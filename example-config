@@ -2,7 +2,8 @@
 BRANCH="master"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
-OPENXT_GIT_MIRROR="git://github.com/OpenXT"
+OPENXT_GIT_MIRROR="github.com/OpenXT"
+OPENXT_GIT_PROTOCOL="git"
 
 # Optional mirror of upstream OpenEmbedded git repositories.
 OE_GIT_MIRROR=
