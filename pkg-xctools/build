@@ -26,7 +26,7 @@ make_bundle_xctools()
 
     # libv4v
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_MIRROR}/v4v.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/v4v.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/libv4v ${deb_data}/usr/src/libv4v-1.0
     mkdir -p ${deb_data}/usr/src/libv4v-1.0/src/linux/ && cp git-tmp/v4v/linux/v4v_dev.h ${deb_data}/usr/src/libv4v-1.0/src/linux/
     rm -rf git-tmp
@@ -36,7 +36,7 @@ make_bundle_xctools()
     local PDST_DIR="${deb_data}/usr/src/xenclient-pv-drivers-dkms-1.0"
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
-    git_clone $PTMP_DIR "${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     pushd $PTMP_DIR
         rm -rf .git
 	rm -f .gitignore
@@ -52,7 +52,7 @@ make_bundle_xctools()
 
     # xenmou
     mkdir -p xenmou_install
-    git_clone  xenmou_install "${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone  xenmou_install "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     pushd xenmou_install/xenmou/
         mkdir -p ${deb_data}/usr/src/xenmou-dkms-1.0
         cp -r dkms.conf Makefile *.h *.c ${deb_data}/usr/src/xenmou-dkms-1.0
@@ -91,20 +91,20 @@ make_bundle_xctools()
 
     # xenstore-agent
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_MIRROR}/manager.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/manager.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/linuxtools/xenstore-agent ${deb_data}/usr/src/xenstore-agent-1.0
     rm -rf git-tmp
 
     # xblanker
     rm -rf "${deb_data}/usr/src/xblanker-1.0"
     mkdir -p "${deb_data}/usr/src/xblanker-1.0"
-    git_clone "${deb_data}/usr/src/xblanker-1.0" "${OPENXT_GIT_MIRROR}/xblanker.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "${deb_data}/usr/src/xblanker-1.0" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/xblanker.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     rm -rf "${deb_data}/usr/src/xblanker-1.0/.git"
 
     # xf86-video-vesa
     rm -rf "${deb_data}/usr/src/xf86-video-vesa-1.0"
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/xf86-video-vesa-2.3.2 ${deb_data}/usr/src/xf86-video-vesa-1.0
     rm -rf git-tmp
 

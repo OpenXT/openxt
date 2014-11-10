@@ -19,7 +19,7 @@ make_bundle_xcswitcher()
     # Default control files for the bundle.
     cp -rTf ${BUILD_SCRIPTS}/pkg-xcswitcher/control ${deb_control}
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/xc-switcher ${deb_data}/usr/src/xc-switcher-1.0
     rm -rf git-tmp
     mkdir -p  ${deb_data}/usr/share/xc-switcher/
