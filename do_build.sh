@@ -265,7 +265,7 @@ EOF
 	    OPTS=""
 	fi
 
-	./setup_build $OPTS
+	${TOPDIR}/setup_build $OPTS
 
         popd > /dev/null
         popd > /dev/null

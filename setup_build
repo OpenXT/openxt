@@ -1,0 +1,137 @@
+#!/bin/bash
+#
+# Copyright (c) 2014 Citrix Systems, Inc.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+set -e
+
+# This script sets up a build environment for building
+# XenClient using OpenEmbedded.
+
+# Usage: ./setup_build
+
+# See README file for details.
+# See COPYING file for license.
+
+# Default configuration section
+# Do not edit this, override in local.settings instead e.g.
+# if you have local copies of the repositories
+
+usage()
+{
+        echo "$0: [-v]"
+}
+
+
+while [ "$#" -ne 0 ]; do
+        case "$1" in
+                -v) set -x; shift 1;;
+                --) shift ; break ;;
+                -*) usage ; exit 1;;
+	        *) break ;;
+        esac
+done
+
+
+BITBAKE_REPO=git://git.openembedded.org/bitbake.git
+# maybe use something more "release-like"
+BITBAKE_TAG=f8bf4499549f978ce7c93bc088a66f74cd751e2c
+
+OE_CORE_REPO=git://git.openembedded.org/openembedded-core
+OE_CORE_TAG=5433da972f2994f7176597d89499ccb65f876f88
+
+META_OE_REPO=git://git.openembedded.org/meta-openembedded
+META_OE_TAG=24e1ebc21da20240a41984b7f5c90aa9bd65a7e8
+
+META_JAVA_REPO=https://github.com/woglinde/meta-java.git
+META_JAVA_TAG=5d528acac0eab6cfaa4ed3c290c7db3acd5047bf
+
+META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
+META_SELINUX_TAG=8e952c7da126d30f4aecb33abd3ef9252785cb40
+
+# End of configuration
+
+die() {
+    echo "FATAL: $*"
+    exit 1
+}
+
+# Usage: getgit LOCALDIR REPO TAG
+getgit() {
+    rm -rf "$1.tmp"
+    [ -d "$1" ] && return
+    git clone -n $2 "$1.tmp" || die "Clone repo failed: $2"
+
+    pushd "$1.tmp"
+    set +e
+    git checkout $3 2> /dev/null || git checkout -b $3 origin/$3
+
+    current_branch=`git branch | grep -e ^* | cut -d ' ' -f2-`
+    if [ "$current_branch" != "$3" ]; then
+        git checkout -b $3
+    fi
+    set -e
+    popd
+    mv "$1.tmp" "$1"
+}
+
+OE_XENCLIENT_DIR=`pwd`
+export OE_XENCLIENT_DIR
+
+[ -f "$OE_XENCLIENT_DIR/local.settings" ] && . "$OE_XENCLIENT_DIR/local.settings"
+
+REPOS=$OE_XENCLIENT_DIR/repos
+if [ "$1" != "env" ]; then
+  mkdir -p $REPOS || die "Could not create local build dir"
+
+  getgit $REPOS/bitbake $BITBAKE_REPO $BITBAKE_TAG
+  for p in `pwd`/patches/bitbake/*.patch; do
+      if [ ! -f "$p.APPLIED" ]; then
+        echo "Applying BitBake patch: $p"
+	pushd $REPOS/bitbake
+        git apply $p || true
+	popd
+	touch "$p.APPLIED"
+      fi
+  done
+  getgit $REPOS/openembedded-core $OE_CORE_REPO $OE_CORE_TAG
+  getgit $REPOS/meta-openembedded $META_OE_REPO $META_OE_TAG
+  getgit $REPOS/meta-java $META_JAVA_REPO $META_JAVA_TAG
+  getgit $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
+  if [ ! -z "$EXTRA_DIR" ]; then
+    getgit $REPOS/$EXTRA_DIR $EXTRA_REPO $EXTRA_TAG
+  fi
+fi
+
+if [ ! -e $OE_XENCLIENT_DIR/xenclient/conf/local.conf ]; then
+  ln -s $OE_XENCLIENT_DIR/xenclient/conf/local.conf-dist \
+      $OE_XENCLIENT_DIR/xenclient/conf/local.conf
+fi
+
+BBPATH=$OE_XENCLIENT_DIR/xenclient:$REPOS/openembedded:$OE_XENCLIENT_DIR/oe-addons
+if [ ! -z "$EXTRA_DIR" ]; then
+  BBPATH=$REPOS/$EXTRA_DIR:$BBPATH
+fi
+
+cat > oeenv <<EOF 
+OE_XENCLIENT_DIR=$OE_XENCLIENT_DIR
+PATH=$OE_XENCLIENT_DIR/repos/bitbake/bin:\$PATH
+BBPATH=$BBPATH
+BB_ENV_EXTRAWHITE="OE_XENCLIENT_DIR MACHINE GIT_AUTHOR_NAME EMAIL"
+
+export OE_XENCLIENT_DIR PATH BBPATH BB_ENV_EXTRAWHITE
+EOF
