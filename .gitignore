@@ -1,3 +1,12 @@
 misc/*
-build/*
+build/bitbake.lock
+build/conf/local.conf
+build/conf/sanity_info
+build/local.settings
+build/manifest
+build/oe
+build/oeenv
+build/pseudodone
+build/repos
+build/tmp-eglibc
 build-output/*

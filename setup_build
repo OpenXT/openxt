@@ -99,7 +99,7 @@ if [ "$1" != "env" ]; then
   mkdir -p $REPOS || die "Could not create local build dir"
 
   getgit $REPOS/bitbake $BITBAKE_REPO $BITBAKE_TAG
-  for p in `pwd`/patches/bitbake/*.patch; do
+  for p in `pwd`/oe/patches/bitbake/*.patch; do
       if [ ! -f "$p.APPLIED" ]; then
         echo "Applying BitBake patch: $p"
 	pushd $REPOS/bitbake
@@ -117,12 +117,12 @@ if [ "$1" != "env" ]; then
   fi
 fi
 
-if [ ! -e $OE_XENCLIENT_DIR/xenclient/conf/local.conf ]; then
-  ln -s $OE_XENCLIENT_DIR/xenclient/conf/local.conf-dist \
-      $OE_XENCLIENT_DIR/xenclient/conf/local.conf
+if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
+  ln -s $OE_XENCLIENT_DIR/conf/local.conf-dist \
+      $OE_XENCLIENT_DIR/conf/local.conf
 fi
 
-BBPATH=$OE_XENCLIENT_DIR/xenclient:$REPOS/openembedded:$OE_XENCLIENT_DIR/oe-addons
+BBPATH=$OE_XENCLIENT_DIR/oe/xenclient:$REPOS/openembedded:$OE_XENCLIENT_DIR/oe-addons
 if [ ! -z "$EXTRA_DIR" ]; then
   BBPATH=$REPOS/$EXTRA_DIR:$BBPATH
 fi
