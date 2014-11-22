@@ -56,5 +56,19 @@ if (!(Test-Path -Path ($outdir + "\sdk.zip") -PathType Leaf))
 	ExitWithCode -exitcode $global:failure
 }
 
+# Create an ISO if genisoimage is available
+if (Get-Command "genisoimage.exe" -ErrorAction SilentlyContinue) 
+{
+	Write-Host "Creating Windows tools ISO."
+	Push-Location -Path "msi-installer\iso"
+	& genisoimage -R -J -joliet-long -o "..\..\$Outdir\xc-wintools.iso" -V "OpenXT-wintools" . 2>&1	
+	Pop-Location
+	if (!(Test-Path -Path ($outdir + "\xc-wintools.iso") -PathType Leaf))
+	{
+		Write-Host "Error: Check for xc-wintools.iso failed. Build unsuccessful."
+		ExitWithCode -exitcode $global:failure
+	}
+}
+
 Write-Host ("Completed " + $cmdinv)
 ExitWithCode -exitcode $global:success

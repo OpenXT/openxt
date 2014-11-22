@@ -1259,7 +1259,7 @@ xctools_iso_from_zip()
 #    local pkgdir="$OE_BUILD_CACHE/oe-archive/$ORIGIN_BRANCH/all"
 #    local linuxtools_ipk=$pkgdir/`grep "^Filename: xenclient-linuxtools_" $pkgdir/Packages | head -n1 | sed 's/^Filename: //'`
     local raw="$OUTPUT_DIR/$NAME/raw"
-    local label="XenClient-tools"
+    local label="OpenXT-tools"
     local isodir="xc-tools-tmp/linux"
 
 #    echo "Linuxtools IPK is $linuxtools_ipk"
