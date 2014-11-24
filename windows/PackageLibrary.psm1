@@ -93,7 +93,7 @@ function Test-Cygwin {
 function Install-Cygwin {
   cd $env:temp
   $cygwinsetup = ("{0}\setup-x86.exe" -f $env:temp)
-  PerformDownload "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "EA-2A-23-22-CC-CE-15-AF-2B-68-B3-6F-05-43-F2-63-52-94-22-BA-F4-14-80-D4-F9-6B-32-0A-55-28-9D-71"
+  PerformDownload "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "7C-B9-5D-A9-6E-DD-A3-11-54-D4-0A-47-02-FA-A4-7A-CF-F4-13-99-5A-84-5C-0C-39-9C-1E-48-4E-80-9D-24"
   # Ideally we would like to run the cygwin installer with something like the following package list:   
   #  -P "vim,git,rsync,zip,unzip,libiconv,guilt,openssh"
   # Unfortunately doing this with the -q silent option does not work. The workaround is to do the following:
@@ -105,7 +105,7 @@ function Install-Cygwin {
 
   # NOTE:  Looks like the issue above might have been due to picking a mirror and resolved by 
   #        -O and -s below.  Need to make sure git, zip, and unzip are the only packages needed.
-  Invoke-CommandChecked $cygwinsetup -q -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip" | Write-Host
+  Invoke-CommandChecked $cygwinsetup -q -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip,mkisofs" | Write-Host
 }
 
 function Test-7zip {
