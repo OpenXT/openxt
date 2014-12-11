@@ -123,8 +123,6 @@ do_oe_setup()
 
         git_clone "oe" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
 
-        pushd "oe" > /dev/null
-
         echo "*:$BRANCH" > "manifest"
 
         if [ ! -f "local.settings" ]; then
@@ -171,16 +169,20 @@ EOF
         EXTRA_CLASSES=""
         [ "x$INHIBIT_RMWORK" == "x" ] && EXTRA_CLASSES="rm_work $EXTRA_CLASSES"
 
-        if [ ! -f "xenclient/conf/local.conf" ]; then
-                cp xenclient/conf/local.conf-dist xenclient/conf/local.conf
+        if [ ! -e conf ]; then
+            mkdir -p conf
+        fi
+
+        if [ ! -f "conf/local.conf" ]; then
+                cp oe/xenclient/conf/local.conf-dist conf/local.conf
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
-                cat >> xenclient/conf/local.conf <<EOF
+                cat >> conf/local.conf <<EOF
 # Tarball mirror
 PREMIRRORS = "(ftp|https?)$://.*/.*/ ${OE_TARBALL_MIRROR}"
 EOF
                 fi
-                cat >> xenclient/conf/local.conf <<EOF
+                cat >> conf/local.conf <<EOF
 
 # Distribution feed
 XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${ORIGIN_BRANCH}/${NAME}/packages/ipk"
@@ -205,12 +207,12 @@ require conf/xenclient-extra.conf
 EOF
 
                 if [ "x$ID" != "x" ]; then
-                    echo "XENCLIENT_BUILD = \"$ID\"" >> xenclient/conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$ID\"" >> conf/local.conf
                 else
-                    echo "XENCLIENT_BUILD = \"$NAME\"" >> xenclient/conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$NAME\"" >> conf/local.conf
                 fi
 
-                cat >> xenclient/conf/local.conf <<EOF
+                cat >> conf/local.conf <<EOF
 XENCLIENT_BUILD_DATE = "`date +'%T %D'`"
 XENCLIENT_BUILD_BRANCH = "${ORIGIN_BRANCH}"
 XENCLIENT_VERSION = "$VERSION"
@@ -228,7 +230,7 @@ XEN_SRC_SHA256SUM="${XEN_SRC_SHA256SUM}"
 
 EOF
 
-                cat >> xenclient/conf/local.conf <<EOF
+                cat >> conf/local.conf <<EOF
 # Production and development repository-signing CA certificates
 REPO_PROD_CACERT="$REPO_PROD_CACERT_PATH"
 REPO_DEV_CACERT="$REPO_DEV_CACERT_PATH"
@@ -237,7 +239,7 @@ EOF
 
                 if [ $SOURCE -eq 1 ]
                 then
-                    cat >> xenclient/conf/local.conf <<EOF 
+                    cat >> conf/local.conf <<EOF 
 
 XENCLIENT_BUILD_SRC_PACKAGES = "1"
 XENCLIENT_COLLECT_SRC_INFO = "1"
@@ -245,7 +247,7 @@ EOF
                 fi
                 if [ "x$FREEZE_URIS" = "xyes" ]
                 then
-                    cat >> xenclient/conf/local.conf <<EOF 
+                    cat >> conf/local.conf <<EOF 
 
 INHERIT += "freezer"
 EOF
@@ -255,7 +257,7 @@ EOF
         if [ $VERBOSE -eq 1 ]
         then
             echo "Generated config is:"
-            cat xenclient/conf/local.conf
+            cat conf/local.conf
         fi
 
 	if [ $VERBOSE -eq 1 ]
@@ -267,7 +269,6 @@ EOF
 
 	${TOPDIR}/setup_build $OPTS
 
-        popd > /dev/null
         popd > /dev/null
 }
 
@@ -291,7 +292,7 @@ do_oe_check_cpp()
 {
         local path="$1"
 
-        pushd "$path/oe"
+        pushd "$path"
 
         cat <<- EOF > fish.cpp
 #include <stdio.h>
@@ -312,7 +313,7 @@ do_oe()
         local log_path="${OUTPUT_DIR}/${NAME}/logs"
         local dont_get_log="$4"
 
-        pushd "$path/oe"
+        pushd "$path"
         export MACHINE="$machine"
         if [ "x$FREEZE_URIS" = "xyes" ]; then
             echo "Running URI freezer"
@@ -334,13 +335,13 @@ do_oe()
         if [ -z "${dont_get_log}" -a -z "${NEVER_GET_LOG}" ] ; then
             mkdir -p "${log_path}"
             echo "Collecting build logs..." | do_oe_log
-            find "$path"/oe/tmp-eglibc/work/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/$machine-$image.tar.bz2" --files-from=- | do_oe_log
+            find $path/tmp-eglibc/work/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/$machine-$image.tar.bz2" --files-from=- | do_oe_log
             echo "Done" | do_oe_log
             echo "Collecting sigdata..." | do_oe_log
-            find "$path/oe/tmp-eglibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata-$machine-$image.tar.bz2" --files-from=- | do_oe_log
+            find "$path/tmp-eglibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata-$machine-$image.tar.bz2" --files-from=- | do_oe_log
             echo "Done" | do_oe_log
             echo "Collecting buildstats..." | do_oe_log
-            tar -cjf "${log_path}/buildstats-$machine-$image.tar.bz2" "$path/oe/tmp-eglibc/buildstats" | do_oe_log
+            tar -cjf "${log_path}/buildstats-$machine-$image.tar.bz2" "$path/tmp-eglibc/buildstats" | do_oe_log
             echo "Done" | do_oe_log
         fi
 }
@@ -354,7 +355,7 @@ do_oe_copy()
         local binaries="tmp-eglibc/deploy/images"
         local t=""
         local unhappy=1
-        pushd "$path/oe"
+        pushd "$path"
         # Copy OE
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
         for t in cpio cpio.gz cpio.bz2 \
@@ -419,7 +420,7 @@ do_oe_nilfvm_copy()
         do_oe_copy "$path" "nilfvm" "xenclient-nilfvm" "xenclient-nilfvm"
 
         local binaries="tmp-eglibc/deploy/images"
-        pushd "$path/oe"
+        pushd "$path"
         cp "$binaries/service-nilfvm" "$OUTPUT_DIR/$NAME/raw/service-nilfvm"
         popd
 }
@@ -451,7 +452,7 @@ do_oe_syncvm()
 do_oe_syncui_copy()
 {
         local path="$1"
-        pushd "$path/oe"
+        pushd "$path"
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
         cp tmp-eglibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
         cp tmp-eglibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
@@ -495,7 +496,7 @@ do_oe_installer_copy()
 {
         local path="$1"
         local binaries="tmp-eglibc/deploy/images"
-        pushd "$path/oe"
+        pushd "$path"
 
         mkdir -p "$OUTPUT_DIR/$NAME/raw/installer"
         # Copy installer
@@ -531,7 +532,7 @@ do_oe_installer_part2_copy()
 {
         local path="$1"
         local binaries="tmp-eglibc/deploy/images"
-        pushd "$path/oe"
+        pushd "$path"
 
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
 
@@ -574,7 +575,7 @@ do_oe_source_copy()
 {
         local path="$1"
         local rootfs="tmp-eglibc/deploy/images/xenclient-source-image-xenclient-dom0.raw"
-        pushd "$path/oe" > /dev/null
+        pushd "$path" > /dev/null
 
         if [ "$SOURCE" -eq 0 ]
         then
@@ -623,7 +624,7 @@ do_oe_copy_licenses()
         local path="$1"
         local binaries="tmp-eglibc/deploy/images"
 
-        pushd "$path/oe"
+        pushd "$path"
 
         # Copy list of packages and licences for each image
         local licences="$OUTPUT_DIR/$NAME/raw/licences"
