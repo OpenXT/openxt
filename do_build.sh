@@ -120,8 +120,6 @@ do_oe_setup()
         mkdir -p "$path"
         pushd "$path" > /dev/null
 
-        git_clone "oe" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
-
         echo "*:$BRANCH" > "manifest"
 
         if [ ! -f "local.settings" ]; then
@@ -130,6 +128,8 @@ META_SELINUX_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/meta-selinux.git
 EXTRA_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe-extra.git
 EXTRA_DIR=extra
 EXTRA_TAG="$BRANCH"
+XENCLIENT_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git
+XENCLIENT_TAG="$BRANCH"
 EOF
 
                 if [ "$OE_GIT_MIRROR" ] ; then
@@ -173,7 +173,7 @@ EOF
         fi
 
         if [ ! -f "conf/local.conf" ]; then
-                cp oe/xenclient/conf/local.conf-dist conf/local.conf
+                cp conf/local.conf-dist conf/local.conf
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
                 cat >> conf/local.conf <<EOF
