@@ -15,13 +15,12 @@ VERBOSE=0
 SOURCE=0
 BUILD_USER="`whoami`"
 OE_BB_THREADS="8"
-MISC_DIR="$TOPDIR/misc"
-CACHE_DIR="$MISC_DIR/ccache"
-HOME="$MISC_DIR/home"
+CACHE_DIR="$TOPDIR/build/cache"
+HOME="$TOPDIR/build/home"
 export HOME
 # make git not complain about user not being set
 export GIT_AUTHOR_NAME="Build user at `hostname`" 
-OE_BUILD_CACHE="$MISC_DIR/oe"
+OE_BUILD_CACHE="$TOPDIR/build"
 BRANCH=master
 export HOME
 BUILD_UID=`id -u`
@@ -163,7 +162,7 @@ EOF
 
         [ "x$ORIGIN_BRANCH" != "x" ] && branch="$ORIGIN_BRANCH"
 
-        oedl="$OE_BUILD_CACHE/oe-download"
+        oedl="$OE_BUILD_CACHE/downloads"
         [ "x$OE_BUILD_CACHE_DL" != "x" ] && oedl="$OE_BUILD_CACHE_DL"
 
         EXTRA_CLASSES=""
@@ -189,7 +188,7 @@ XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${ORIGIN_BRANCH}/${NAME}/package
 
 # Local generated configuration for build $ID
 INHERIT += "$EXTRA_CLASSES"
-SSTATE_DIR = "$OE_BUILD_CACHE/oe-sstate/$branch"
+SSTATE_DIR = "$OE_BUILD_CACHE/sstate-cache/$branch"
 
 DL_DIR = "$oedl"
 export CCACHE_DIR = "${CACHE_DIR}"
