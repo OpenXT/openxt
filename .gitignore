@@ -1,7 +1,6 @@
 build/bitbake.lock
 build/conf/local.conf
 build/conf/sanity_info
-build/home
 build/local.settings
 build/manifest
 build/oe

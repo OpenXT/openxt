@@ -16,13 +16,8 @@ SOURCE=0
 BUILD_USER="`whoami`"
 OE_BB_THREADS="8"
 CACHE_DIR="$TOPDIR/build/cache"
-HOME="$TOPDIR/build/home"
-export HOME
-# make git not complain about user not being set
-export GIT_AUTHOR_NAME="Build user at `hostname`" 
 OE_BUILD_CACHE="$TOPDIR/build"
 BRANCH=master
-export HOME
 BUILD_UID=`id -u`
 export BUILD_UID
 
@@ -1448,8 +1443,6 @@ do_build()
         mkdir -p "$CACHE_DIR"
         export CCACHE_DIR_TARGET="$CACHE_DIR"
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
-
-        mkdir -p $HOME
 
         OLDIFS="$IFS"
         IFS="," ; export IFS
