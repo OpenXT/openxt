@@ -15,15 +15,9 @@ VERBOSE=0
 SOURCE=0
 BUILD_USER="`whoami`"
 OE_BB_THREADS="8"
-MISC_DIR="$TOPDIR/misc"
-CACHE_DIR="$MISC_DIR/ccache"
-HOME="$MISC_DIR/home"
-export HOME
-# make git not complain about user not being set
-export GIT_AUTHOR_NAME="Build user at `hostname`" 
-OE_BUILD_CACHE="$MISC_DIR/oe"
+CACHE_DIR="$TOPDIR/build/cache"
+OE_BUILD_CACHE="$TOPDIR/build"
 BRANCH=master
-export HOME
 BUILD_UID=`id -u`
 export BUILD_UID
 
@@ -121,8 +115,6 @@ do_oe_setup()
         mkdir -p "$path"
         pushd "$path" > /dev/null
 
-        git_clone "oe" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
-
         echo "*:$BRANCH" > "manifest"
 
         if [ ! -f "local.settings" ]; then
@@ -131,6 +123,8 @@ META_SELINUX_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/meta-selinux.git
 EXTRA_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe-extra.git
 EXTRA_DIR=extra
 EXTRA_TAG="$BRANCH"
+XENCLIENT_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git
+XENCLIENT_TAG="$BRANCH"
 EOF
 
                 if [ "$OE_GIT_MIRROR" ] ; then
@@ -163,7 +157,7 @@ EOF
 
         [ "x$ORIGIN_BRANCH" != "x" ] && branch="$ORIGIN_BRANCH"
 
-        oedl="$OE_BUILD_CACHE/oe-download"
+        oedl="$OE_BUILD_CACHE/downloads"
         [ "x$OE_BUILD_CACHE_DL" != "x" ] && oedl="$OE_BUILD_CACHE_DL"
 
         EXTRA_CLASSES=""
@@ -174,7 +168,7 @@ EOF
         fi
 
         if [ ! -f "conf/local.conf" ]; then
-                cp oe/xenclient/conf/local.conf-dist conf/local.conf
+                cp conf/local.conf-dist conf/local.conf
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
                 cat >> conf/local.conf <<EOF
@@ -189,7 +183,7 @@ XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${ORIGIN_BRANCH}/${NAME}/package
 
 # Local generated configuration for build $ID
 INHERIT += "$EXTRA_CLASSES"
-SSTATE_DIR = "$OE_BUILD_CACHE/oe-sstate/$branch"
+SSTATE_DIR = "$OE_BUILD_CACHE/sstate-cache/$branch"
 
 DL_DIR = "$oedl"
 export CCACHE_DIR = "${CACHE_DIR}"
@@ -1449,8 +1443,6 @@ do_build()
         mkdir -p "$CACHE_DIR"
         export CCACHE_DIR_TARGET="$CACHE_DIR"
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
-
-        mkdir -p $HOME
 
         OLDIFS="$IFS"
         IFS="," ; export IFS

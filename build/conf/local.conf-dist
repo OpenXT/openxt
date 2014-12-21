@@ -1,0 +1,149 @@
+# 1) Basic config
+
+DISTRO_FEATURES = "alsa ext2 largefile usbhost wifi xattr pci x11 ipv4 ipv6 ${DISTRO_FEATURES_LIBC} multiarch pam"
+BB_NUMBER_THREADS = "4"
+PARALLEL_MAKE = "-j 4"
+PACKAGE_CLASSES ?= "package_ipk"
+EXTRA_IMAGE_FEATURES = "debug-tweaks"
+#USER_CLASSES ?= "buildstats image-mklibs image-prelink"
+# disable prelink and mklibs as it does not play nicely with part 2 installer image
+# TODO: enable it for selected images
+USER_CLASSES = "buildstats"
+
+PATCHRESOLVE = "noop"
+CONF_VERSION = "1"
+TMPDIR ?= "${TOPDIR}/build"
+#DL_DIR ?= "${TOPDIR}/downloads"
+#SSTATE_DIR ?= "${TOPDIR}/sstate-cache"
+
+STAGING_IDLDIR = "${STAGING_DATADIR}/idl"
+
+ENABLE_BINARY_LOCALE_GENERATION = "1"
+LOCALE_UTF8_ONLY = "1"
+
+# ocaml
+SYSROOT_OCAML_PATH = "${STAGING_DIR_NATIVE}${libdir_native}/${TUNE_PKGARCH}${TARGET_VENDOR}-${TARGET_OS}/ocaml"
+OCAML_STDLIBDIR = "${SYSROOT_OCAML_PATH}/site-lib"
+OCAML_HEADERS = "${SYSROOT_OCAML_PATH}"
+export ocamllibdir = "${libdir}/ocaml"
+STAGING_LIBDIR_OCAML = "${STAGING_LIBDIR}/ocaml"
+OCAML_FINDLIB_CONF = "${STAGING_DIR_HOST}${sysconfdir}/findlib.conf"
+
+# vhd image format support 
+# 100M - safe default, overwrite in the recipe
+VHD_MAX_SIZE = "100"
+IMAGE_CMD_ext3.vhd = "install -d ${DEPLOY_DIR_IMAGE}/tmp.vhd ; genext2fs -b ${ROOTFS_SIZE} -d ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${EXTRA_IMAGECMD}; tune2fs -j ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; vhd convert ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${VHD_MAX_SIZE}; rm -f ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; mv ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext3.vhd"
+IMAGE_DEPENDS_ext3.vhd = "hs-vhd-native genext2fs-native e2fsprogs-native"
+
+# raw image - simply copy rootfs tree to deploy directory
+IMAGE_CMD_raw = "cp -a ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.raw"
+
+XC_EXT3_SIZE="327155712"
+XC_EXT3_VHD_SIZE="312"
+XC_EXT3_BVHD_BLOCKS="319488"
+
+IMAGE_CMD_xc.ext3 = "( set -x; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3; truncate -s ${XC_EXT3_SIZE} $I; mke2fs -F -t ext3 $I; tune2fs -c -1 -i 0 $I; gene3fs -i $I -d ${IMAGE_ROOTFS}; e2fsck -f -y $I || true)"
+IMAGE_DEPENDS_xc.ext3 = "gene3fs-native e2fsprogs-native"
+
+# sadly the vhd stack in XC doesn't seem to [yet] understand libbudgetvhd's vhds
+IMAGE_CMD_xc.ext3.vhd = "( set -x; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.vhd; truncate -s ${XC_EXT3_SIZE} $I.tmp; mke2fs -F -t ext3 $I.tmp; tune2fs -c -1 -i 0 $I.tmp; gene3fs -i $I.tmp -d ${IMAGE_ROOTFS}; e2fsck -f -y $I.tmp || true ; vhd convert $I.tmp $I ${XC_EXT3_VHD_SIZE} ; rm -f $I.tmp  )"
+IMAGE_DEPENDS_xc.ext3.vhd = "hs-vhd-native gene3fs-native e2fsprogs-native"
+
+IMAGE_CMD_xc.ext3.bvhd = "( set -x ; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.bvhd; bvhd_create $I ${XC_EXT3_BVHD_BLOCKS}; mke2fs -Z -F -t ext3 $I; tune2fs -Z -c -1 -i 0 $I; gene3fs -V -i $I -d ${IMAGE_ROOTFS}; e2fsck -Z -f -y $I || true )"
+IMAGE_DEPENDS_xc.ext3.bvhd = "gene3fs-native e2fsprogs-native"
+
+# Build source packages if XENCLIENT_BUILD_SRC_PACKAGES is set to 1.
+INHERIT += "xenclient-src-package"
+
+# Collect info about sources used in build if XENCLIENT_COLLECT_SRC_INFO is
+# set to 1.
+INHERIT += "xenclient-src-info"
+
+
+# 2) Build tweaks/hacks
+
+PREFERRED_VERSION_linux-libc-headers = "3.11"
+PREFERRED_VERSION_linux-libc-headers-nativesdk = "${PREFERRED_VERSION_linux-libc-headers}"
+PREFERRED_VERSION_dojosdk-native = "1.7.2"
+
+PREFERRED_PROVIDER_console-tools = "console-tools"
+PREFERRED_PROVIDER_virtual/libx11 = "libx11"
+
+VIRTUAL-RUNTIME_keymaps = "xenclient-console-keymaps"
+
+FILESYSTEM_PERMS_TABLES = "files/xc-fs-perms.txt"
+POLKITAUTH = ""
+BBMASK = "busybox_1.19"
+
+# prevent tasks from creating empty "${S}" dir
+do_clean[dirs] = "${WORKDIR}"
+do_cleansstate[dirs] = "${WORKDIR}"
+do_cleanall[dirs] = "${WORKDIR}"
+do_fetch[dirs] = "${WORKDIR}"
+#do_unpack[dirs] = "${WORKDIR}"
+sstate_cleanall[dirs] = "${WORKDIR}"
+sstate_unpack_package[dirs] = "${WORKDIR}"
+do_populate_lic_setscene[dirs] = "${WORKDIR}"
+do_populate_sysroot_setscene[dirs] = "${WORKDIR}"
+do_make_scripts[dirs] = "${WORKDIR}"
+#do_repo_clean[dirs] = "${WORKDIR}"
+
+
+# overwrite debian mirror for screen, as the debian version it's based on (lenny) is in oldstable now
+DEBIAN_MIRROR_pn-screen = "http://archive.debian.org/debian/pool"
+
+# disable --as-needed flag for the recipes 
+ASNEEDED_pn-acpi-helper = ""
+ASNEEDED_pn-pci-dm-helper = ""
+ASNEEDED_pn-audio-helper = ""
+ASNEEDED_pn-atapi-pt-helper = ""
+ASNEEDED_pn-libxcxenstore = ""
+ASNEEDED_pn-libsurfman = ""
+ASNEEDED_pn-libdmbus = ""
+ASNEEDED_pn-vbetool-xc = ""
+ASNEEDED_pn-qemu-wrappers = ""
+ASNEEDED_pn-pmutil = ""
+ASNEEDED_pn-xcpmd = ""
+ASNEEDED_pn-tboot = ""
+ASNEEDED_pn-selinux-load = ""
+ASNEEDED_pn-svirt-interpose = ""
+ASNEEDED_pn-xenclient-input-daemon = ""
+ASNEEDED_pn-bootage = ""
+ASNEEDED_pn-surfman = ""
+ASNEEDED_pn-audio-daemon = ""
+ASNEEDED_pn-xenclient-sha1sum = ""
+ASNEEDED_pn-midori = ""
+ASNEEDED_pn-busybox-static = ""
+ASNEEDED_pn-dm-wrapper = ""
+ASNEEDED_pn-dm-wrapper-static = ""
+ASNEEDED_pn-xenclient-dbusbouncer = ""
+ASNEEDED_pn-sysvinit = ""
+#ASNEEDED_pn-xdotool = ""
+
+# CFLAGS/LDFLAGS hacks
+LDFLAGS_pn-xdotool += "-lX11"
+LDFLAGS_pn-midori += "-ljavascriptcoregtk-1.0"
+
+LDFLAGS_pn-compleat += "-pthread"
+CFLAGS_pn-compleat += "-pthread"
+
+LDFLAGS_pn-xenclient-rpcgen += "-pthread"
+CFLAGS_pn-xenclient-rpcgen += "-pthread"
+
+LDFLAGS_pn-xenclient-input-daemon += "-lm -lcrypto"
+
+LDFLAGS_pn-devilspie += "-lX11"
+
+CFLAGS_pn-networkmanager-applet += "-Wno-error=unused-but-set-variable"
+
+# make hacks
+PARALLEL_MAKE_pn-libxclogging = "-j 1"
+PARALLEL_MAKE_pn-gnumail = "-j 1"
+PARALLEL_MAKE_pn-gnumail-native = "-j 1"
+PARALLEL_MAKE_pn-shared-mime-info = "-j 1"
+PARALLEL_MAKE_pn-shared-mime-info-native = "-j 1"
+
+
+# 3) Proprietary licenses we can ship
+LICENSE_FLAGS_WHITELIST = "commercial_broadcom-wifi"
+LICENSE_FLAGS_WHITELIST += "commercial_microcode-ctl"
