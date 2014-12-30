@@ -1,10 +1,20 @@
 #! /bin/bash -e
 set -o pipefail
 STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+
 # Additional steps:
+
 # copy: Copies the build output to a web/pxe server. See do_copy() for more details.
+# Requires a valid BUILD_RSYNC_DESTINATION in .config
+
 # extra_pkgs: Builds a bunch of extra OpenEmbedded packages, that will be installable separately.
-# packages_tree: Adds the built packages to an OpenEmbedded repository pool, that uses hardlinks to save disk space.
+# Combined with packages_tree, this allows easy debugging on the target.
+# For example, on an OpenXT machine: # rw ; opkg update ; opkg install gdb surfman-dbg; ro
+
+# packages_tree: Adds the built packages to an OpenEmbedded repository pool.
+# Packages tree can use hardlinks to save disk space, if $SYNC_CACHE_OE/oe-archives is populated
+# Requires a valid SYNC_CACHE_OE, BUILD_RSYNC_DESTINATION and NETBOOT_HTTP_URL in .config
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
@@ -607,10 +617,15 @@ do_oe_source()
 do_oe_packages_tree()
 {
         local path="$1"
+        local dest="$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME"
 
-        echo "rsync -ltvzr --exclude \"morgue\" --link-dest=\"$SYNC_CACHE_OE/oe-archive/\" \"$path/oe/tmp-eglibc/deploy/ipk\" \"$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME/packages\""
         # Create a separate package tree populated with symlinks for stuffs that didn't change
-        rsync -ltvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/" "$path/oe/tmp-eglibc/deploy/ipk" "$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME/packages"
+        # rsync seems to delegate non-remote operations to another program, ignoring --rsync-path
+        # If the destination is not remote, we have to run the --rsync-path command hack manualy
+        ( echo $BUILD_RSYNC_DESTINATION | grep ':' > /dev/null 2>&1) || mkdir -p "$dest"
+        rsync -altvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/"	\
+            --rsync-path="mkdir -p \"$dest\" && rsync"					\
+            "$path/tmp-eglibc/deploy/ipk" "$dest/packages"
 }
 
 do_oe_copy_licenses()
