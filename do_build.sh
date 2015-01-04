@@ -681,7 +681,7 @@ do_sync_cache()
 	OPTS="-ltzr"
     fi
     [ "x$SYNC_CACHE_OE" != "x" ] && \
-        rsync $OPTS -u --exclude ".*" "$SYNC_CACHE_OE/oe-download" "$OE_BUILD_CACHE"
+        rsync $OPTS -u --exclude ".*" "$SYNC_CACHE_OE/downloads" "$OE_BUILD_CACHE"
 
     # Get the last version of each package
     # FIXME: We explicitely exclude obselete folders from the list, as they still exist $SYNC_CACHE_OE
@@ -699,7 +699,7 @@ do_sync_cache_back()
 {
     set +o pipefail
     if [ "x$SYNC_CACHE_OE" != "x" ]; then
-        sudo rsync -ltzru --exclude 'git_git.xci*' "$OE_BUILD_CACHE/oe-download" "$SYNC_CACHE_OE"
+        rsync -ltzru --exclude "*[Oo]pen[Xx][Tt]*" "$OE_BUILD_CACHE/downloads" "$SYNC_CACHE_OE"
 #        sudo rsync -ltzru --no-whole-file --ignore-existing "$OE_BUILD_CACHE/oe-archive" "$SYNC_CACHE_OE"
 #
 #        # Rsync the previously evicted package list files
@@ -1449,10 +1449,6 @@ do_build()
             NAME="$ARGNAME"
         else
             NAME="$NAME_SITE-$BUILD_TYPE-$ID-$BRANCH"
-        fi
-
-        if [ "x$ID" != "x" ] ; then
-            BRANCH="${NAME}"
         fi
 
         mkdir -p "$CACHE_DIR"
