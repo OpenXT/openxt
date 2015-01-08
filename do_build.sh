@@ -1426,7 +1426,7 @@ get_version()
 
         if [ "$ID" ] ; then
                 # Build number is a 16-bit unsigned integer in Windows
-                XC_TOOLS_BUILD=$(((ID - 110000) % 65536))
+                XC_TOOLS_BUILD=$((${ID} % 65536))
         else
                 XC_TOOLS_BUILD=0
         fi
