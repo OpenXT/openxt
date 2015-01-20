@@ -903,7 +903,7 @@ do_updates()
         done
 }
 
-ACM_LIST="ivb_snb.acm gm45.acm duali.acm quadi.acm q35.acm q45q43.acm xeon56.acm xeone7.acm hsw.acm"
+ACM_LIST="ivb_snb.acm gm45.acm duali.acm quadi.acm q35.acm q45q43.acm xeon56.acm xeone7.acm hsw.acm bdw.acm"
 
 extract_acms()
 {
