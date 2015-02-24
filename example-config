@@ -9,7 +9,7 @@ OPENXT_GIT_PROTOCOL="git"
 OE_GIT_MIRROR=
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
-OPENXT_MIRROR="http://openxt.xci-test.com/mirror"
+OPENXT_MIRROR="http://mirror.openxt.org"
 
 # Used to construct build name.
 NAME_SITE="openxt"
