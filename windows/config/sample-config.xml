@@ -81,6 +81,7 @@
           <Param>VerString</Param>
           <Param>CertName</Param>
           <Param>CompanyName</Param>
+          <Param>SignTool</Param>
         </Parameters>
       </Run>
     </Step>
