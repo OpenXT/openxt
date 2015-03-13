@@ -1,10 +1,20 @@
 #! /bin/bash -e
 set -o pipefail
 STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+
 # Additional steps:
+
 # copy: Copies the build output to a web/pxe server. See do_copy() for more details.
+# Requires a valid BUILD_RSYNC_DESTINATION in .config
+
 # extra_pkgs: Builds a bunch of extra OpenEmbedded packages, that will be installable separately.
-# packages_tree: Adds the built packages to an OpenEmbedded repository pool, that uses hardlinks to save disk space.
+# Combined with packages_tree, this allows easy debugging on the target.
+# For example, on an OpenXT machine: # rw ; opkg update ; opkg install gdb surfman-dbg; ro
+
+# packages_tree: Adds the built packages to an OpenEmbedded repository pool.
+# Packages tree can use hardlinks to save disk space, if $SYNC_CACHE_OE/oe-archives is populated
+# Requires a valid SYNC_CACHE_OE, BUILD_RSYNC_DESTINATION and NETBOOT_HTTP_URL in .config
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
@@ -607,10 +617,15 @@ do_oe_source()
 do_oe_packages_tree()
 {
         local path="$1"
+        local dest="$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME"
 
-        echo "rsync -ltvzr --exclude \"morgue\" --link-dest=\"$SYNC_CACHE_OE/oe-archive/\" \"$path/oe/tmp-eglibc/deploy/ipk\" \"$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME/packages\""
         # Create a separate package tree populated with symlinks for stuffs that didn't change
-        rsync -ltvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/" "$path/oe/tmp-eglibc/deploy/ipk" "$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME/packages"
+        # rsync seems to delegate non-remote operations to another program, ignoring --rsync-path
+        # If the destination is not remote, we have to run the --rsync-path command hack manualy
+        ( echo $BUILD_RSYNC_DESTINATION | grep ':' > /dev/null 2>&1) || mkdir -p "$dest"
+        rsync -altvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/"	\
+            --rsync-path="mkdir -p \"$dest\" && rsync"					\
+            "$path/tmp-eglibc/deploy/ipk" "$dest/packages"
 }
 
 do_oe_copy_licenses()
@@ -666,7 +681,7 @@ do_sync_cache()
 	OPTS="-ltzr"
     fi
     [ "x$SYNC_CACHE_OE" != "x" ] && \
-        rsync $OPTS -u --exclude ".*" "$SYNC_CACHE_OE/oe-download" "$OE_BUILD_CACHE"
+        rsync $OPTS -u --exclude ".*" "$SYNC_CACHE_OE/downloads" "$OE_BUILD_CACHE"
 
     # Get the last version of each package
     # FIXME: We explicitely exclude obselete folders from the list, as they still exist $SYNC_CACHE_OE
@@ -684,7 +699,7 @@ do_sync_cache_back()
 {
     set +o pipefail
     if [ "x$SYNC_CACHE_OE" != "x" ]; then
-        sudo rsync -ltzru --exclude 'git_git.xci*' "$OE_BUILD_CACHE/oe-download" "$SYNC_CACHE_OE"
+        rsync -ltzru --exclude "*[Oo]pen[Xx][Tt]*" "$OE_BUILD_CACHE/downloads" "$SYNC_CACHE_OE"
 #        sudo rsync -ltzru --no-whole-file --ignore-existing "$OE_BUILD_CACHE/oe-archive" "$SYNC_CACHE_OE"
 #
 #        # Rsync the previously evicted package list files
@@ -1411,7 +1426,7 @@ get_version()
 
         if [ "$ID" ] ; then
                 # Build number is a 16-bit unsigned integer in Windows
-                XC_TOOLS_BUILD=$(((ID - 110000) % 65536))
+                XC_TOOLS_BUILD=$((${ID} % 65536))
         else
                 XC_TOOLS_BUILD=0
         fi
@@ -1434,10 +1449,6 @@ do_build()
             NAME="$ARGNAME"
         else
             NAME="$NAME_SITE-$BUILD_TYPE-$ID-$BRANCH"
-        fi
-
-        if [ "x$ID" != "x" ] ; then
-            BRANCH="${NAME}"
         fi
 
         mkdir -p "$CACHE_DIR"
