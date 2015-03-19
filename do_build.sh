@@ -1372,6 +1372,11 @@ do_syncui()
     local file="$OUTPUT_DIR/$NAME/raw/$name"
     local out="$OUTPUT_DIR/$NAME/sync"
 
+    if [ ! -r "${file}" ]; then
+      echo "syncui: Not built, skipping"
+      return 0 
+    fi
+
     echo "syncui:"
     echo "  - copy $name"
 
