@@ -63,6 +63,7 @@
           <Param>CertName</Param>
           <Param>MSBuild</Param>
           <Param>CompanyName</Param>
+          <Param>SignTool</Param>
         </Parameters>
       </Run>
     </Step>
@@ -80,6 +81,7 @@
           <Param>VerString</Param>
           <Param>CertName</Param>
           <Param>CompanyName</Param>
+          <Param>SignTool</Param>
         </Parameters>
       </Run>
     </Step>
@@ -89,6 +91,7 @@
           <Param>BuildType</Param>
           <Param>CertName</Param>
           <Param>VerString</Param>
+          <Param>SignTool</Param>
         </Parameters>
       </Run>
     </Step>
