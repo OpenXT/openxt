@@ -19,8 +19,8 @@ test -e ${DAEMON} || exit 0
 
 case "$1" in
     start)
-        log_daemon_msg "Loading xc-xenfs module" "xenfs module"
-	if ! ( modprobe xc-xenfs ); then
+        log_daemon_msg "Loading xenfs module" "xenfs module"
+	if ! ( modprobe xenfs ); then
             log_end_msg 1
         else
             log_end_msg 0

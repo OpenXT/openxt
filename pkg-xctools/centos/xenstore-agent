@@ -29,7 +29,7 @@ lockfile=/var/lock/subsys/$prog
 load_modules() {
     echo -n $"Loading kernel modules for $prog: "
 
-    for module in xc-xen xc-xenfs xc-v4v xc-ctxusb ; do
+    for module in xenfs xc-v4v ; do
         if ! modprobe $module ; then
             failure
             echo
