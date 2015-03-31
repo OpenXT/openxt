@@ -49,7 +49,7 @@ pushd ${SRCS}
     if [ "${DISTRO}" = debian ] ; then
         initrd_mod_file=/etc/initramfs-tools/modules
         if [ -f $initrd_mod_file ]; then
-            for md in xc-ctxusb xc-v4v xc-netfront xc-blkfront xc-xenfs xc-xen; do
+            for md in xc-v4v; do
                 egrep -q "${md}\$" $initrd_mod_file || sed -i "1i${md}" $initrd_mod_file
             done
         fi
@@ -72,10 +72,9 @@ pushd ${SRCS}
     make install
     echo "${PACKAGE}-${VERSION} headers installed."
 
-    modprobe xc-xen
-    modprobe xc-xenfs
+    # Load the real xenfs and then the OpenXT custom modules
+    modprobe xenfs
     modprobe xc-v4v
-    ( set +e; modprobe xc-ctxusb; exit 0 )
 popd
 
 
@@ -219,7 +218,7 @@ if [ -f /boot/grub/video.lst ]; then
 fi
 (
 	set +e;
-	modprobe xc-xen; modprobe xc-xenfs; modprobe xc-v4v; modprobe xc-ctxusb;
+	modprobe xenfs; modprobe xc-v4v;
 	chmod 0666 /dev/v4v_*;
 	exit 0
 )

@@ -28,7 +28,7 @@ lockfile=/var/lock/subsys/$prog
 load_modules() {
     echo -n $"Loading kernel modules for $prog: "
 
-    if ! modprobe xc-xenfs ; then
+    if ! modprobe xenfs ; then
         failure
         echo
         exit 1

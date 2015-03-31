@@ -66,9 +66,7 @@ if [ $exit_code -ne 0 ]; then
 	pretty_print "XenClient Linux tools install failed.
 Re-running the install may fix the problem."
 else
-	pretty_print "XenClient Linux tools successfully installed.
-Please note, the xc-blkfront disk driver will not be enabled until this VM
-is rebooted."
+	pretty_print "XenClient Linux tools successfully installed."
 fi
 
 exit $exit_code

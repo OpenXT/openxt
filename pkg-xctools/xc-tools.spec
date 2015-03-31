@@ -59,7 +59,7 @@ rm -r usr/src/xenclient-pv-drivers-dkms-1.0/dkms
 
 mkdir -p etc/dracut.conf.d
 cat <<EOF > etc/dracut.conf.d/xc-tools
-add_drivers+="xc-blkfront xc-ctxusb xc-netfront xc-v4v xc-xen xc-xenfs"
+add_drivers+="xc-v4v"
 EOF
 
 %install
