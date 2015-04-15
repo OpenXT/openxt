@@ -1,5 +1,5 @@
 # xen version and source archive
-XEN_VERSION="4.3.3"
-XEN_SRC_URI="http://bits.xensource.com/oss-xen/release/4.3.3/xen-4.3.3.tar.gz"
-XEN_SRC_MD5SUM="1b4438a50d8875700ac2c7e1ffbcd91b"
-XEN_SRC_SHA256SUM="59eb0e1c4a1f66965fe56dcf27cdb5872bf7e0585b7f2e60bd7967ec7f744ebf"
+XEN_VERSION="4.3.4"
+XEN_SRC_URI="http://bits.xensource.com/oss-xen/release/4.3.4/xen-4.3.4.tar.gz"
+XEN_SRC_MD5SUM="127ae10ce832a3547e171d2653caa1fa"
+XEN_SRC_SHA256SUM="307d1197f4be9ac9bf78b2cdb97bb77bee8ca4589749b6d5ee3dddbd59e8186e"
