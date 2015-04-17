@@ -1294,7 +1294,7 @@ xctools_iso_from_zip()
 do_xctools_debian_repo()
 {
     local path=`cd "$1"; pwd`
-    local dest_dir="${path}/oe/tmp-eglibc/deb-xctools-image/"
+    local dest_dir="${path}/tmp-eglibc/deb-xctools-image/"
     local d_output_dir="${OUTPUT_DIR}/${NAME}/xctools-debian-repo/debian"
 
     echo "Building Debian Service VM tools"
