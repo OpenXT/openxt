@@ -264,14 +264,14 @@ EOF
             cat conf/local.conf
         fi
 
-	if [ $VERBOSE -eq 1 ]
-	then 
+        if [ $VERBOSE -eq 1 ]
+        then 
             OPTS="-v"
-	else
-	    OPTS=""
-	fi
+        else
+            OPTS=""
+        fi
 
-	${TOPDIR}/setup_build $OPTS
+        ${TOPDIR}/setup_build $OPTS
 
         popd > /dev/null
 }
@@ -328,10 +328,10 @@ do_oe()
         if [ $VERBOSE -eq 1 ] 
         then
             BBFLAGS="-v"
-	else
-	    BBFLAGS=""
-	fi
-	echo "STARTING OE BUILD $image $machine, started at" `date -u +'%H:%M:%S UTC'`
+        else
+            BBFLAGS=""
+        fi
+        echo "STARTING OE BUILD $image $machine, started at" `date -u +'%H:%M:%S UTC'`
 
          < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
         popd
@@ -369,7 +369,7 @@ do_oe_copy()
             xc.ext3 xc.ext3.gz xc.ext3.bz2 \
             xc.ext3.vhd xc.ext3.vhd.gz xc.ext3.vhd.bz2 \
             xc.ext3.bvhd xc.ext3.bvhd.gz xc.ext3.bvhd.bz2
-	do
+        do
             if [ -f "$binaries/$image-image-$machine.$t" ]; then
                 echo "$name image type: $t"
                 cp "$binaries/$image-image-$machine.$t" "$OUTPUT_DIR/$NAME/raw/$name-rootfs.i686.$t"
@@ -623,8 +623,8 @@ do_oe_packages_tree()
         # rsync seems to delegate non-remote operations to another program, ignoring --rsync-path
         # If the destination is not remote, we have to run the --rsync-path command hack manualy
         ( echo $BUILD_RSYNC_DESTINATION | grep ':' > /dev/null 2>&1) || mkdir -p "$dest"
-        rsync -altvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/"	\
-            --rsync-path="mkdir -p \"$dest\" && rsync"					\
+        rsync -altvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/"       \
+            --rsync-path="mkdir -p \"$dest\" && rsync"                                  \
             "$path/tmp-eglibc/deploy/ipk" "$dest/packages"
 }
 
@@ -676,9 +676,9 @@ do_sync_cache()
     mkdir -p "$OE_BUILD_CACHE"
     if [ $VERBOSE -eq 1 ]
     then
-	OPTS="-ltvzr --progress"
+        OPTS="-ltvzr --progress"
     else
-	OPTS="-ltzr"
+        OPTS="-ltzr"
     fi
     [ "x$SYNC_CACHE_OE" != "x" ] && \
         rsync $OPTS -u --exclude ".*" "$SYNC_CACHE_OE/downloads" "$OE_BUILD_CACHE"
@@ -911,7 +911,7 @@ extract_acms()
         local src="$2"
         local dst="$3"
 
-	for ACM in $ACM_LIST; do
+        for ACM in $ACM_LIST; do
                 echo "    - extract $ACM"
                 if [ -f "$src/$ACM" ]; then
                         cp "$src/$ACM" "$dst/$ACM"
@@ -1056,34 +1056,34 @@ do_sdk()
         local path=`pwd`
         local workdir="${path}/sdk-tmp/"
 
-	local xct="$OUTPUT_DIR/$NAME/raw"
+        local xct="$OUTPUT_DIR/$NAME/raw"
 
-	echo "Create sdk"
-	rm -rf ${workdir}
-	mkdir -p ${workdir}/openxt-sdk/
+        echo "Create sdk"
+        rm -rf ${workdir}
+        mkdir -p ${workdir}/openxt-sdk/
 
-	echo "Clone xenclient/sdk.git"
-	git_clone "${workdir}/openxt-sdk" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/sdk.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
+        echo "Clone xenclient/sdk.git"
+        git_clone "${workdir}/openxt-sdk" "$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/sdk.git" "$BRANCH" "$ALLOW_SWITCH_BRANCH_FAIL"
 
-	echo "Get the windows stuff"
-	if [ -e  "$xct/sdk.zip" ];
-	then
- 	   ( cd "${workdir}/openxt-sdk/Guest_VM/MS_Windows/" ; unzip "$xct/sdk.zip" )
-	fi
-	
-	echo "Create archives"
-	pushd ${workdir}
-	rm -rf ${workdir}/openxt-sdk/.git
-	rm -rf ${workdir}/openxt-sdk/.gitignore
-	echo "$NAME" > openxt-sdk/ver
-	date >> openxt-sdk/ver
+        echo "Get the windows stuff"
+        if [ -e  "$xct/sdk.zip" ];
+        then
+           ( cd "${workdir}/openxt-sdk/Guest_VM/MS_Windows/" ; unzip "$xct/sdk.zip" )
+        fi
 
-	tar -czvf openxt-sdk.tar.gz openxt-sdk/
-	popd
-	
-	echo "Copy sdk to output dir ${OUTPUT_DIR}/${NAME}/sdk/"
-	mkdir -p ${OUTPUT_DIR}/${NAME}/sdk/
-	cp -v ${workdir}/openxt-sdk.tar.gz ${OUTPUT_DIR}/${NAME}/sdk/
+        echo "Create archives"
+        pushd ${workdir}
+        rm -rf ${workdir}/openxt-sdk/.git
+        rm -rf ${workdir}/openxt-sdk/.gitignore
+        echo "$NAME" > openxt-sdk/ver
+        date >> openxt-sdk/ver
+
+        tar -czvf openxt-sdk.tar.gz openxt-sdk/
+        popd
+
+        echo "Copy sdk to output dir ${OUTPUT_DIR}/${NAME}/sdk/"
+        mkdir -p ${OUTPUT_DIR}/${NAME}/sdk/
+        cp -v ${workdir}/openxt-sdk.tar.gz ${OUTPUT_DIR}/${NAME}/sdk/
 }
 
 do_source_info()
@@ -1330,13 +1330,13 @@ do_xctools_win()
     pushd "$path"
     
             rm -rf "xc-tools.iso"
- 	    rsync -r -v --progress "${WIN_BUILD_OUTPUT}/" ./
+            rsync -r -v --progress "${WIN_BUILD_OUTPUT}/" ./
 
             local xct="$OUTPUT_DIR/$NAME/raw"
             mkdir -p "$xct"
 
             cp "xctools-iso.zip" "$xct" || exit 5
-	    cp "sdk.zip" "$xct" || exit 4
+            cp "sdk.zip" "$xct" || exit 4
             [ -f "win-tools.zip" ] && cp "win-tools.zip" "$xct"
             [ -f "xc-windows.zip" ] && cp "xc-windows.zip" "$xct"
             [ -f "oz-bits.zip" ] && cp "oz-bits.zip" "$xct"
@@ -1462,19 +1462,19 @@ do_build()
 
         OLDIFS="$IFS"
         IFS="," ; export IFS
-	# work out number of steps
-	# a patch for a shorter way to do this welcome :)
-	NSTEPS=0
-	for i in $STEPS
-	do
-	    NSTEPS=`expr $NSTEPS + 1`	    
-	done
-
-	# run each step
-	STEPNUM=1
+        # work out number of steps
+        # a patch for a shorter way to do this welcome :)
+        NSTEPS=0
         for i in $STEPS
         do
-	        echo "STARTING STEP $i (step $STEPNUM of $NSTEPS), started at" `date -u +'%H:%M:%S UTC'`
+            NSTEPS=`expr $NSTEPS + 1`
+        done
+
+        # run each step
+        STEPNUM=1
+        for i in $STEPS
+        do
+                echo "STARTING STEP $i (step $STEPNUM of $NSTEPS), started at" `date -u +'%H:%M:%S UTC'`
                 IFS="$OLDIFS" ; export IFS
 
                 name="`echo "$i" | cut -d" " -f1`"
@@ -1486,8 +1486,8 @@ do_build()
                         sync_cache*)
                                 do_sync_cache ;;
                         setupoe*)
-			        # NOTE: the ramdisk is off by default so normally
-			        # create_ramdisk is a no-op
+                                # NOTE: the ramdisk is off by default so normally
+                                # create_ramdisk is a no-op
                                 create_ramdisk "$path/oe" "$RAMDISK" && \
                                 do_oe_setup "$path" "$BRANCH"
                                 ;;
@@ -1564,8 +1564,8 @@ do_build()
                                 $bg do_sim "$path/xc-sim" ;;
                         cleanup*)
                                 do_cleanup "$path" ;;
-		        sdk)
-			        do_sdk ;;
+                        sdk)
+                                do_sdk ;;
                         rmoutput*)
                                 do_rmoutput ;;
                         wait*)
@@ -1576,13 +1576,13 @@ do_build()
                                 ( echo "Task $arg failed" ; \
                                 tail "$CMD_DIR/$arg.log" && exit "$?" )
                                 ;;
-		        *)
-			        echo "ERROR: unknown step $i"
-				exit 1
+                        *)
+                                echo "ERROR: unknown step $i"
+                                exit 1
                 esac
                 pid="$!"
                 eval "${name}_pid=$pid"
-		STEPNUM=`expr $STEPNUM + 1`
+                STEPNUM=`expr $STEPNUM + 1`
         done
 }
 
@@ -1621,8 +1621,8 @@ while [ "$#" -ne 0 ]; do
                 -M) RAMDISK=2; shift ;;
                 -N) ARGNAME="$2"; shift 2;;
                 -S) SOURCE=1; shift ;;
-	        -d) BUILD_RSYNC_DESTINATION="$2"; shift 2;; 
-	        -w) WIN_BUILD_OUTPUT="$2"; shift 2;; 
+                -d) BUILD_RSYNC_DESTINATION="$2"; shift 2;; 
+                -w) WIN_BUILD_OUTPUT="$2"; shift 2;; 
                 --) shift ; break ;;
                 *) usage ; exit 1;;
         esac
