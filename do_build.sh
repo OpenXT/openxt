@@ -1429,11 +1429,13 @@ get_version()
 {
         . ${CMD_DIR}/version
 
-        if [ "$ID" ] ; then
+        if [ -z $XC_TOOLS_BUILD ]; then
+            if [ "$ID" ] ; then
                 # Build number is a 16-bit unsigned integer in Windows
                 XC_TOOLS_BUILD=$((${ID} % 65536))
-        else
+            else
                 XC_TOOLS_BUILD=0
+            fi
         fi
 
         XENCLIENT_TOOLS="$XC_TOOLS_MAJOR.$XC_TOOLS_MINOR.$XC_TOOLS_MICRO.$XC_TOOLS_BUILD"
