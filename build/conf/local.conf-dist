@@ -107,34 +107,13 @@ ASNEEDED_pn-xcpmd = ""
 ASNEEDED_pn-tboot = ""
 ASNEEDED_pn-selinux-load = ""
 ASNEEDED_pn-svirt-interpose = ""
-ASNEEDED_pn-xenclient-input-daemon = ""
 ASNEEDED_pn-bootage = ""
 ASNEEDED_pn-surfman = ""
 ASNEEDED_pn-audio-daemon = ""
-ASNEEDED_pn-xenclient-sha1sum = ""
-ASNEEDED_pn-midori = ""
 ASNEEDED_pn-busybox-static = ""
 ASNEEDED_pn-dm-wrapper = ""
 ASNEEDED_pn-dm-wrapper-static = ""
-ASNEEDED_pn-xenclient-dbusbouncer = ""
 ASNEEDED_pn-sysvinit = ""
-#ASNEEDED_pn-xdotool = ""
-
-# CFLAGS/LDFLAGS hacks
-LDFLAGS_pn-xdotool += "-lX11"
-LDFLAGS_pn-midori += "-ljavascriptcoregtk-1.0"
-
-LDFLAGS_pn-compleat += "-pthread"
-CFLAGS_pn-compleat += "-pthread"
-
-LDFLAGS_pn-xenclient-rpcgen += "-pthread"
-CFLAGS_pn-xenclient-rpcgen += "-pthread"
-
-LDFLAGS_pn-xenclient-input-daemon += "-lm -lcrypto"
-
-LDFLAGS_pn-devilspie += "-lX11"
-
-CFLAGS_pn-networkmanager-applet += "-Wno-error=unused-but-set-variable"
 
 # make hacks
 PARALLEL_MAKE_pn-libxclogging = "-j 1"
