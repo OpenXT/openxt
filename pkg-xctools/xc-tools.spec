@@ -9,7 +9,6 @@
 #   - sort out use of dracut in postinst and test combinations below
 #   - sort out excessive calls to dracut
 #   - check that uninstalling package cleans up all files
-#   - sort out fix-i915-passthrough.sh
 #   - install.sh: yum install exits 0 even if post scriptlet fails; get
 #     postinst to create a file and check it exists in install.sh?
 #   - dkms depends on kernel-devel/-headers but may not be version we need
