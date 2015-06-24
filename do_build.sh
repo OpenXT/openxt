@@ -1258,8 +1258,8 @@ do_debian_xctools()
 
     # add linux xctools artifacts
     for n in pkg-xctools pkg-xcswitcher; do
-        ${BUILD_SCRIPTS}/$n/build ${path}
-        ${BUILD_SCRIPTS}/$n/install ${debdir}
+        ${BUILD_SCRIPTS}/$n/build.sh ${path}
+        ${BUILD_SCRIPTS}/$n/copy.sh ${debdir}
     done
 }
 

@@ -22,11 +22,21 @@ else
     DKMS_RPM_SAFE=
 fi
 
-NAME=xenclient-pv-drivers
-PACKAGE=${NAME}-dkms
-VERSION=1.0
+for PVD in "audio" "v4v"
+do
+    NAME=openxt-pv-${PVD}
+    PACKAGE=${NAME}-dkms
+    VERSION=1.0
+    SRCS=/usr/src/${PACKAGE}-${VERSION}
 
-dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
+    if [ ! -d "$SRCS" ]; then
+        continue
+    fi
+
+    dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
+
+done
+
 
 NAME=xenmou
 PACKAGE=${NAME}-dkms
