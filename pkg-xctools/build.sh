@@ -3,10 +3,26 @@
 source ${BUILD_SCRIPTS}/build_helpers.sh
 source ${BUILD_SCRIPTS}/version
 
+make_bundle_pv_drivers()
+{
+    local PDST_DIR="${3}/usr/src/openxt-pv-${1}-dkms-1.0"
+    local PSRC_DIR="${2}/xc-${1}"
+    local PDOC_DIR="${3}/usr/share/doc/openxt-pv-${1}-dkms"
+    local PLIN_DIR="${3}/usr/share/lintian/overrides/openxt-pv-${1}-dkms"
+    pushd $PSRC_DIR
+        install -m 0644 -D dkms/lintian ${PLIN_DIR}
+        install -m 0755 -d ${PDOC_DIR}
+        cp ../COPYING ${PDOC_DIR}/copyright
+        rm -rf dkms
+        mkdir -p $PDST_DIR
+        cp -a . $PDST_DIR
+    popd
+}
 
 # Usage: make_bundle_xctools <name.deb>
 # 2011-07-14: TODO: This should be considered as a temporary solution.
 # 2012-11-27: it definitely should have.
+# 2015-06-24: I would like to echo that last sentiment also.
 make_bundle_xctools()
 {
     local path=`cd "$1"; pwd`
@@ -31,21 +47,15 @@ make_bundle_xctools()
     mkdir -p ${deb_data}/usr/src/libv4v-1.0/src/linux/ && cp git-tmp/v4v/linux/v4v_dev.h ${deb_data}/usr/src/libv4v-1.0/src/linux/
     rm -rf git-tmp
 
-    # xenclient-pv-drivers
-    local PTMP_DIR="xenclient-pv-drivers"
-    local PDST_DIR="${deb_data}/usr/src/xenclient-pv-drivers-dkms-1.0"
+    # pv-linux-drivers
+    local PTMP_DIR="pv-linux-drivers"
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
     git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
-    pushd $PTMP_DIR
-        rm -rf .git
-	rm -f .gitignore
-	mkdir -p $PDST_DIR
-	cp -a . $PDST_DIR
-        install -m 0644 -D dkms/lintian ${deb_data}/usr/share/lintian/overrides/xenclient-pv-drivers-dkms
-        install -m 0755 -d ${deb_data}/usr/share/doc/xenclient-pv-drivers-dkms
-        (cd ${deb_data}/usr/share/doc/xenclient-pv-drivers-dkms && ln -s ../../common-licenses/GPL-2 copyright)
-    popd
+    for pvd in "audio" "v4v"
+    do
+        make_bundle_pv_drivers $pvd $PTMP_DIR $deb_data 
+    done
     rm -rf $PTMP_DIR
     mkdir -p ${deb_data}/lib/udev/rules.d
     ( cd ${BUILD_SCRIPTS}/pkg-xctools/udev-rules/ && cp *.rules ${deb_data}/lib/udev/rules.d/ )

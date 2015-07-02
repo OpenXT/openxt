@@ -53,8 +53,6 @@ mv centos/xenstore-agent centos/xblanker etc/rc.d/init.d
 rmdir centos
 
 rm -r usr/share
-# TODO: Not used? Also remove from debian package?
-rm -r usr/src/xenclient-pv-drivers-dkms-1.0/dkms
 
 mkdir -p etc/dracut.conf.d
 cat <<EOF > etc/dracut.conf.d/xc-tools

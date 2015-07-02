@@ -3,6 +3,7 @@
 set -e
 
 XENCLIENT_TOOLS="@XENCLIENT_TOOLS@"
+HAS_V4V=""
 
 if [ -r /etc/redhat-release ] ; then
     DISTRO=rhel
@@ -21,10 +22,6 @@ fi
 #
 # Deals with pv-drivers
 #
-NAME=xenclient-pv-drivers
-PACKAGE=${NAME}-dkms
-VERSION=1.0
-SRCS=/usr/src/${PACKAGE}-${VERSION}
 
 # Usage: do_dkms_stage stage name version [kernel]
 do_dkms_stage()
@@ -42,41 +39,60 @@ do_dkms_stage()
     dkms $stage -m $pkg -v $ver $kernel $rpm_safe
 }
 
-pushd ${SRCS}
-    echo "${PACKAGE}-${VERSION} installing ..."
+# Loop over all the pv driver packages and install them
+for PVD in "audio" "v4v"
+do
+    # Figure out what pv drivers are getting installed
+    if [[ "x$XC_TOOLS_EXCLUDE" != "x" ]] && [[ "$XC_TOOLS_EXCLUDE" =~ "$PVD" ]]; then
+        continue
+    fi
 
-    # RHEL/CentOS: equivalent is /etc/dracut.conf.d/xc-tools in the RPM.
-    if [ "${DISTRO}" = debian ] ; then
-        initrd_mod_file=/etc/initramfs-tools/modules
-        if [ -f $initrd_mod_file ]; then
-            for md in xc-v4v; do
-                egrep -q "${md}\$" $initrd_mod_file || sed -i "1i${md}" $initrd_mod_file
-            done
+    NAME=openxt-pv-${PVD}
+    PACKAGE=${NAME}-dkms
+    VERSION=1.0
+    SRCS=/usr/src/${PACKAGE}-${VERSION}
+
+    pushd ${SRCS}
+        echo "${PACKAGE}-${VERSION} installing ..."
+
+        # Check if the initramfs/initrd needs updating for V4V
+        # RHEL/CentOS: equivalent is /etc/dracut.conf.d/xc-tools in the RPM.
+        if [ "${PVD}" == v4v ] && [ "${DISTRO}" = debian ]; then
+            initrd_mod_file=/etc/initramfs-tools/modules
+            if [ -f $initrd_mod_file ]; then
+                for md in xc-v4v; do
+                    egrep -q "${md}\$" $initrd_mod_file || sed -i "1i${md}" $initrd_mod_file
+                done
+            fi
         fi
-    fi
 
-    do_dkms_stage add ${PACKAGE} ${VERSION}
-    do_dkms_stage build ${PACKAGE} ${VERSION}
-    do_dkms_stage install ${PACKAGE} ${VERSION}
+        do_dkms_stage add ${PACKAGE} ${VERSION}
+        do_dkms_stage build ${PACKAGE} ${VERSION}
+        do_dkms_stage install ${PACKAGE} ${VERSION}
 
-    if [ "${DISTRO}" = rhel ] ; then
-        # FIXME: Run dracut? dkms does this already - but not for all kernels?
-        :
-    else
-        update-initramfs -u -k all
-    fi
+        echo "${PACKAGE}-${VERSION} installed."
 
-    echo "${PACKAGE}-${VERSION} installed."
+        # Update initramfs/initrd and install header for v4v
+        if [ "${PVD}" == v4v ]; then
+            if [ "${DISTRO}" = debian ]; then
+                update-initramfs -u -k all
+            fi
 
-    echo "${PACKAGE}-${VERSION} headers installing ..."
-    make install
-    echo "${PACKAGE}-${VERSION} headers installed."
+            # FIXME: Run dracut? dkms does this already - but not for all kernels?
+            # if [ "${UPDATERD}" == yes ]; then ...
 
-    # Load the real xenfs and then the OpenXT custom modules
-    modprobe xenfs
-    modprobe xc-v4v
-popd
+            echo "${PACKAGE}-${VERSION} headers installing ..."
+            make install
+            echo "${PACKAGE}-${VERSION} headers installed."
 
+            modprobe xc-v4v
+            HAS_V4V="yes"
+        fi
+    popd
+done
+
+# Load the real xenfs and then the OpenXT custom modules
+modprobe xenfs
 
 #
 # Deals with xenmou
@@ -123,25 +139,25 @@ popd
 #
 # Deals with libv4v
 #
-NAME=libv4v
-PACKAGE=${NAME}
-VERSION=1.0
-SRCS=/usr/src/${PACKAGE}-${VERSION}
-pushd ${SRCS}
-    echo "${PACKAGE}-${VERSION} building ..."
-    ./autogen.sh
-    ./configure --prefix=/usr --libdir=${LIBDIR}
+if [ -n "$HAS_V4V" ]; then
+    NAME=libv4v
+    PACKAGE=${NAME}
+    VERSION=1.0
+    SRCS=/usr/src/${PACKAGE}-${VERSION}
+    pushd ${SRCS}
+        echo "${PACKAGE}-${VERSION} building ..."
+        ./autogen.sh
+        ./configure --prefix=/usr --libdir=${LIBDIR}
 
-    make install
+        make install
 
-    if [ "${DISTRO}" = rhel ] ; then
-        /sbin/ldconfig
-    fi
+        if [ "${DISTRO}" = rhel ] ; then
+            /sbin/ldconfig
+        fi
 
-    echo "${PACKAGE}-${VERSION} installed."
-popd
-
-
+        echo "${PACKAGE}-${VERSION} installed."
+    popd
+fi
 
 #
 # Deals with xblanker
@@ -151,11 +167,11 @@ PACKAGE=${NAME}
 VERSION=1.0
 SRCS=/usr/src/${PACKAGE}-${VERSION}
 pushd ${SRCS}
-    echo "libxenstore building ..."
+    echo "xblanker building ..."
     ./autogen.sh
     ./configure
     make install
-    echo "libxenstore installed."
+    echo "xblanker installed."
     if [ "${DISTRO}" = rhel ] ; then
         # FIXME: Check priority on RHEL/CentOS. Needs to be after
         # xenstore-agent?

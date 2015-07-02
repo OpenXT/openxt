@@ -1,11 +1,11 @@
 Package: xc-tools
 Version: 1-2
-Maintainer: Citrix Systems <customerservice@citrix.com>
-Section: XenClient
+Maintainer: OpenXT Community <openxt@googlegroups.com>
+Section: OpenXT
 License: GPLv2
 Installed-Size: @SIZE@
 Architecture: all
 Depends: dkms, make, linux-headers-2.6-686 | linux-headers-2.6-amd64 | linux-headers-generic | linux-headers, libc6 (>= 2.9), autoconf, pkg-config, gcc, libtool, zlib1g-dev, libx11-dev, libpciaccess-dev, pm-utils
 Priority: optional
-Description: XenClient in-guest tools.
- XenClient linux in-guest software.
+Description: OpenXT in-guest tools.
+ OpenXT Linux in-guest software.
