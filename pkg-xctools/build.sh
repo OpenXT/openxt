@@ -52,25 +52,13 @@ make_bundle_xctools()
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
     git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
-    for pvd in "audio" "v4v"
+    for pvd in "audio" "v4v" "xenmou"
     do
         make_bundle_pv_drivers $pvd $PTMP_DIR $deb_data 
     done
     rm -rf $PTMP_DIR
     mkdir -p ${deb_data}/lib/udev/rules.d
     ( cd ${BUILD_SCRIPTS}/pkg-xctools/udev-rules/ && cp *.rules ${deb_data}/lib/udev/rules.d/ )
-
-    # xenmou
-    mkdir -p xenmou_install
-    git_clone  xenmou_install "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/xctools.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
-    pushd xenmou_install/xenmou/
-        mkdir -p ${deb_data}/usr/src/xenmou-dkms-1.0
-        cp -r dkms.conf Makefile *.h *.c ${deb_data}/usr/src/xenmou-dkms-1.0
-        install -m 0644 -D dkms/lintian ${deb_data}/usr/share/lintian/overrides/xenmou-dkms
-        install -m 0755 -d ${deb_data}/usr/share/doc/xenmou-dkms
-        (cd ${deb_data}/usr/share/doc/xenmou-dkms && ln -s ../../common-licenses/GPL-2 copyright)
-    popd
-    rm -rf xenmou_install
 
     # xenstore-tools
     # TODO: That could be done much better.

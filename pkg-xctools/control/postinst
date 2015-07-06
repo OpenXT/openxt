@@ -40,7 +40,7 @@ do_dkms_stage()
 }
 
 # Loop over all the pv driver packages and install them
-for PVD in "audio" "v4v"
+for PVD in "audio" "v4v" "xenmou"
 do
     # Figure out what pv drivers are getting installed
     if [[ "x$XC_TOOLS_EXCLUDE" != "x" ]] && [[ "$XC_TOOLS_EXCLUDE" =~ "$PVD" ]]; then
@@ -93,26 +93,6 @@ done
 
 # Load the real xenfs and then the OpenXT custom modules
 modprobe xenfs
-
-#
-# Deals with xenmou
-#
-NAME=xenmou
-PACKAGE=${NAME}-dkms
-VERSION=1.0
-SRCS=/usr/src/${PACKAGE}-${VERSION}
-
-pushd ${SRCS}
-    
-    echo "${PACKAGE}-${VERSION} installing ..."
-
-    do_dkms_stage add ${PACKAGE} ${VERSION}
-    do_dkms_stage build ${PACKAGE} ${VERSION}
-    do_dkms_stage install ${PACKAGE} ${VERSION}
-    echo "${PACKAGE}-${VERSION} installed."
-
-    modprobe xenmou
-popd
 
 #
 # Deals with xenstore-tools
