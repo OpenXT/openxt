@@ -40,6 +40,20 @@ function Invoke-CommandChecked {
   }
 }
 
+function Get-RedirectedUrl {
+ 
+    $url = "http://wix.codeplex.com/downloads/get/762937"
+ 
+    $request = [System.Net.WebRequest]::Create($url)
+    $request.AllowAutoRedirect=$false
+    $response=$request.GetResponse()
+ 
+    If ($response.StatusCode -eq "Found")
+    {
+        $response.GetResponseHeader("Location")
+    }
+}
+
 # set up some read-only constant setups
 $arch = ([System.Environment]::GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"))
 if ($arch -eq "AMD64") {
@@ -93,7 +107,7 @@ function Test-Cygwin {
 function Install-Cygwin {
   cd $env:temp
   $cygwinsetup = ("{0}\setup-x86.exe" -f $env:temp)
-  PerformDownload "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "7C-B9-5D-A9-6E-DD-A3-11-54-D4-0A-47-02-FA-A4-7A-CF-F4-13-99-5A-84-5C-0C-39-9C-1E-48-4E-80-9D-24"
+  PerformDownload "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "D7-BD-6C-05-C9-D9-7A-DD-D8-66-22-9D-2E-52-87-81-6E-7C-AD-C2-13-21-AA-C8-F8-43-C7-24-39-E5-92-9F"
   # Ideally we would like to run the cygwin installer with something like the following package list:   
   #  -P "vim,git,rsync,zip,unzip,libiconv,guilt,openssh"
   # Unfortunately doing this with the -q silent option does not work. The workaround is to do the following:
@@ -274,10 +288,31 @@ function Test-Wix {
 }
 
 function Install-Wix {
-  $wix = $env:temp +'\wix.exe' 
-  PerformDownload "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=20928" $wix
-  Invoke-CommandChecked $wix -passive
-} 
+  $wixhtml = $env:temp +'\wix.txt'
+  $wix = $env:temp +'\wix.exe'
+  echo Get-RedirectedUrl
+  PerformDownload 'http://wix.codeplex.com/downloads/get/762937' $wixhtml
+  
+  #Test if file exists.
+  if (Test-Path $wixhtml){
+    #Parse Wix page.
+    $page = Get-Content $wixhtml | out-string
+    #Check if build number is present.
+    if ($page -like "*Build=*"){
+        $start = $page.indexOf("Build=")+6
+        $end = $page.indexOf('" alt="WiX&#32;Toolset"')
+        $build = $page.substring($start, $end - $start)
+        
+        #Download using build number.
+        PerformDownload "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=$build" $wix
+        Invoke-CommandChecked $wix -passive
+    }else{
+        Write-Host "Unable to obtain the build number for the wix download URL. Please download it manually at:"
+        Write-Host "http://wix.codeplex.com/downloads/get/762937"
+        Exit
+    }
+  }
+}
 
 function Test-CAPICOM {
   $dll = $programFiles32+"\Microsoft CAPICOM 2.1.0.2 SDK\Lib\X86\capicom.dll"
