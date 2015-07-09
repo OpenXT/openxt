@@ -22,7 +22,7 @@ else
     DKMS_RPM_SAFE=
 fi
 
-for PVD in "audio" "v4v"
+for PVD in "audio" "v4v" "xenmou"
 do
     NAME=openxt-pv-${PVD}
     PACKAGE=${NAME}-dkms
@@ -37,12 +37,6 @@ do
 
 done
 
-
-NAME=xenmou
-PACKAGE=${NAME}-dkms
-VERSION=1.0
-
-dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
 
 if [ "${DISTRO}" = rhel ] ; then
     chkconfig --del xenstore-agent
