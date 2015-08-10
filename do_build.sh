@@ -314,8 +314,6 @@ do_oe()
         local path="$1"
         local machine="$2"
         local image="$3"
-        local log_path="${OUTPUT_DIR}/${NAME}/logs"
-        local dont_get_log="$4"
 
         pushd "$path"
         export MACHINE="$machine"
@@ -335,19 +333,6 @@ do_oe()
 
          < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
         popd
-
-        if [ -z "${dont_get_log}" -a -z "${NEVER_GET_LOG}" ] ; then
-            mkdir -p "${log_path}"
-            echo "Collecting build logs..." | do_oe_log
-            find $path/tmp-eglibc/work/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/$machine-$image.tar.bz2" --files-from=- | do_oe_log
-            echo "Done" | do_oe_log
-            echo "Collecting sigdata..." | do_oe_log
-            find "$path/tmp-eglibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata-$machine-$image.tar.bz2" --files-from=- | do_oe_log
-            echo "Done" | do_oe_log
-            echo "Collecting buildstats..." | do_oe_log
-            tar -cjf "${log_path}/buildstats-$machine-$image.tar.bz2" "$path/tmp-eglibc/buildstats" | do_oe_log
-            echo "Done" | do_oe_log
-        fi
 }
 
 do_oe_copy()
@@ -388,7 +373,7 @@ do_oe_extra_pkgs()
 {
         local path="$1"
 
-        do_oe "$path" "xenclient-dom0" "task-xenclient-extra" "true"
+        do_oe "$path" "xenclient-dom0" "task-xenclient-extra"
         do_oe "$path" "xenclient-dom0" "package-index"
 }
 
@@ -1298,11 +1283,11 @@ do_xctools_debian_repo()
     local d_output_dir="${OUTPUT_DIR}/${NAME}/xctools-debian-repo/debian"
 
     echo "Building Debian Service VM tools"
-    do_oe "${path}" "xenclient-nilfvm" "linux-xenclient-nilfvm" 1
-    do_oe "${path}" "xenclient-nilfvm" "deb-servicevm-tools" 1
+    do_oe "${path}" "xenclient-nilfvm" "linux-xenclient-nilfvm"
+    do_oe "${path}" "xenclient-nilfvm" "deb-servicevm-tools"
 
     echo "Building XC Tools Debian/Ubuntu repository"
-    do_oe "${path}" "xenclient-dom0" "deb-xctools-image" 1
+    do_oe "${path}" "xenclient-dom0" "deb-xctools-image"
 
     [[ -d "${dest_dir}/debian" ]] || die "do_xctools_debian_repo: debian repository does not exist"
     mkdir -p "${d_output_dir}"
@@ -1396,6 +1381,24 @@ do_info()
     sort "$out/raw/info/"* > "$out/info"
 }
 
+do_logs()
+{
+    local log_path="${OUTPUT_DIR}/${NAME}/logs"
+
+    if [ -z "${NEVER_GET_LOG}" ] ; then
+        mkdir -p "${log_path}"
+        echo "Collecting build logs..." | do_oe_log
+        find $path/tmp-eglibc/work/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/build_logs.tar.bz2" --files-from=- | do_oe_log
+        echo "Done" | do_oe_log
+        echo "Collecting sigdata..." | do_oe_log
+        find "$path/tmp-eglibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata.tar.bz2" --files-from=- | do_oe_log
+        echo "Done" | do_oe_log
+        echo "Collecting buildstats..." | do_oe_log
+        tar -cjf "${log_path}/buildstats.tar.bz2" "$path/tmp-eglibc/buildstats" | do_oe_log
+        echo "Done" | do_oe_log
+    fi
+}
+
 do_ship()
 {
         do_repositories
@@ -1407,6 +1410,7 @@ do_ship()
         do_licences
         do_syncui
         do_info
+        do_logs
 }
 
 do_copy()
