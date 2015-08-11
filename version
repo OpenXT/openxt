@@ -4,17 +4,10 @@ RELEASE="4.0.0"
 # Marketing-friendly name for this version of XenClient
 VERSION="4.0.0"
 
-##########
-# NOTE: IMPORTANT - XenClient tools versioning
-# This should match the release version with the exception of the Major field
-# This field is to be incremented by ten due to historic reasons introduced by xensetup.exe
-# i.e. v4 = v14, v5 = v15 and so on...
-##########
-
- # Seriously now, the bit above was very important...
-XC_TOOLS_MAJOR="14"
+# OpenXT tools version
+XC_TOOLS_MAJOR="4"
 XC_TOOLS_MINOR="0"
 XC_TOOLS_MICRO="0"
 
 # Space-separated list of previous releases that can be upgraded from
-UPGRADEABLE_RELEASES="3.1.4 3.2.0 3.2.1 3.2.2 3.2.3"
+UPGRADEABLE_RELEASES=""
