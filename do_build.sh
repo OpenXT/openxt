@@ -608,9 +608,20 @@ do_oe_packages_tree()
         # rsync seems to delegate non-remote operations to another program, ignoring --rsync-path
         # If the destination is not remote, we have to run the --rsync-path command hack manualy
         ( echo $BUILD_RSYNC_DESTINATION | grep ':' > /dev/null 2>&1) || mkdir -p "$dest"
-        rsync -altvzr --exclude "morgue" --link-dest="$SYNC_CACHE_OE/oe-archive/"       \
-            --rsync-path="mkdir -p \"$dest\" && rsync"                                  \
-            "$path/tmp-eglibc/deploy/ipk" "$dest/packages"
+
+        # Update oe-archive with the packages from the current build
+        # Exclude the Package list files, we don't want hardlinks to them
+        # Don't fail if the user doesn't have an oe-archive folder, the next rsync will
+        #   just make no hardlinks and copy everything instead
+        rsync -a --exclude "Packages*" "$path/tmp-eglibc/deploy/ipk/" "$SYNC_CACHE_OE/oe-archive/" || true
+
+        # Create a hardlink tree, using $SYNC_CACHE_OE/oe-archive/ as a target
+        # $SYNC_CACHE_OE and $dest can be remote (<IP>:<FOLDER>), removing "<IP>:"
+        sync_cache_oe_folder="`echo $SYNC_CACHE_OE | sed 's/^.*://'`"
+        dest_folder="`echo $dest | sed 's/^.*://'`"
+        rsync -rv --size-only --exclude "morgue" --link-dest="$sync_cache_oe_folder/oe-archive/" \
+            --rsync-path="mkdir -p \"$dest_folder/packages/ipk\" && rsync"                       \
+            "$path/tmp-eglibc/deploy/ipk/" "$dest/packages/ipk"
 }
 
 do_oe_copy_licenses()
