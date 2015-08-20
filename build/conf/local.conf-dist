@@ -38,18 +38,44 @@ IMAGE_DEPENDS_ext3.vhd = "hs-vhd-native genext2fs-native e2fsprogs-native"
 # raw image - simply copy rootfs tree to deploy directory
 IMAGE_CMD_raw = "cp -a ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.raw"
 
-XC_EXT3_SIZE="327155712"
-XC_EXT3_VHD_SIZE="312"
-XC_EXT3_BVHD_BLOCKS="319488"
-
-IMAGE_CMD_xc.ext3 = "( set -x; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3; truncate -s ${XC_EXT3_SIZE} $I; mke2fs -F -t ext3 $I; tune2fs -c -1 -i 0 $I; gene3fs -i $I -d ${IMAGE_ROOTFS}; e2fsck -f -y $I || true)"
+IMAGE_CMD_xc.ext3 = "( set -x; \
+	I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3; \
+	TGT_SIZE=`expr ${ROOTFS_SIZE} \* 1024`; \
+	truncate -s ${TGT_SIZE} $I; \
+	mke2fs -F -t ext3 $I; \
+	tune2fs -c -1 -i 0 $I; \
+	gene3fs -i $I -d ${IMAGE_ROOTFS}; \
+	e2fsck -f -y $I || true)"
 IMAGE_DEPENDS_xc.ext3 = "gene3fs-native e2fsprogs-native"
 
 # sadly the vhd stack in XC doesn't seem to [yet] understand libbudgetvhd's vhds
-IMAGE_CMD_xc.ext3.vhd = "( set -x; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.vhd; truncate -s ${XC_EXT3_SIZE} $I.tmp; mke2fs -F -t ext3 $I.tmp; tune2fs -c -1 -i 0 $I.tmp; gene3fs -i $I.tmp -d ${IMAGE_ROOTFS}; e2fsck -f -y $I.tmp || true ; vhd convert $I.tmp $I ${XC_EXT3_VHD_SIZE} ; rm -f $I.tmp  )"
+# take rootfs size in KB, convert to bytes for truncate size, convert to MB
+# and deal with bash rounding. If odd after rounding, add 1, if even, add 2 since we lost
+# some precision; vhd size must also be a multiple of 2 MB.
+IMAGE_CMD_xc.ext3.vhd = "( set -x; \
+	I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.vhd; \
+	TGT_SIZE=`expr ${ROOTFS_SIZE} \* 1024`; \
+	TGT_VHD_SIZE=`expr ${ROOTFS_SIZE} / 1024`; \
+	if [ `expr ${TGT_VHD_SIZE} % 2` -eq 1 ]; \
+		then TGT_VHD_SIZE=`expr ${TGT_VHD_SIZE} + 1`; \
+	else TGT_VHD_SIZE=`expr ${TGT_VHD_SIZE} + 2`; \
+	fi; \
+	truncate -s ${TGT_SIZE} $I.tmp; \
+	mke2fs -F -t ext3 $I.tmp; \
+	tune2fs -c -1 -i 0 $I.tmp; \
+	gene3fs -i $I.tmp -d ${IMAGE_ROOTFS}; \
+	e2fsck -f -y $I.tmp || true ; \
+	vhd convert $I.tmp $I ${TGT_VHD_SIZE} ; \
+	rm -f $I.tmp  )"
 IMAGE_DEPENDS_xc.ext3.vhd = "hs-vhd-native gene3fs-native e2fsprogs-native"
 
-IMAGE_CMD_xc.ext3.bvhd = "( set -x ; I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.bvhd; bvhd_create $I ${XC_EXT3_BVHD_BLOCKS}; mke2fs -Z -F -t ext3 $I; tune2fs -Z -c -1 -i 0 $I; gene3fs -V -i $I -d ${IMAGE_ROOTFS}; e2fsck -Z -f -y $I || true )"
+IMAGE_CMD_xc.ext3.bvhd = "( set -x ; \
+	I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.bvhd; \
+	bvhd_create $I ${ROOTFS_SIZE}; \
+	mke2fs -Z -F -t ext3 $I; \
+	tune2fs -Z -c -1 -i 0 $I; \
+	gene3fs -V -i $I -d ${IMAGE_ROOTFS}; \
+	e2fsck -Z -f -y $I || true )"
 IMAGE_DEPENDS_xc.ext3.bvhd = "gene3fs-native e2fsprogs-native"
 
 # Build source packages if XENCLIENT_BUILD_SRC_PACKAGES is set to 1.
