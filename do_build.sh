@@ -786,7 +786,7 @@ generic_do_repository()
                     fi
 
                     echo "Optional file $src is missing: skipping"
-                    break
+                    continue
                 fi
 
                 cp "$OUTPUT_DIR/$NAME/raw/$src" "$repository/$src"
