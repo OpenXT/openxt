@@ -88,7 +88,7 @@ INHERIT += "xenclient-src-info"
 
 # 2) Build tweaks/hacks
 
-PREFERRED_VERSION_linux-libc-headers = "3.11"
+PREFERRED_VERSION_linux-libc-headers = "3.18%"
 PREFERRED_VERSION_linux-libc-headers-nativesdk = "${PREFERRED_VERSION_linux-libc-headers}"
 PREFERRED_VERSION_dojosdk-native = "1.7.2"
 
