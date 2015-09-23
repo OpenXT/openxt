@@ -52,7 +52,7 @@ make_bundle_xctools()
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
     git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
-    for pvd in "audio" "v4v" "xenmou"
+    for pvd in "audio" "v4v" "xenmou" "vusb"
     do
         make_bundle_pv_drivers $pvd $PTMP_DIR $deb_data 
     done

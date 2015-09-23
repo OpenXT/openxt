@@ -9,4 +9,4 @@ The various PV drivers can be excluded from the install using the following:
 
 This would prevent both the audio and v4v PV drivers from being insalled.
 
-Possible values for XC_TOOLS_EXCLUDE: audio v4v xenmou
+Possible values for XC_TOOLS_EXCLUDE: audio v4v xenmou vusb
