@@ -194,6 +194,14 @@ function update-config-file($argtable)
         {
             throw "Failed to update config file with VS path (32bit) - value: $vsdir"
         }
+
+        $signtool = read-config-value -config $global:cfgfile -name "SignTool"
+        $signtool = $signtool.Replace("\Program Files\", "\Program Files (x86)\")
+        $ret = write-config-value -config $global:cfgfile -name "SignTool" -value $signtool
+        if (!$ret)
+        {
+            throw "Failed to update config file with signtool path (32bit) - value: $signtool"
+        }
     }
 
     if ($argtable["giturl"].Length -gt 0) 
