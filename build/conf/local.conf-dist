@@ -118,52 +118,7 @@ do_make_scripts[dirs] = "${WORKDIR}"
 # overwrite debian mirror for screen, as the debian version it's based on (lenny) is in oldstable now
 DEBIAN_MIRROR_pn-screen = "http://archive.debian.org/debian/pool"
 
-# disable --as-needed flag for the recipes 
-ASNEEDED_pn-acpi-helper = ""
-ASNEEDED_pn-pci-dm-helper = ""
-ASNEEDED_pn-audio-helper = ""
-ASNEEDED_pn-atapi-pt-helper = ""
-ASNEEDED_pn-libxcxenstore = ""
-ASNEEDED_pn-libsurfman = ""
-ASNEEDED_pn-libdmbus = ""
-ASNEEDED_pn-vbetool-xc = ""
-ASNEEDED_pn-qemu-wrappers = ""
-ASNEEDED_pn-pmutil = ""
-ASNEEDED_pn-xcpmd = ""
-ASNEEDED_pn-tboot = ""
-ASNEEDED_pn-selinux-load = ""
-ASNEEDED_pn-svirt-interpose = ""
-ASNEEDED_pn-xenclient-input-daemon = ""
-ASNEEDED_pn-bootage = ""
-ASNEEDED_pn-surfman = ""
-ASNEEDED_pn-audio-daemon = ""
-ASNEEDED_pn-xenclient-sha1sum = ""
-ASNEEDED_pn-midori = ""
-ASNEEDED_pn-busybox-static = ""
-ASNEEDED_pn-dm-wrapper = ""
-ASNEEDED_pn-dm-wrapper-static = ""
-ASNEEDED_pn-xenclient-dbusbouncer = ""
-ASNEEDED_pn-sysvinit = ""
-#ASNEEDED_pn-xdotool = ""
-
-# CFLAGS/LDFLAGS hacks
-LDFLAGS_pn-xdotool += "-lX11"
-LDFLAGS_pn-midori += "-ljavascriptcoregtk-1.0"
-
-LDFLAGS_pn-compleat += "-pthread"
-CFLAGS_pn-compleat += "-pthread"
-
-LDFLAGS_pn-xenclient-rpcgen += "-pthread"
-CFLAGS_pn-xenclient-rpcgen += "-pthread"
-
-LDFLAGS_pn-xenclient-input-daemon += "-lm -lcrypto"
-
-LDFLAGS_pn-devilspie += "-lX11"
-
-CFLAGS_pn-networkmanager-applet += "-Wno-error=unused-but-set-variable"
-
 # make hacks
-PARALLEL_MAKE_pn-libxclogging = "-j 1"
 PARALLEL_MAKE_pn-gnumail = "-j 1"
 PARALLEL_MAKE_pn-gnumail-native = "-j 1"
 PARALLEL_MAKE_pn-shared-mime-info = "-j 1"
