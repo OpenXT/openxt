@@ -1,5 +1,5 @@
 # 1) Basic config
-
+DISTRO = "openxt-main"
 DISTRO_FEATURES = "alsa ext2 largefile usbhost wifi xattr pci x11 ipv4 ipv6 ${DISTRO_FEATURES_LIBC} multiarch pam"
 BB_NUMBER_THREADS = "4"
 PARALLEL_MAKE = "-j 4"
@@ -87,10 +87,6 @@ INHERIT += "xenclient-src-info"
 
 
 # 2) Build tweaks/hacks
-
-PREFERRED_VERSION_linux-libc-headers = "3.18%"
-PREFERRED_VERSION_linux-libc-headers-nativesdk = "${PREFERRED_VERSION_linux-libc-headers}"
-PREFERRED_VERSION_dojosdk-native = "1.7.2"
 
 PREFERRED_PROVIDER_console-tools = "console-tools"
 PREFERRED_PROVIDER_virtual/libx11 = "libx11"
