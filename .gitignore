@@ -10,3 +10,4 @@ build/repos
 build/sstate-cache
 build/tmp-eglibc
 build-output/*
+.config
