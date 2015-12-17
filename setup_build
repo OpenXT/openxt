@@ -113,6 +113,9 @@ if [ "$1" != "env" ]; then
   getgit $REPOS/meta-openembedded $META_OE_REPO $META_OE_TAG
   getgit $REPOS/meta-java $META_JAVA_REPO $META_JAVA_TAG
   getgit $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
+  if [ ! -z "$EXTRA_DIR" ]; then
+    getgit $REPOS/$EXTRA_DIR $EXTRA_REPO $EXTRA_TAG
+  fi
 fi
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
@@ -121,6 +124,9 @@ if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
 fi
 
 BBPATH=$OE_XENCLIENT_DIR/oe/xenclient:$REPOS/openembedded:$OE_XENCLIENT_DIR/oe-addons
+if [ ! -z "$EXTRA_DIR" ]; then
+  BBPATH=$REPOS/$EXTRA_DIR:$BBPATH
+fi
 
 cat > oeenv <<EOF 
 OE_XENCLIENT_DIR=$OE_XENCLIENT_DIR
