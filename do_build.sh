@@ -130,6 +130,9 @@ do_oe_setup()
         if [ ! -f "local.settings" ]; then
                 cat > local.settings <<EOF
 META_SELINUX_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/meta-selinux.git
+EXTRA_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe-extra.git
+EXTRA_DIR=extra
+EXTRA_TAG="$BRANCH"
 XENCLIENT_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git
 XENCLIENT_TAG="$BRANCH"
 EOF
@@ -204,6 +207,7 @@ OPENXT_GIT_PROTOCOL="$OPENXT_GIT_PROTOCOL"
 OPENXT_BRANCH="$ORIGIN_BRANCH"
 OPENXT_TAG="$BRANCH"
 
+require conf/xenclient-extra.conf
 EOF
 
                 if [ "x$ID" != "x" ]; then
