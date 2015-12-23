@@ -47,14 +47,14 @@ while [ "$#" -ne 0 ]; do
 done
 
 
-BITBAKE_REPO=git://git.openembedded.org/bitbake.git
+BITBAKE_REPO=git://github.com/openembedded/bitbake.git
 # maybe use something more "release-like"
 BITBAKE_TAG=f8bf4499549f978ce7c93bc088a66f74cd751e2c
 
-OE_CORE_REPO=git://git.openembedded.org/openembedded-core
+OE_CORE_REPO=git://github.com/openembedded/openembedded-core
 OE_CORE_TAG=5433da972f2994f7176597d89499ccb65f876f88
 
-META_OE_REPO=git://git.openembedded.org/meta-openembedded
+META_OE_REPO=git://github.com/openembedded/meta-openembedded
 META_OE_TAG=24e1ebc21da20240a41984b7f5c90aa9bd65a7e8
 
 META_JAVA_REPO=https://github.com/woglinde/meta-java.git
