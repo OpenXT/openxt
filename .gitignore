@@ -7,7 +7,8 @@ build/oe
 build/oeenv
 build/pseudodone
 build/repos
+build/cache
 build/sstate-cache
-build/tmp-eglibc
+build/tmp-glibc
 build-output/*
 .config
