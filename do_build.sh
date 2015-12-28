@@ -1,5 +1,6 @@
 #! /bin/bash -e
 set -o pipefail
+
 STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
@@ -129,7 +130,7 @@ do_oe_setup()
 
         if [ ! -f "local.settings" ]; then
                 cat > local.settings <<EOF
-META_SELINUX_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/meta-selinux.git
+META_SELINUX_REPO=$META_SELINUX_REPO
 XENCLIENT_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git
 XENCLIENT_TAG="$BRANCH"
 EOF
@@ -267,7 +268,7 @@ EOF
             OPTS=""
         fi
 
-        ${TOPDIR}/setup_build $OPTS
+        ${TOPDIR}/setup_build-next.sh $OPTS
 
         popd > /dev/null
 }
@@ -317,7 +318,7 @@ do_oe()
             echo "Running URI freezer"
              < /dev/null ./bb --disable-wrapper -c freezeall "$image" | do_oe_log
             # kill the cache
-            rm -fr tmp-eglibc/cache
+            rm -fr tmp-glibc/cache
         fi
         if [ $VERBOSE -eq 1 ] 
         then
@@ -337,7 +338,7 @@ do_oe_copy()
         local name="$2"
         local image="$3"
         local machine="$4"
-        local binaries="tmp-eglibc/deploy/images"
+        local binaries="tmp-glibc/deploy/images"
         local t=""
         local unhappy=1
         pushd "$path"
@@ -351,9 +352,9 @@ do_oe_copy()
             xc.ext3.vhd xc.ext3.vhd.gz xc.ext3.vhd.bz2 \
             xc.ext3.bvhd xc.ext3.bvhd.gz xc.ext3.bvhd.bz2
         do
-            if [ -f "$binaries/$image-image-$machine.$t" ]; then
+            if [ -f "$binaries/$machine/$image-image-$machine.$t" ]; then
                 echo "$name image type: $t"
-                cp "$binaries/$image-image-$machine.$t" "$OUTPUT_DIR/$NAME/raw/$name-rootfs.i686.$t"
+                cp "$binaries/$machine/$image-image-$machine.$t" "$OUTPUT_DIR/$NAME/raw/$name-rootfs.i686.$t"
                 unhappy=0
             fi
         done
@@ -404,7 +405,7 @@ do_oe_nilfvm_copy()
         local path="$1"
         do_oe_copy "$path" "nilfvm" "xenclient-nilfvm" "xenclient-nilfvm"
 
-        local binaries="tmp-eglibc/deploy/images"
+        local binaries="tmp-glibc/deploy/images"
         pushd "$path"
         cp "$binaries/service-nilfvm" "$OUTPUT_DIR/$NAME/raw/service-nilfvm"
         popd
@@ -439,8 +440,8 @@ do_oe_syncui_copy()
         local path="$1"
         pushd "$path"
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
-        cp tmp-eglibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
-        cp tmp-eglibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
+        cp tmp-glibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
+        cp tmp-glibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
         popd
 }
 
@@ -480,27 +481,28 @@ do_oe_sysroot()
 do_oe_installer_copy()
 {
         local path="$1"
-        local binaries="tmp-eglibc/deploy/images"
+        local machine="$2"
+        local binaries="tmp-glibc/deploy/images"
         pushd "$path"
 
         mkdir -p "$OUTPUT_DIR/$NAME/raw/installer"
         # Copy installer
-        cp "$binaries/xenclient-installer-image-xenclient-dom0.cpio.gz" "$OUTPUT_DIR/$NAME/raw/installer/rootfs.i686.cpio.gz"
+        cp "$binaries/$machine/xenclient-installer-image-xenclient-dom0.cpio.gz" "$OUTPUT_DIR/$NAME/raw/installer/rootfs.i686.cpio.gz"
 
         # Copy extra installer files
         rm -rf "$OUTPUT_DIR/$NAME/raw/installer/iso"
-        cp -r "$binaries/xenclient-installer-image-xenclient-dom0/iso" \
+        cp -r "$binaries/$machine/xenclient-installer-image-xenclient-dom0/iso" \
                 "$OUTPUT_DIR/$NAME/raw/installer/iso"
         rm -rf "$OUTPUT_DIR/$NAME/raw/installer/netboot"
-        cp -r "$binaries/xenclient-installer-image-xenclient-dom0/netboot" \
+        cp -r "$binaries/$machine/xenclient-installer-image-xenclient-dom0/netboot" \
                 "$OUTPUT_DIR/$NAME/raw/installer/netboot"
-        cp "$binaries/vmlinuz-xenclient-dom0.bin" \
+        cp "$binaries/$machine/bzImage-xenclient-dom0.bin" \
                 "$OUTPUT_DIR/$NAME/raw/installer/vmlinuz"
-        cp "$binaries/xen.gz" \
+        cp "$binaries/$machine/xen.gz" \
                 "$OUTPUT_DIR/$NAME/raw/installer/xen.gz"
-        cp "$binaries/tboot.gz" \
+        cp "$binaries/$machine/tboot.gz" \
                 "$OUTPUT_DIR/$NAME/raw/installer/tboot.gz"
-        cp "$binaries"/*.acm \
+        cp "$binaries/$machine"/*.acm \
                 "$OUTPUT_DIR/$NAME/raw/installer/"
         popd
 }
@@ -510,18 +512,19 @@ do_oe_installer()
         local path="$1"
 
         do_oe "$path" "xenclient-dom0" "xenclient-installer-image"
-        do_oe_installer_copy $path
+        do_oe_installer_copy $path "xenclient-dom0"
 }
 
 do_oe_installer_part2_copy()
 {
         local path="$1"
-        local binaries="tmp-eglibc/deploy/images"
+        local machine="$2"
+        local binaries="tmp-glibc/deploy/images"
         pushd "$path"
 
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
 
-        cp "$binaries/xenclient-installer-part2-image-xenclient-dom0.tar.bz2" "$OUTPUT_DIR/$NAME/raw/control.tar.bz2"
+        cp "$binaries/$machine/xenclient-installer-part2-image-xenclient-dom0.tar.bz2" "$OUTPUT_DIR/$NAME/raw/control.tar.bz2"
 
         popd
 }
@@ -531,7 +534,7 @@ do_oe_installer_part2()
         local path="$1"
 
         do_oe "$path" "xenclient-dom0" "xenclient-installer-part2-image"
-        do_oe_installer_part2_copy $path
+        do_oe_installer_part2_copy $path "xenclient-dom0"
 }
 
 do_oe_source_shrink()
@@ -559,7 +562,7 @@ do_oe_source_shrink()
 do_oe_source_copy()
 {
         local path="$1"
-        local rootfs="tmp-eglibc/deploy/images/xenclient-source-image-xenclient-dom0.raw"
+        local rootfs="tmp-glibc/deploy/images/xenclient-source-image-xenclient-dom0.raw"
         pushd "$path" > /dev/null
 
         if [ "$SOURCE" -eq 0 ]
@@ -609,7 +612,7 @@ do_oe_packages_tree()
         # Exclude the Package list files, we don't want hardlinks to them
         # Don't fail if the user doesn't have an oe-archive folder, the next rsync will
         #   just make no hardlinks and copy everything instead
-        rsync -a --exclude "Packages*" "$path/tmp-eglibc/deploy/ipk/" "$SYNC_CACHE_OE/oe-archive/" || true
+        rsync -a --exclude "Packages*" "$path/tmp-glibc/deploy/ipk/" "$SYNC_CACHE_OE/oe-archive/" || true
 
         # Create a hardlink tree, using $SYNC_CACHE_OE/oe-archive/ as a target
         # $SYNC_CACHE_OE and $dest can be remote (<IP>:<FOLDER>), removing "<IP>:"
@@ -617,13 +620,13 @@ do_oe_packages_tree()
         dest_folder="`echo $dest | sed 's/^.*://'`"
         rsync -rv --size-only --exclude "morgue" --link-dest="$sync_cache_oe_folder/oe-archive/" \
             --rsync-path="mkdir -p \"$dest_folder/packages/ipk\" && rsync"                       \
-            "$path/tmp-eglibc/deploy/ipk/" "$dest/packages/ipk"
+            "$path/tmp-glibc/deploy/ipk/" "$dest/packages/ipk"
 }
 
 do_oe_copy_licenses()
 {
         local path="$1"
-        local binaries="tmp-eglibc/deploy/images"
+        local binaries="tmp-glibc/deploy/images"
 
         pushd "$path"
 
@@ -658,7 +661,7 @@ do_oe_merge_src_info()
         mkdir -p "$OUTPUT_DIR/$NAME/raw"
 
         "${CMD_DIR}/merge_src_info.py" \
-            "$path/oe/tmp-eglibc/deploy/src-info" \
+            "$path/oe/tmp-glibc/deploy/src-info" \
             "$OUTPUT_DIR/$NAME/raw/source-info.json"
 }
 
@@ -1286,7 +1289,7 @@ xctools_iso_from_zip()
 do_xctools_debian_repo()
 {
     local path=`cd "$1"; pwd`
-    local dest_dir="${path}/tmp-eglibc/deb-xctools-image/"
+    local dest_dir="${path}/tmp-glibc/deb-xctools-image/"
     local d_output_dir="${OUTPUT_DIR}/${NAME}/xctools-debian-repo/debian"
 
     echo "Building Debian Service VM tools"
@@ -1395,13 +1398,13 @@ do_logs()
     if [ -z "${NEVER_GET_LOG}" ] ; then
         mkdir -p "${log_path}"
         echo "Collecting build logs..." | do_oe_log
-        find $path/tmp-eglibc/work/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/build_logs.tar.bz2" --files-from=- | do_oe_log
+        find $path/tmp-glibc/work/*/*/*/temp -name "log.do_*" | tar -cjf "${log_path}/build_logs.tar.bz2" --files-from=- | do_oe_log
         echo "Done" | do_oe_log
         echo "Collecting sigdata..." | do_oe_log
-        find "$path/tmp-eglibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata.tar.bz2" --files-from=- | do_oe_log
+        find "$path/tmp-glibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata.tar.bz2" --files-from=- | do_oe_log
         echo "Done" | do_oe_log
         echo "Collecting buildstats..." | do_oe_log
-        tar -cjf "${log_path}/buildstats.tar.bz2" "$path/tmp-eglibc/buildstats" | do_oe_log
+        tar -cjf "${log_path}/buildstats.tar.bz2" "$path/tmp-glibc/buildstats" | do_oe_log
         echo "Done" | do_oe_log
     fi
 }
@@ -1521,11 +1524,11 @@ do_build()
                         installer)
                                 $bg do_oe_installer "$path" ;;
                         installercp)
-                                do_oe_installer_copy "$path" ;;
+                                do_oe_installer_copy "$path" "xenclient-dom0";;
                         installer2)
                                 $bg do_oe_installer_part2 "$path" ;;
                         installer2cp)
-                                do_oe_installer_part2_copy "$path" ;;
+                                do_oe_installer_part2_copy "$path" "xenclient-dom0";;
                         license*)
                                 $bg do_oe_copy_licenses "$path" ;;
                         sourceinfo*)

@@ -13,8 +13,6 @@ USER_CLASSES = "buildstats"
 PATCHRESOLVE = "noop"
 CONF_VERSION = "1"
 TMPDIR ?= "${TOPDIR}/build"
-#DL_DIR ?= "${TOPDIR}/downloads"
-#SSTATE_DIR ?= "${TOPDIR}/sstate-cache"
 
 STAGING_IDLDIR = "${STAGING_DATADIR}/idl"
 
@@ -22,7 +20,7 @@ ENABLE_BINARY_LOCALE_GENERATION = "1"
 LOCALE_UTF8_ONLY = "1"
 
 # ocaml
-SYSROOT_OCAML_PATH = "${STAGING_DIR_NATIVE}${libdir_native}/${TUNE_PKGARCH}${TARGET_VENDOR}-${TARGET_OS}/ocaml"
+SYSROOT_OCAML_PATH = "${STAGING_DIR_NATIVE}${libdir_native}/${TRANSLATED_TARGET_ARCH}${TARGET_VENDOR}-${TARGET_OS}/ocaml"
 OCAML_STDLIBDIR = "${SYSROOT_OCAML_PATH}/site-lib"
 OCAML_HEADERS = "${SYSROOT_OCAML_PATH}"
 export ocamllibdir = "${libdir}/ocaml"
@@ -97,7 +95,6 @@ VIRTUAL-RUNTIME_keymaps = "xenclient-console-keymaps"
 
 FILESYSTEM_PERMS_TABLES = "files/xc-fs-perms.txt"
 POLKITAUTH = ""
-BBMASK = "busybox_1.19"
 
 # prevent tasks from creating empty "${S}" dir
 do_clean[dirs] = "${WORKDIR}"
