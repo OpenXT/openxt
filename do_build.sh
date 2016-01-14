@@ -636,7 +636,7 @@ do_oe_copy_licenses()
         rm -rf "$licences"
         mkdir -p "$OUTPUT_DIR/$NAME/raw/licences"
 
-        for i in "$binaries"/*-image-licences.csv ; do
+        for i in "$binaries"/*/*-image-licences.csv ; do
             local target="$(basename "$i" |
                           sed 's/[^-]*-\(.*-\)image-\(licences.csv\)$/\1\2/')"
             cp "$i" "$licences/$target"
