@@ -5,10 +5,10 @@ source ${BUILD_SCRIPTS}/version
 
 make_bundle_pv_drivers()
 {
-    local PDST_DIR="${3}/usr/src/openxt-pv-${1}-dkms-1.0"
-    local PSRC_DIR="${2}/xc-${1}"
-    local PDOC_DIR="${3}/usr/share/doc/openxt-pv-${1}-dkms"
-    local PLIN_DIR="${3}/usr/share/lintian/overrides/openxt-pv-${1}-dkms"
+    local PDST_DIR="${3}/usr/src/openxt-${1}-1.0"
+    local PSRC_DIR="${2}/openxt-${1}"
+    local PDOC_DIR="${3}/usr/share/doc/openxt-${1}"
+    local PLIN_DIR="${3}/usr/share/lintian/overrides/openxt-${1}"
     pushd $PSRC_DIR
         install -m 0644 -D dkms/lintian ${PLIN_DIR}
         install -m 0755 -d ${PDOC_DIR}

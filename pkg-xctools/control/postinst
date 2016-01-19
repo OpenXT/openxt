@@ -47,8 +47,8 @@ do
         continue
     fi
 
-    NAME=openxt-pv-${PVD}
-    PACKAGE=${NAME}-dkms
+    NAME=openxt-${PVD}
+    PACKAGE=${NAME}
     VERSION=1.0
     SRCS=/usr/src/${PACKAGE}-${VERSION}
 
@@ -60,7 +60,7 @@ do
         if [ "${PVD}" == v4v ] && [ "${DISTRO}" = debian ]; then
             initrd_mod_file=/etc/initramfs-tools/modules
             if [ -f $initrd_mod_file ]; then
-                for md in xc-v4v; do
+                for md in openxt-v4v; do
                     egrep -q "${md}\$" $initrd_mod_file || sed -i "1i${md}" $initrd_mod_file
                 done
             fi
@@ -85,7 +85,7 @@ do
             make install
             echo "${PACKAGE}-${VERSION} headers installed."
 
-            modprobe xc-v4v
+            modprobe openxt-v4v
             HAS_V4V="yes"
         fi
     popd
@@ -214,7 +214,7 @@ if [ -f /boot/grub/video.lst ]; then
 fi
 (
 	set +e;
-	modprobe xenfs; modprobe xc-v4v;
+	modprobe xenfs; modprobe openxt-v4v;
 	chmod 0666 /dev/v4v_*;
 	exit 0
 )
