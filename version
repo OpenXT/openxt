@@ -1,8 +1,8 @@
-# Identifier for this version of XenClient
-RELEASE="4.0.0"
+# Identifier for this version of OpenXT
+RELEASE="6.0.0"
 
-# Marketing-friendly name for this version of XenClient
-VERSION="4.0.0"
+# Marketing-friendly name for this version of OpenXT
+VERSION="6.0.0"
 
 ##########
 # NOTE: IMPORTANT - XenClient tools versioning
@@ -12,9 +12,9 @@ VERSION="4.0.0"
 ##########
 
  # Seriously now, the bit above was very important...
-XC_TOOLS_MAJOR="14"
+XC_TOOLS_MAJOR="16"
 XC_TOOLS_MINOR="0"
 XC_TOOLS_MICRO="0"
 
 # Space-separated list of previous releases that can be upgraded from
-UPGRADEABLE_RELEASES="3.1.4 3.2.0 3.2.1 3.2.2 3.2.3"
+UPGRADEABLE_RELEASES=""
