@@ -31,6 +31,7 @@ if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${DUDE}$"` ]; then
     adduser --gecos "" ${DUDE}
     mkdir -p /home/${DUDE}/.ssh
     touch /home/${DUDE}/.ssh/authorized_keys
+    touch /home/${DUDE}/.ssh/known_hosts
     chown -R ${DUDE}:${DUDE} /home/${DUDE}/.ssh
     echo "${DUDE}  ALL=(ALL:ALL) ALL" >> /etc/sudoers
 else
