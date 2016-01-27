@@ -22,7 +22,7 @@ test -e ${DAEMON} || exit 0
 case "$1" in
     start)
         log_daemon_msg "Loading xc modules" "xc modules"
-	if ! ( modprobe xenfs; modprobe xc-v4v; ); then
+	if ! ( modprobe xenfs; modprobe openxt-v4v; ); then
             log_end_msg 1
         else
             log_end_msg 0
