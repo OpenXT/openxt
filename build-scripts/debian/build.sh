@@ -6,6 +6,8 @@ DUDE=%DUDE%
 BUILD_DIR=%BUILD_DIR%
 IP_C=%IP_C%
 
+SBUILD="sbuild --purge-deps=never"
+
 # Build
 mkdir $BUILD_DIR
 cd $BUILD_DIR
@@ -17,12 +19,12 @@ cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
 cd all
 for tool in ../pv-linux-drivers/openxt-*; do
-    sbuild --dist=wheezy --arch-all $tool
+    $SBUILD --dist=wheezy --arch-all $tool
 done
-sbuild --dist=wheezy --arch=i386  ../v4v/libv4v
-sbuild --dist=wheezy --arch=amd64 ../v4v/libv4v
-sbuild --dist=wheezy --arch=i386  ../xctools/xc-switcher
-sbuild --dist=wheezy --arch=amd64 ../xctools/xc-switcher
+$SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v
+$SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v
+$SBUILD --dist=wheezy --arch=i386  ../xctools/xc-switcher
+$SBUILD --dist=wheezy --arch=amd64 ../xctools/xc-switcher
 cd - >/dev/null
 mkdir wheezy
 cd wheezy
