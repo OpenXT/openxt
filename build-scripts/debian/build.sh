@@ -11,6 +11,7 @@ mkdir $BUILD_DIR
 cd $BUILD_DIR
 git clone -b lxc https://github.com/jean-edouard/pv-linux-drivers.git
 git clone -b build-scripts https://github.com/jean-edouard/v4v.git
+git clone -b build-scripts https://github.com/jean-edouard/xctools.git
 cp -r v4v/v4v/linux v4v/libv4v/src/
 cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
@@ -20,6 +21,8 @@ for tool in ../pv-linux-drivers/openxt-*; do
 done
 sbuild --dist=wheezy --arch=i386  ../v4v/libv4v
 sbuild --dist=wheezy --arch=amd64 ../v4v/libv4v
+sbuild --dist=wheezy --arch=i386  ../xctools/xc-switcher
+sbuild --dist=wheezy --arch=amd64 ../xctools/xc-switcher
 cd - >/dev/null
 mkdir wheezy
 cd wheezy
