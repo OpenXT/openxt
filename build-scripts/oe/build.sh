@@ -52,6 +52,9 @@ git config user.name "automated build"
 git merge --no-edit jethro-merge
 cd -
 
+# Apply Eric's temporary workaround:
+sed -i 's/^LOCALE_GENERATION_WITH_CROSS-LOCALEDEF = "1"/LOCALE_GENERATION_WITH_CROSS-LOCALEDEF = "0"/' ./build/repos/openembedded-core/meta/recipes-core/glibc/glibc-locale.inc
+
 ./do_build.sh | tee build.log
 
 # Copy the build output
