@@ -189,7 +189,7 @@ EOF
 
 # Create a container for the main part of the OpenXT build
 setup_container "01" "oe" \
-                "debian" "${DEBIAN_MIRROR}" "--arch i386  --release squeeze"
+                "debian" "${DEBIAN_MIRROR}" "--arch i386  --release jessie"
 
 # Create a container for the Debian tool packages for OpenXT
 setup_container "02" "debian" \
