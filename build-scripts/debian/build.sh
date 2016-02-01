@@ -2,9 +2,11 @@
 
 set -e
 
-DUDE=%DUDE%
+BUILD_USER=%BUILD_USER%
 BUILD_DIR=%BUILD_DIR%
 IP_C=%IP_C%
+SUBNET_PREFIX=%SUBNET_PREFIX%
+ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
 SBUILD="sbuild --purge-deps=never"
 
@@ -65,7 +67,7 @@ ls ../jessie/*.deb >/dev/null 2>&1 && reprepro includedeb jessie ../jessie/*.deb
 cd - >/dev/null
 
 # Copy the resulting repository
-scp -r repo ${DUDE}@192.168.${IP_C}.1:${BUILD_DIR}/debian
+scp -r repo "${BUILD_USER}@${SUBNET_PREFIX}.${IP_C}.1:${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/debian"
 
 # The script may run in an "ssh -t -t" environment, that won't exit on its own
 set +e

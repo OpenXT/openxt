@@ -2,15 +2,17 @@
 
 set -e
 
-DUDE=%DUDE%
+BUILD_USER=%BUILD_USER%
 BUILD_DIR=%BUILD_DIR%
 IP_C=%IP_C%
+SUBNET_PREFIX=%SUBNET_PREFIX%
+ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
 # On first build, setup Oracle
 if [ ! -e ~/oracled ]; then
     while [ ! -f /tmp/oracle-xe-11.2.0-1.0.x86_64.rpm.zip ]; do
         echo "Please scp oracle-xe-11.2.0-1.0.x86_64.rpm.zip to my /tmp."
-        echo "  example: scp -i ssh-key/openxt oracle-xe-11.2.0-1.0.x86_64.rpm.zip build@192.168.${IP_C}.103:/tmp"
+        echo "  example: scp -i ssh-key/openxt oracle-xe-11.2.0-1.0.x86_64.rpm.zip build@${SUBNET_PREFIX}.${IP_C}.103:/tmp"
         sleep 60
     done
     unzip /tmp/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
@@ -74,7 +76,7 @@ cp openxt/out/* repo/RPMS
 createrepo repo
 
 # Copy the resulting repository
-scp -r repo ${DUDE}@192.168.${IP_C}.1:${BUILD_DIR}/rpms
+scp -r repo "${BUILD_USER}@${SUBNET_PREFIX}.${IP_C}.1:${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/rpms"
 
 # The script may run in an "ssh -t -t" environment, that won't exit on its own
 set +e

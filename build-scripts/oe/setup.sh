@@ -10,13 +10,29 @@ sed -i '/^start)$/a        mkdir -p /dev/shm/network/' /etc/init.d/networking
 PKGS=""
 PKGS="$PKGS openssh-server openssl"
 PKGS="$PKGS sed wget cvs subversion git-core coreutils unzip texi2html texinfo docbook-utils gawk python-pysqlite2 diffstat help2man make gcc build-essential g++ desktop-file-utils chrpath cpio" # OE main deps
-PKGS="$PKGS ghc guilt iasl quilt bin86 bcc libsdl1.2-dev liburi-perl genisoimage policycoreutils unzip" # OpenXT-specific deps
+PKGS="$PKGS guilt iasl quilt bin86 bcc libsdl1.2-dev liburi-perl genisoimage policycoreutils unzip vim sudo rpm curl libncurses5-dev" # OpenXT-specific deps
 apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
 apt-get -y install $PKGS </dev/null || apt-get -y install $PKGS </dev/null
 
+# Download the GHC prerequisites from squeeze
+mkdir -p /tmp/ghc-prereq
+cd /tmp/ghc-prereq
+# FIXME: use the MIRROR
+wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb
+wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmp3c2_4.3.2+dfsg-1_i386.deb
+wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmp3-dev_4.3.2+dfsg-1_i386.deb
+dpkg -i libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb libgmp3c2_4.3.2+dfsg-1_i386.deb libgmp3-dev_4.3.2+dfsg-1_i386.deb
+
+# Install the required version of GHC
+cd /tmp
+wget http://www.haskell.org/ghc/dist/6.12.3/ghc-6.12.3-i386-unknown-linux-n.tar.bz2
+tar jxf ghc-6.12.3-i386-unknown-linux-n.tar.bz2
+cd ghc-6.12.3
+./configure --prefix=/usr
+make install
+
 # Use bash instead of dash for /bin/sh
-mkdir -p /tmp
 echo "dash dash/sh boolean false" > /tmp/preseed.txt
 debconf-set-selections /tmp/preseed.txt
 dpkg-reconfigure -f noninteractive dash
