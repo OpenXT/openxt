@@ -1,6 +1,11 @@
 #!/bin/sh
 # OpenXT git repo setup file.
 
+die() {
+	echo "$1" 1>&2
+	exit 1
+}
+
 #######################################################################
 # checkout_git_branch                                                 #
 # param1: Path to the git repo                                        #
@@ -37,65 +42,14 @@ fetch_git_repo() {
 	set -e
 }
 
-#######################################################################
-# update_git_repo                                                     #
-# param1: Path to the git repo                                        #
-#                                                                     #
-# Updates the repo located at the path specified by param1.  All      #
-# branches will be updated.                                           #
-#######################################################################
-update_git_repo() {
-	local path="$1"
-	local repo="$2"
-
-	echo "Updating local copy of $repo..."
-	cd $path
-	set +e
-	#  Simple pull only works if fast forware is possible.
-	git pull || die "Update of git repo failed: $path  Please resolve manually."
-	cd $OLDPWD
-}
-
 process_git_repo() {
 	local path="$1"
 	local repo="$2"
 	local branch="$3"
 
-	if [ -d $path ]; then
-		# The destination for the repo already exists.
-		if [ -d $path/.git ]; then
-			# And it is already a git repo!
-			cd $path
-			set +e
-			local existing=$(git config --get remote.origin.url)
-			set -e
-			cd $OLDPWD
-			if [ "$existing" = "$repo" ]; then
-				# Always checkout the branch again in case the user specified another one.
-				checkout_git_branch $path $branch
-				# The repo has already been pulled before.  Update it.
-				update_git_repo $path $repo
-			else
-				# Whatever is here it is not what we want.
-				echo "Found an unexpected repo at $path.  Replacing with $repo."
-				rm -rf $path
-				fetch_git_repo $path $repo $branch
-				# Always checkout the branch again in case the user specified another one.
-				checkout_git_branch $path $branch
-			fi
-		else
-			# The folder as already there but not a git repo.  Blow it away.
-			echo "Path $path exists but is not a git repo.  Replacing with $repo."
-			cd $OLDPWD
-			rm -rf $path
-			fetch_git_repo $path $repo $branch
-			# Always checkout the branch again in case the user specified another one.
-			checkout_git_branch $path $branch
-		fi
-	else
+	if [ ! -d $path ]; then
 		# The path does not exist.  Proceed.
 		fetch_git_repo $path $repo $branch
-		# Always checkout the branch again in case the user specified another one.
 		checkout_git_branch $path $branch
 	fi
 }
