@@ -33,9 +33,9 @@ SBUILD="sbuild --purge-deps=never"
 # Build
 mkdir $BUILD_DIR
 cd $BUILD_DIR
-git clone -b lxc https://github.com/jean-edouard/pv-linux-drivers.git
-git clone -b build-scripts https://github.com/jean-edouard/v4v.git
-git clone -b build-scripts https://github.com/jean-edouard/xctools.git
+git clone https://github.com/OpenXT/pv-linux-drivers.git
+git clone https://github.com/OpenXT/v4v.git
+git clone https://github.com/OpenXT/xctools.git
 cp -r v4v/v4v/linux v4v/libv4v/src/
 cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
