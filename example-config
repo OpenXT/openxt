@@ -1,5 +1,5 @@
 # Branch to build.
-BRANCH="master"
+BRANCH="stable-5"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
 OPENXT_GIT_MIRROR="github.com/OpenXT"
