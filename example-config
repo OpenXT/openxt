@@ -79,5 +79,4 @@ REPO_DEV_SIGNING_KEY=
 
 # TODO: Add descriptions for:
 #   - FREEZE_URIS
-#   - OE_BB_THREADS
 #   - OE_TARBALL_MIRROR
