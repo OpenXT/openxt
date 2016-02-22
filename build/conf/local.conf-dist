@@ -1,8 +1,8 @@
 # 1) Basic config
 DISTRO = "openxt-main"
 DISTRO_FEATURES = "alsa ext2 largefile usbhost wifi xattr pci x11 ipv4 ipv6 ${DISTRO_FEATURES_LIBC} multiarch pam"
-BB_NUMBER_THREADS = "4"
-PARALLEL_MAKE = "-j 4"
+BB_NUMBER_THREADS ?= "4"
+PARALLEL_MAKE ?= "-j 4"
 PACKAGE_CLASSES ?= "package_ipk"
 EXTRA_IMAGE_FEATURES = "debug-tweaks"
 #USER_CLASSES ?= "buildstats image-mklibs image-prelink"
