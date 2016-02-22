@@ -56,7 +56,7 @@ rm -r usr/share
 
 mkdir -p etc/dracut.conf.d
 cat <<EOF > etc/dracut.conf.d/xc-tools
-add_drivers+="xc-v4v"
+add_drivers+="openxt-v4v"
 EOF
 
 %install

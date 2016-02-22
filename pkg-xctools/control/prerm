@@ -24,7 +24,7 @@ fi
 
 for PVD in "audio" "v4v" "xenmou" "vusb"
 do
-    NAME=openxt-pv-${PVD}
+    NAME=openxt-${PVD}
     PACKAGE=${NAME}-dkms
     VERSION=1.0
     SRCS=/usr/src/${PACKAGE}-${VERSION}
