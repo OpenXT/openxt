@@ -30,6 +30,12 @@
 
 # -- Script configuration settings.
 
+# The branch to build. Has to be at least OpenXT 6.
+# Note: this branch will be used for *everything*.
+#   The build will fail if one of the OpenXT repositories doesn't have it
+#   To change just the OE branch, please edit oe/build.sh
+BRANCH="master"
+
 # This /16 subnet prefix is used for networking in the containers.
 # Strongly advised to use part of the private IP address space (eg. "192.168")
 # This value should be configured to match the setting used in setup.sh
@@ -128,6 +134,7 @@ build_container() {
             -e "s|\%BUILD_DIR\%|${BUILD_DIR}|" \
             -e "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" \
             -e "s|\%IP_C\%|${IP_C}|" \
+            -e "s|\%BRANCH\%|${BRANCH}|" \
             -e "s|\%ALL_BUILDS_SUBDIR_NAME\%|${ALL_BUILDS_SUBDIR_NAME}|" |\
         ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
             -oStrictHostKeyChecking=no build@${CONTAINER_IP}

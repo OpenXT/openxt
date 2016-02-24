@@ -25,6 +25,7 @@ set -e
 BUILD_USER=%BUILD_USER%
 BUILD_DIR=%BUILD_DIR%
 IP_C=%IP_C%
+BRANCH=%BRANCH%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
@@ -55,7 +56,7 @@ cd $BUILD_DIR
 KERNEL_VERSION=`ls /lib/modules | tail -1`
 
 rm -rf pv-linux-drivers
-git clone -b lxc https://github.com/jean-edouard/pv-linux-drivers.git
+git clone -b $BRANCH https://github.com/OpenXT/pv-linux-drivers.git
 
 # Build the tools
 for i in `ls -d pv-linux-drivers/openxt-*`; do
@@ -77,15 +78,15 @@ done
 
 # Build syncxt
 rm -rf openxt
-git clone https://github.com/OpenXT/openxt.git
+git clone -b $BRANCH https://github.com/OpenXT/openxt.git
 cd openxt
 OPENXT_DIR=`pwd`
 mkdir src
 cd src
-git clone https://github.com/OpenXT/sync-database.git
-git clone https://github.com/OpenXT/sync-cli.git
-git clone https://github.com/OpenXT/sync-server.git
-git clone https://github.com/OpenXT/sync-ui-helper.git
+git clone -b $BRANCH https://github.com/OpenXT/sync-database.git
+git clone -b $BRANCH https://github.com/OpenXT/sync-cli.git
+git clone -b $BRANCH https://github.com/OpenXT/sync-server.git
+git clone -b $BRANCH https://github.com/OpenXT/sync-ui-helper.git
 cd ..
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/u01/app/oracle/product/11.2.0/xe/lib"
 ./do_sync_xt.sh ${OPENXT_DIR}
