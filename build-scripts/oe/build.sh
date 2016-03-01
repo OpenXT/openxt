@@ -28,14 +28,18 @@ IP_C=%IP_C%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
-mkdir $BUILD_DIR
+mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 
-git clone git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}/openxt.git
+if [ ! -d openxt ] ; then
+    git clone git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}/openxt.git
+fi
 
 cd openxt
-cp example-config .config
-cat >>.config <<EOF
+
+if [ ! -e .config ] ; then
+    cp example-config .config
+    cat >>.config <<EOF
 OPENXT_GIT_MIRROR="${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}"
 OPENXT_GIT_PROTOCOL="git"
 REPO_PROD_CACERT="/home/build/certs/prod-cacert.pem"
@@ -43,6 +47,7 @@ REPO_DEV_CACERT="/home/build/certs/dev-cacert.pem"
 REPO_DEV_SIGNING_CERT="/home/build/certs/dev-cacert.pem"
 REPO_DEV_SIGNING_KEY="/home/build/certs/dev-cakey.pem"
 EOF
+fi
 
 ./do_build.sh | tee build.log
 
