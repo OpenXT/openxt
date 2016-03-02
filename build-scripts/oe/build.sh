@@ -29,6 +29,10 @@ BRANCH=%BRANCH%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
+cd ~/certs
+CERTS_PATH=`pwd`
+cd ..
+
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 
@@ -44,10 +48,10 @@ if [ ! -e .config ] ; then
 BRANCH="${BRANCH}"
 OPENXT_GIT_MIRROR="${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}"
 OPENXT_GIT_PROTOCOL="git"
-REPO_PROD_CACERT="/home/build/certs/prod-cacert.pem"
-REPO_DEV_CACERT="/home/build/certs/dev-cacert.pem"
-REPO_DEV_SIGNING_CERT="/home/build/certs/dev-cacert.pem"
-REPO_DEV_SIGNING_KEY="/home/build/certs/dev-cakey.pem"
+REPO_PROD_CACERT="${CERTS_PATH}/prod-cacert.pem"
+REPO_DEV_CACERT="${CERTS_PATH}/dev-cacert.pem"
+REPO_DEV_SIGNING_CERT="${CERTS_PATH}/dev-cacert.pem"
+REPO_DEV_SIGNING_KEY="${CERTS_PATH}/dev-cakey.pem"
 EOF
 fi
 

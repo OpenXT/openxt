@@ -265,5 +265,6 @@ if [ ! -d /home/git/${BUILD_USER} ]; then
 fi
 
 cp -f build.sh "${BUILD_USER_HOME}/"
+sed -i "s/\%CONTAINER_USER\%/${CONTAINER_USER}/" ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."
