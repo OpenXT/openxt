@@ -83,15 +83,31 @@ if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then
     mkdir -p "${BUILD_USER_HOME}/.ssh"
     touch "${BUILD_USER_HOME}"/.ssh/authorized_keys
     touch "${BUILD_USER_HOME}"/.ssh/known_hosts
+    touch "${BUILD_USER_HOME}"/.ssh/config
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh
     echo "${BUILD_USER}  ALL=(ALL:ALL) ALL" >> /etc/sudoers
 else
+    # The user exists, check and verbosely fix missing configuration bits
     BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
+    if [ ! -d "${BUILD_USER_HOME}"/.ssh ]; then
+        echo "${BUILD_USER} has no SSH directory, creating one."
+        mkdir -p "${BUILD_USER_HOME}"/.ssh
+        chown ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh
+    fi
     if [ ! -f "${BUILD_USER_HOME}"/.ssh/authorized_keys ]; then
         echo "${BUILD_USER} has no SSH authorized_keys file, creating one."
-        mkdir -p "${BUILD_USER_HOME}"/.ssh
         touch "${BUILD_USER_HOME}"/.ssh/authorized_keys
-        chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh
+        chown ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh/authorized_keys
+    fi
+    if [ ! -f "${BUILD_USER_HOME}"/.ssh/known_hosts ]; then
+        echo "${BUILD_USER} has no SSH known_hosts file, creating one."
+        touch "${BUILD_USER_HOME}"/.ssh/known_hosts
+        chown ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh/known_hosts
+    fi
+    if [ ! -f "${BUILD_USER_HOME}"/.ssh/config ]; then
+        echo "${BUILD_USER} has no SSH config file, creating one."
+        touch "${BUILD_USER_HOME}"/.ssh/config
+        chown ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh/config
     fi
     grep ${BUILD_USER} /etc/sudoers >/dev/null 2>&1 || {
         echo "${BUILD_USER} is not a sudoer, adding him."
