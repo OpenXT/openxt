@@ -32,6 +32,9 @@
 # eg. DEBIAN_MIRROR="http://httpredir.debian.org/debian"
 DEBIAN_MIRROR="http://httpredir.debian.org/debian"
 
+# The name of the local user created inside the containers
+CONTAINER_USER="build"
+
 # This /16 subnet prefix is used for networking in the containers.
 # Strongly advised to use part of the private IP address space (eg. "192.168")
 SUBNET_PREFIX="192.168"
@@ -166,6 +169,7 @@ EOF
     set +e
     cat ${NAME}/setup.sh | \
         sed "s|\%MIRROR\%|${MIRROR}|" | \
+        sed "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" | \
         chroot ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs /bin/bash -e
 
     # If the in-container setup script failed, check our configuration to see
@@ -185,14 +189,23 @@ EOF
 
     # Allow the host to SSH to the container
     cat "${BUILD_USER_HOME}"/ssh-key/openxt.pub \
-        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/build/.ssh/authorized_keys
+        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/authorized_keys
 
     # Allow the container to SSH to the host
-    cat ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/build/.ssh/id_dsa.pub \
+    cat ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/id_dsa.pub \
         >> "${BUILD_USER_HOME}"/.ssh/authorized_keys
 
     ssh-keyscan -H ${SUBNET_PREFIX}.${IP_C}.1 \
-        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/build/.ssh/known_hosts
+        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/known_hosts
+
+    # Add config bits to easily ssh to the container
+    cat >> "${BUILD_USER_HOME}/.ssh/config" <<EOF
+Host ${NAME}
+	HostName ${SUBNET_PREFIX}.${IP_C}.1${NUMBER}
+	User ${CONTAINER_USER}
+	IdentityFile ~/ssh-key/openxt
+
+EOF
 
     # Copy the build script for that container to the user home directory
     mkdir -p "${BUILD_USER_HOME}"/${NAME}

@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+CONTAINER_USER=%CONTAINER_USER%
+
 # Remove the root password
 passwd -d root
 
@@ -40,11 +42,11 @@ for kernelpath in `ls -d /usr/src/kernels/*`; do
 done
 
 # Add a build user
-adduser build
-mkdir -p /home/build/.ssh
-touch /home/build/.ssh/authorized_keys
-ssh-keygen -N "" -t dsa -C build@openxt-centos -f /home/build/.ssh/id_dsa
-chown -R build:build /home/build/.ssh
+adduser ${CONTAINER_USER}
+mkdir -p /home/${CONTAINER_USER}/.ssh
+touch /home/${CONTAINER_USER}/.ssh/authorized_keys
+ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-centos -f /home/${CONTAINER_USER}/.ssh/id_dsa
+chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 
 # Make the user a passwordless sudoer, as dkms unfortunately needs to run as root
-echo "build   ALL=(ALL)       NOPASSWD:ALL" >> /etc/sudoers
+echo "${CONTAINER_USER}   ALL=(ALL)       NOPASSWD:ALL" >> /etc/sudoers
