@@ -55,17 +55,21 @@ REMOVE_CONTAINER_ON_ERROR=1
 #   and to use the code from build.sh to start the git service
 GIT_ROOT_PATH="/home/git"
 
+# URL to a Windows installer ISO
+WINDOWS_ISO_URL="http://CHANGEME.microsoft.com/windows7-x86.iso"
+
 # -- End of script configuration settings.
 
 usage() {
     echo "usage: $0 [-h] [-u build_user] [-d debian_mirror]" >&2
     echo "                  [-c container_user] [-s subnet_prefix] [-m mac_prefix]" >&2
     echo "                  [-r remove_container_on_error] [-g git_root_path]" >&2
+    echo "                  [-w windows_iso_url]" >&2
     exit $1
 }
 
 
-while getopts "hu:d:c:s:m:r:g:" opt; do
+while getopts "hu:d:c:s:m:r:g:w:" opt; do
     case $opt in
         h)
             usage 0
@@ -91,6 +95,9 @@ while getopts "hu:d:c:s:m:r:g:" opt; do
         g)
             GIT_ROOT_PATH="${OPTARG}"
             ;;
+	w)
+	    WINDOWS_ISO_URL="${OPTARG}"
+	    ;;
         \?)
             usage 1
             ;;
@@ -168,8 +175,8 @@ fi
 BUILD_USER_ID=$(id -u ${BUILD_USER})
 IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 MAC_E=$(( ${BUILD_USER_ID} % 100 ))
-if [ "x${MAC_E}" == "x0" ] ; then
-    MAC_E="00"
+if [ ${MAC_E} -lt 10 ] ; then
+    MAC_E="0${MAC_E}"
 fi
 
 # Setup LXC networking on the host, to give known IPs to the containers
@@ -182,9 +189,10 @@ if [ ! -f /etc/libvirt/qemu/networks/${BUILD_USER}.xml ]; then
   <ip address="${SUBNET_PREFIX}.${IP_C}.1" netmask="255.255.255.0">
     <dhcp>
       <range start="${SUBNET_PREFIX}.${IP_C}.2" end="${SUBNET_PREFIX}.${IP_C}.254"/>
-      <host mac="${MAC_PREFIX}:${MAC_E}:01" name="${BUILD_USER}-oe"     ip="${SUBNET_PREFIX}.${IP_C}.101" />
-      <host mac="${MAC_PREFIX}:${MAC_E}:02" name="${BUILD_USER}-debian" ip="${SUBNET_PREFIX}.${IP_C}.102" />
-      <host mac="${MAC_PREFIX}:${MAC_E}:03" name="${BUILD_USER}-centos" ip="${SUBNET_PREFIX}.${IP_C}.103" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:01" name="${BUILD_USER}-oe"      ip="${SUBNET_PREFIX}.${IP_C}.101" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:02" name="${BUILD_USER}-debian"  ip="${SUBNET_PREFIX}.${IP_C}.102" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:03" name="${BUILD_USER}-centos"  ip="${SUBNET_PREFIX}.${IP_C}.103" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:04" name="${BUILD_USER}-windows" ip="${SUBNET_PREFIX}.${IP_C}.104" />
     </dhcp>
   </ip>
 </network>
@@ -289,6 +297,9 @@ setup_container "02" "debian" \
 # Create a container for the Centos tool packages for OpenXT
 setup_container "03" "centos" \
                 "centos" "" "--arch x86_64 --release 7"
+
+# Create a Windows VM
+./windows/setup.sh "04" "${BUILD_USER}" "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}"
 
 # Setup a mirror of the git repositories for the build to be consistent
 # (and slightly faster)
