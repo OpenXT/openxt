@@ -22,6 +22,8 @@
 
 # This scripts sets up the OE container for OpenXT
 
+CONTAINER_USER=%CONTAINER_USER%
+
 # Remove root password
 passwd -d root
 
@@ -64,18 +66,18 @@ echo '/bin/uname.real $@ | sed "s/amd64/i686/g" | sed "s/x86_64/i686/g"' >> /bin
 chmod +x /bin/uname
 
 # Add a build user
-adduser --disabled-password --gecos "" build
-mkdir -p /home/build/.ssh
-touch /home/build/.ssh/authorized_keys
-ssh-keygen -N "" -t dsa -C build@openxt-oe -f /home/build/.ssh/id_dsa
-chown -R build:build /home/build/.ssh
-echo "export MACHINE=xenclient-dom0" >> /home/build/.bashrc
-chown build:build /home/build/.bashrc
+adduser --disabled-password --gecos "" ${CONTAINER_USER}
+mkdir -p /home/${CONTAINER_USER}/.ssh
+touch /home/${CONTAINER_USER}/.ssh/authorized_keys
+ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-oe -f /home/${CONTAINER_USER}/.ssh/id_dsa
+chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
+echo "export MACHINE=xenclient-dom0" >> /home/${CONTAINER_USER}/.bashrc
+chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bashrc
 
 # Create build certs
-mkdir /home/build/certs
-openssl genrsa -out /home/build/certs/prod-cakey.pem 2048
-openssl genrsa -out /home/build/certs/dev-cakey.pem 2048
-openssl req -new -x509 -key /home/build/certs/prod-cakey.pem -out /home/build/certs/prod-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
-openssl req -new -x509 -key /home/build/certs/dev-cakey.pem -out /home/build/certs/dev-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
-chown -R build:build /home/build/certs
+mkdir /home/${CONTAINER_USER}/certs
+openssl genrsa -out /home/${CONTAINER_USER}/certs/prod-cakey.pem 2048
+openssl genrsa -out /home/${CONTAINER_USER}/certs/dev-cakey.pem 2048
+openssl req -new -x509 -key /home/${CONTAINER_USER}/certs/prod-cakey.pem -out /home/${CONTAINER_USER}/certs/prod-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
+openssl req -new -x509 -key /home/${CONTAINER_USER}/certs/dev-cakey.pem -out /home/${CONTAINER_USER}/certs/dev-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
+chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/certs

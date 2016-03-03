@@ -21,6 +21,7 @@
 #
 
 MIRROR=%MIRROR%
+CONTAINER_USER=%CONTAINER_USER%
 
 # Remove the root password
 passwd -d root
@@ -33,11 +34,11 @@ apt-get update
 apt-get -y install $PKGS </dev/null
 
 # Add a build user
-adduser --disabled-password --gecos "" build
-mkdir -p /home/build/.ssh
-touch /home/build/.ssh/authorized_keys
-ssh-keygen -N "" -t dsa -C build@openxt-debian -f /home/build/.ssh/id_dsa
-chown -R build:build /home/build/.ssh
+adduser --disabled-password --gecos "" ${CONTAINER_USER}
+mkdir -p /home/${CONTAINER_USER}/.ssh
+touch /home/${CONTAINER_USER}/.ssh/authorized_keys
+ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-debian -f /home/${CONTAINER_USER}/.ssh/id_dsa
+chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 
 # Setup sbuild
 INCLUDE="build-essential,dh-make,dkms" # Packages needed by chroots to build stuffs
@@ -51,4 +52,4 @@ sbuild-createchroot jessie /home/chroots/jessie-amd64 $MIRROR --arch=amd64 --inc
 # In that case, it seems to be OK to run them after.
 # See https://wiki.debian.org/sbuild
 sbuild-update --keygen
-sbuild-adduser build
+sbuild-adduser ${CONTAINER_USER}

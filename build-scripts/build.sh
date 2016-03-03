@@ -43,7 +43,7 @@ SUBNET_PREFIX="192.168"
 
 # -- End of script configuration settings.
 
-
+CONTAINER_USER=%CONTAINER_USER%
 BUILD_USER="$(whoami)"
 BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
@@ -114,7 +114,7 @@ build_container() {
     # then we also ssh it until it's up, using the ping as a "sleep 1"
     tries=0
     until ping -c 1 -w 1 ${CONTAINER_IP} >/dev/null 2>&1 && \
-          ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt build@${CONTAINER_IP} \
+          ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt ${CONTAINER_USER}@${CONTAINER_IP} \
               -oStrictHostKeyChecking=no true >/dev/null 2>&1; do
        tries=$(( tries + 1 ))
        if [ $tries -ge 30 ]; then
@@ -137,7 +137,7 @@ build_container() {
             -e "s|\%BRANCH\%|${BRANCH}|" \
             -e "s|\%ALL_BUILDS_SUBDIR_NAME\%|${ALL_BUILDS_SUBDIR_NAME}|" |\
         ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
-            -oStrictHostKeyChecking=no build@${CONTAINER_IP}
+            -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
 }
 
 build_container "01" "oe"
