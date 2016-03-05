@@ -118,7 +118,7 @@ fi
 # Create an SSH key for the user, to communicate with the containers
 if [ ! -d "${BUILD_USER_HOME}"/ssh-key ]; then
     mkdir "${BUILD_USER_HOME}"/ssh-key
-    ssh-keygen -N "" -f "${BUILD_USER_HOME}"/ssh-key/openxt
+    ssh-keygen -N "" -t dsa -f "${BUILD_USER_HOME}"/ssh-key/openxt
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/ssh-key
 fi
 
