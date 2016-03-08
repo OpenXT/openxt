@@ -203,6 +203,11 @@ EOF
 
     #umount ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/dev
 
+    # Important:
+    # We expect the container-specific setup.sh script to create /home/${CONTAINER_USER},
+    #  as well as authorized_keys, id_dsa.pub and known_hosts under /home/${CONTAINER_USER}/.ssh
+    # We can't create those files here, since we don't want to figure out the user ID to chown to.
+
     # Allow the host to SSH to the container
     cat "${BUILD_USER_HOME}"/ssh-key/openxt.pub \
         >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/authorized_keys

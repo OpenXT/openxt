@@ -37,6 +37,7 @@ apt-get -y install $PKGS </dev/null
 adduser --disabled-password --gecos "" ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
 touch /home/${CONTAINER_USER}/.ssh/authorized_keys
+touch /home/${CONTAINER_USER}/.ssh/known_hosts
 ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-debian -f /home/${CONTAINER_USER}/.ssh/id_dsa
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 
