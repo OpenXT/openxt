@@ -40,10 +40,9 @@ apt-get -y install $PKGS </dev/null || apt-get -y install $PKGS </dev/null
 # Download the GHC prerequisites from squeeze
 mkdir -p /tmp/ghc-prereq
 cd /tmp/ghc-prereq
-# FIXME: use the MIRROR
-wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb
-wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmp3c2_4.3.2+dfsg-1_i386.deb
-wget http://http.us.debian.org/debian/pool/main/g/gmp/libgmp3-dev_4.3.2+dfsg-1_i386.deb
+wget http://archive.debian.org/debian/pool/main/g/gmp/libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb
+wget http://archive.debian.org/debian/pool/main/g/gmp/libgmp3c2_4.3.2+dfsg-1_i386.deb
+wget http://archive.debian.org/debian/pool/main/g/gmp/libgmp3-dev_4.3.2+dfsg-1_i386.deb
 dpkg -i libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb libgmp3c2_4.3.2+dfsg-1_i386.deb libgmp3-dev_4.3.2+dfsg-1_i386.deb
 
 # Install the required version of GHC
