@@ -71,9 +71,6 @@ INHERIT += "xenclient-src-package"
 # set to 1.
 INHERIT += "xenclient-src-info"
 
-# OpenXT specific OE tasks
-INHERIT += "xenclient-customtask"
-
 # 2) Build tweaks/hacks
 
 PREFERRED_PROVIDER_console-tools = "console-tools"
