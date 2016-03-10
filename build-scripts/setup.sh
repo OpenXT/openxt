@@ -25,7 +25,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# -- Script configuration settings.
+# -- Script default configuration settings.
+
+# The name of the user for which a build environment will be setup
+# The script will create it if it doesn't exist
+BUILD_USER="openxt"
 
 # The FQDN path for the Debian mirror
 # (some chroots don't inherit the resolv.conf search domain)
@@ -45,20 +49,57 @@ MAC_PREFIX="00:FF:AA:42"
 # Teardown container on setup failure? 1: yes, anything-else: no.
 REMOVE_CONTAINER_ON_ERROR=1
 
+# The directory that will be used to mirror and serve git repositories
+# Note: if you want to host other git repositories on this machine,
+#   it is recommended to use this root path for them too,
+#   and to use the code from build.sh to start the git service
+GIT_ROOT_PATH="/home/git"
+
 # -- End of script configuration settings.
+
+usage() {
+    echo "usage: $0 [-h] [-u build_user] [-d debian_mirror]" >&2
+    echo "                  [-c container_user] [-s subnet_prefix] [-m mac_prefix]" >&2
+    echo "                  [-r remove_container_on_error] [-g git_root_path]" >&2
+    exit $1
+}
+
+
+while getopts "hu:d:c:s:m:r:g:" opt; do
+    case $opt in
+        h)
+            usage 0
+            ;;
+        u)
+            BUILD_USER="${OPTARG}"
+            ;;
+        d)
+            DEBIAN_MIRROR="${OPTARG}"
+            ;;
+        c)
+            CONTAINER_USER="${OPTARG}"
+            ;;
+        s)
+            SUBNET_PREFIX="${OPTARG}"
+            ;;
+        m)
+            MAC_PREFIX="${OPTARG}"
+            ;;
+        r)
+            REMOVE_CONTAINER_ON_ERROR=${OPTARG}
+            ;;
+        g)
+            GIT_ROOT_PATH="${OPTARG}"
+            ;;
+        \?)
+            usage 1
+            ;;
+    esac
+done
 
 if [ "x${UID}" != "x0" ] ; then
     echo "Error: This script needs to be run as root.">&2
-    exit 1
-fi
-
-BUILD_USER="openxt"
-if [ $# -ne 0 ]; then
-    if [ $# -ne 2 ] || [ $1 != "-u" ]; then
-        echo "Usage: $0 [-u user]"
-        exit 1
-    fi
-    BUILD_USER=$2
+    exit 2
 fi
 
 # Ensure that all required packages are installed on this host.
@@ -197,7 +238,7 @@ EOF
             lxc-destroy -n "${BUILD_USER}-${NAME}" || echo \
                 "Error tearing down container ${BUILD_USER}-${NAME}">&2
         fi
-        exit 1
+        exit 3
     fi
     set -e
 
@@ -222,9 +263,9 @@ EOF
     # Add config bits to easily ssh to the container
     cat >> "${BUILD_USER_HOME}/.ssh/config" <<EOF
 Host ${NAME}
-	HostName ${SUBNET_PREFIX}.${IP_C}.1${NUMBER}
-	User ${CONTAINER_USER}
-	IdentityFile ~/ssh-key/openxt
+        HostName ${SUBNET_PREFIX}.${IP_C}.1${NUMBER}
+        User ${CONTAINER_USER}
+        IdentityFile ~/ssh-key/openxt
 
 EOF
 
@@ -251,14 +292,14 @@ setup_container "03" "centos" \
 
 # Setup a mirror of the git repositories for the build to be consistent
 # (and slightly faster)
-if [ ! -d /home/git ]; then
-    mkdir /home/git
-    chown nobody:nogroup /home/git
-    chmod 777 /home/git
+if [ ! -d ${GIT_ROOT_PATH} ]; then
+    mkdir ${GIT_ROOT_PATH}
+    chown nobody:nogroup ${GIT_ROOT_PATH}
+    chmod 777 ${GIT_ROOT_PATH}
 fi
-if [ ! -d /home/git/${BUILD_USER} ]; then
-    mkdir -p /home/git/${BUILD_USER}
-    cd /home/git/${BUILD_USER}
+if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
+    mkdir -p ${GIT_ROOT_PATH}/${BUILD_USER}
+    cd ${GIT_ROOT_PATH}/${BUILD_USER}
     for repo in \
         $(curl -s "https://api.github.com/orgs/OpenXT/repos?per_page=100" | \
           jq '.[].name' | cut -d '"' -f 2 | sort -u)
@@ -266,10 +307,11 @@ if [ ! -d /home/git/${BUILD_USER} ]; then
         git clone --mirror https://github.com/OpenXT/${repo}.git
     done
     cd - > /dev/null
-    chown -R ${BUILD_USER}:${BUILD_USER} /home/git/${BUILD_USER}
+    chown -R ${BUILD_USER}:${BUILD_USER} ${GIT_ROOT_PATH}/${BUILD_USER}
 fi
 
 cp -f build.sh "${BUILD_USER_HOME}/"
 sed -i "s/\%CONTAINER_USER\%/${CONTAINER_USER}/" ${BUILD_USER_HOME}/build.sh
+sed -i "s/\%GIT_ROOT_PATH\%/${GIT_ROOT_PATH}/" ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."

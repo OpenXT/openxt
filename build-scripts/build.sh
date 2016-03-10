@@ -44,6 +44,7 @@ SUBNET_PREFIX="192.168"
 # -- End of script configuration settings.
 
 CONTAINER_USER=%CONTAINER_USER%
+GIT_ROOT_PATH=%GIT_ROOT_PATH%
 BUILD_USER="$(whoami)"
 BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
@@ -76,7 +77,7 @@ if ! mkdir -p "${BUILD_DIR_PATH}" ; then
 fi
 
 # Fetch git mirrors
-for i in /home/git/${BUILD_USER}/*.git; do
+for i in ${GIT_ROOT_PATH}/${BUILD_USER}/*.git; do
     echo -n "Fetching `basename $i`: "
     cd $i
     git fetch --all > /dev/null 2>&1
@@ -87,7 +88,7 @@ done | tee /tmp/git_heads_$BUILD_USER
 # Start the git service if needed
 ps -p `cat /tmp/openxt_git.pid 2>/dev/null` >/dev/null 2>&1 || {
     rm -f /tmp/openxt_git.pid
-    git daemon --base-path=/home/git \
+    git daemon --base-path=${GIT_ROOT_PATH} \
                --pid-file=/tmp/openxt_git.pid \
                --detach \
                --syslog \
