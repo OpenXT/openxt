@@ -142,7 +142,7 @@ function Test-7zip {
 
 function Install-7zip {
   $szsetup = $env:temp + "\7z920.msi"
-  PerformDownload "http://skylink.dl.sourceforge.net/project/sevenzip/7-Zip/9.20/7z920.msi" $szsetup "FE-48-07-B4-69-8E-C8-9F-82-DE-7D-85-D3-2D-EA-A4-C7-72-FC-87-15-37-E3-1F-B0-FC-CF-44-73-45-5C-B8"
+  PerformDownload "http://downloads.sourceforge.net/project/sevenzip/7-Zip/9.20/7z920.msi" $szsetup "FE-48-07-B4-69-8E-C8-9F-82-DE-7D-85-D3-2D-EA-A4-C7-72-FC-87-15-37-E3-1F-B0-FC-CF-44-73-45-5C-B8"
   Invoke-CommandChecked msiexec /i $szsetup /q
 }
 
