@@ -6,8 +6,11 @@ param (
 # we need to make a list of packages available
 # I don't know how to export a list to callers directly so simply return
 # the list of packages as a string array
+# Note: this list used to include "CAPICOM" (between "Wix" and "WDK8")
+#     The URL for CAPICOM is broken, Microsoft probably dropped support for it.
+#     CAPICOM doesn't seem to be needed anyway, so it was removed from the list.
 function Get-Packages {
-  return "GnuPG","Cygwin","NSIS","NSISAdvancedLogging","7Zip","DotNet45","WinDDK710","SqlSce32", "SqlSce64", "VS2012", "Win8SDK", "Wix", "CAPICOM", "WDK8", "VS2012U4", "PathAdditions"
+  return "GnuPG","Cygwin","NSIS","NSISAdvancedLogging","7Zip","DotNet45","WinDDK710","SqlSce32", "SqlSce64", "VS2012", "Win8SDK", "Wix", "WDK8", "VS2012U4", "PathAdditions"
 }
 
 # powershell inspects to import only installed modules
