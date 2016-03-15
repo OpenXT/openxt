@@ -14,15 +14,16 @@ do
     PULLS="`curl -H "Authorization: token $TOKEN" -s https://api.github.com/repos/openxt/$i/pulls`"
     # Get the list of pull request numbers
     PRS="`echo $PULLS | jq '.[].number'`"
-    # Get all the pull request titles, replacing ' ' with '/',
-    # to avoid messing with $IFS
-    TITLES=(`echo $PULLS | jq '.[].title' | sed 's| |/|g'`)
+    OIFS=$IFS
+    IFS=$'\n'
+    TITLES=(`echo $PULLS | jq '.[].title'`)
+    IFS=$OIFS
     if [ "$PRS" != "" ]; then
         echo "Repository: $i  -- Open pull requests:"
         n=0
         for PR in $PRS; do
             echo -n "https://github.com/OpenXT/$i/pull/$PR"
-            echo " - `echo ${TITLES[$n]} | sed 's|/| |g'`"
+            echo " - `echo ${TITLES[$n]}`"
             n=$(( $n + 1 ))
         done
 	echo
