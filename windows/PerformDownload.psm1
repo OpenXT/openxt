@@ -12,17 +12,13 @@ function Get-FileHash($targetFile) {
   return [system.bitconverter]::toString($hash)
 }
 
+function Check-GpgSig ($targetfile, $cert, $sig) {
+    gpg --import $targetCert
+    gpg --verify $targetSig $targetFile
+    return $LastExitCode
+}
 
-Function PerformDownload ($url, $targetFile, $expectedHash) {
-    if (($expectedHash) -and (Test-Path $targetFile)) {
-      $hash = Get-FileHash($targetFile)
-      if ($hash -eq $expectedHash) {
-         Write-Host "[Already have $targetFile with hash $hash so skipping download]"
-         return
-      } else {
-         Write-Host "[Already have $targetFile but its hash $hash is not $expectedHash so downloading again]"
-      }
-    } 
+Function PerformDownloadGeneric ($url, $targetFile) {
     Write-Host "Input URL: [$url] downloading to [$targetFile]"
 
     # Create the request and do our best to avoid any local caching or socket reusing (causes backend caching)
@@ -63,17 +59,64 @@ Function PerformDownload ($url, $targetFile, $expectedHash) {
       $targetStream.Flush()
       $targetStream.Close() 
       $targetStream.Dispose() 
-      $responseStream.Dispose() 
-      
-      # hash file
-      $hash = Get-FileHash($targetFile)
-      Write-Host "$hash calculated for downloaded $url"
-      if ($expectedHash -and ($hash -ne $expectedHash)) {
-         Write-Host "ERROR: $url does not contain the expected content (found hash $hash rather than $expectedHash)"
-         Exit 2
-       } 
+      $responseStream.Dispose()
     } catch {
        Write-Host "Unable to download $url error " $_.Exception.Message
        Exit 1
+    }
+}
+
+Function PerformDownload ($url, $targetFile, $expectedHash) {
+    # Check if the file is already downloaded
+    if (($expectedHash) -and (Test-Path $targetFile)) {
+      $hash = Get-FileHash($targetFile)
+      if ($hash -eq $expectedHash) {
+         Write-Host "[Already have $targetFile with hash $hash so skipping download]"
+         return
+      } else {
+         Write-Host "[Already have $targetFile but its hash $hash is not $expectedHash so downloading again]"
+      }
+    }
+
+    # Download the file
+    PerformDownloadGeneric $url $targetFile
+
+    # Check the hash of the downloaded file
+    $hash = Get-FileHash($targetFile)
+    Write-Host "$hash calculated for downloaded $url"
+    if ($expectedHash -and ($hash -ne $expectedHash)) {
+        Write-Host "ERROR: $url does not contain the expected content (found hash $hash rather than $expectedHash)"
+        Exit 2
+    }
+}
+
+Function PerformDownloadGpg ($url, $targetFile, $cert, $sig) {
+    Import-Module BitsTransfer
+
+    # Download cert and sig
+    $targetCert = $targetFile + ".cert"
+    Start-BitsTransfer -Source $cert -Destination $targetCert
+    $targetSig = $targetFile + ".sig"
+    Start-BitsTransfer -Source $sig -Destination $targetSig
+
+    # Check if the target file is already downloaded
+    Check-GpgSig $targetFile $targetCert $targetSig
+    $gpg_valid = $LastExitCode
+    if ($gpg_valid -ne 0) {
+        Write-Host "[Already have $targetFile but its signature is bad so downloading again]"
+    } else {
+        Write-Host "[Already have $targetFile with a correct signature so skipping download]"
+        return
+    }
+
+    # Download the file
+    PerformDownloadGeneric $url $targetFile
+
+    # Check the signature of the downloaded file
+    Check-GpgSig $targetFile $targetCert $targetSig
+    $gpg_valid = $LastExitCode
+    if ($gpg_valid -ne 0) {
+        Write-Host "ERROR: $url does not contain the expected content"
+        Exit 2
     }
 }

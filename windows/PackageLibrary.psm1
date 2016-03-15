@@ -7,7 +7,7 @@ param (
 # I don't know how to export a list to callers directly so simply return
 # the list of packages as a string array
 function Get-Packages {
-  return "Cygwin","NSIS","NSISAdvancedLogging","7Zip","DotNet45","WinDDK710","SqlSce32", "SqlSce64", "VS2012", "Win8SDK", "Wix", "CAPICOM", "WDK8", "VS2012U4", "PathAdditions"
+  return "GnuPG","Cygwin","NSIS","NSISAdvancedLogging","7Zip","DotNet45","WinDDK710","SqlSce32", "SqlSce64", "VS2012", "Win8SDK", "Wix", "CAPICOM", "WDK8", "VS2012U4", "PathAdditions"
 }
 
 # powershell inspects to import only installed modules
@@ -100,14 +100,28 @@ Function Install-NSISAdvancedLogging () {
   $zip_dest.Copyhere($zip_file.items(), 0x14)
 }
 
+function Test-GnuPG {
+  return (Test-Path ($programFiles32 + "\GNU\GnuPG\pub\gpg.exe"))
+}
+
+function Install-GnuPG {
+  cd $env:temp
+  $gnupgsetup = ("{0}\gpg4win-vanilla-2.3.0.exe" -f $env:temp)
+  PerformDownload "https://files.gpg4win.org/gpg4win-vanilla-2.3.0.exe" $gnupgsetup "57-03-06-34-D0-DF-C5-00-BD-D1-15-00-38-70-E6-9F-87-CA-28-EC-E7-D7-C3-B1-A8-F3-BC-96-6C-BC-E5-C0"
+  Invoke-CommandChecked $gnupgsetup /S
+  # The previous adds an entry to the path, which doesn't get auto updated.
+  # Updating the path to be able to use gpg later in the script
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+}
+
 function Test-Cygwin {
   return (Test-Path ("C:\cygwin\bin"))
 }
 
 function Install-Cygwin {
   cd $env:temp
-  $cygwinsetup = ("{0}\setup-x86.exe" -f $env:temp)
-  PerformDownload "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "D7-BD-6C-05-C9-D9-7A-DD-D8-66-22-9D-2E-52-87-81-6E-7C-AD-C2-13-21-AA-C8-F8-43-C7-24-39-E5-92-9F"
+  $cygwinsetup = $env:temp + "\setup-x86.exe"
+  PerformDownloadGpg "https://www.cygwin.com/setup-x86.exe" $cygwinsetup "https://cygwin.com/key/pubring.asc" "https://cygwin.com/setup-x86.exe.sig"
   # Ideally we would like to run the cygwin installer with something like the following package list:   
   #  -P "vim,git,rsync,zip,unzip,libiconv,guilt,openssh"
   # Unfortunately doing this with the -q silent option does not work. The workaround is to do the following:
@@ -128,7 +142,7 @@ function Test-7zip {
 
 function Install-7zip {
   $szsetup = $env:temp + "\7z920.msi"
-  PerformDownload "http://skylink.dl.sourceforge.net/project/sevenzip/7-Zip/9.20/7z920.msi" $szsetup "FE-48-07-B4-69-8E-C8-9F-82-DE-7D-85-D3-2D-EA-A4-C7-72-FC-87-15-37-E3-1F-B0-FC-CF-44-73-45-5C-B8"
+  PerformDownload "http://downloads.sourceforge.net/project/sevenzip/7-Zip/9.20/7z920.msi" $szsetup "FE-48-07-B4-69-8E-C8-9F-82-DE-7D-85-D3-2D-EA-A4-C7-72-FC-87-15-37-E3-1F-B0-FC-CF-44-73-45-5C-B8"
   Invoke-CommandChecked msiexec /i $szsetup /q
 }
 
