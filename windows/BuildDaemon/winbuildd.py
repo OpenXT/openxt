@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2016 Assured Information Security, Inc.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -98,7 +98,7 @@ class PopenWrapper(object):
     """
     super(PopenWrapper, self).__init__()
     self.logfile = logfile
-    
+
   def Popen(self, *unargs, **kwargs):
     """Wrapper around the real popen. Dump the command line...
         Parameters:
@@ -157,6 +157,10 @@ class RPCInterface(object):
         if os.path.exists(BUILDDIR + '\\openxt'):
             shutil.rmtree(BUILDDIR + '\\openxt', onerror=onerror)
 
+        # Yes, this is ridiculous, but for some reason the directory is still there for a few seconds after shutil.rmtree returned...
+        while os.path.exists(BUILDDIR + '\\openxt'):
+            time.sleep(1)
+
         # Clone the main OpenXT repo and checkout branch
         subprocess.Popen('git clone '+ giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
         write("Completed cloning " + giturl + "/openxt.git")
@@ -177,10 +181,13 @@ class RPCInterface(object):
         # rsync the output unless something went wrong
         os.chdir(BUILDDIR + "\\openxt\\windows\\output")
         if os.path.exists('xctools-iso.zip') and os.path.exists('xc-wintools.iso'):
-            # Do stuffs
-            command = 'echo build > BUILD_ID'
-            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-            command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + RSYNCDEST + '\\' + branch
+            # Save build ID
+            build_id_file = open('BUILD_ID', 'w')
+            build_id_file.write(str(build))
+            build_id_file.write('\n')
+            build_id_file.close()
+            # Rsync the build output to the builder
+            command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
             subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
         else:
             # Misery
@@ -193,14 +200,8 @@ class RPCInterface(object):
     def hello(self):
         return "hello back"
 
-    def status(self):
-        pass
-
-    def retrieve_file(self, filename):
-        pass
-
 def main(argv):
-	
+
 	config = ""
 	site = ""
 	try:
@@ -209,14 +210,14 @@ def main(argv):
 			if opt in ("-h", "--help"):
 				usage()
 				sys.exit()
-			elif opt in ("-c", "--config"): 
+			elif opt in ("-c", "--config"):
 				config = arg
 			elif opt in ("-s", "--site"):
 				site = arg
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
-		
+
 	loadConfig(config,site)
 	s = SimpleXMLRPCServer.SimpleXMLRPCServer(('', PORT))
 	s.register_introspection_functions()
@@ -225,13 +226,13 @@ def main(argv):
 	try:
 		print """
 		 OpenXT Windows Build XMLRPC Server
-	 
+
 		 Use Control-C to exit
 		 """
 		s.serve_forever()
 	except KeyboardInterrupt:
 		print 'Exiting'
-	
+
 def loadConfig(cfg,site):
 	try:
 		config = ConfigParser.ConfigParser()
@@ -239,7 +240,7 @@ def loadConfig(cfg,site):
 	except:
 		print "Configuration file cannot be read."
 		sys.exit()
-	
+
 	if not (config.has_section(site)):
 		print "Invalid site specified. Available sites are:"
 		print config.sections()
@@ -251,7 +252,7 @@ def loadConfig(cfg,site):
 			BUILDDIR = config.get(site,'builddir')
 		except:
 			print "Exception getting configuration option. Corrupt .cfg file? Missing option?"
-			sys.exit()				
+			sys.exit()
 
 def usage():
 	print """
@@ -261,4 +262,3 @@ def usage():
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
-	
