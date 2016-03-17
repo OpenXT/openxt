@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<methodCall> 
+  <methodName>make</methodName>
+  <params>
+    <param>
+      <value><string>667766</string></value>
+    </param>
+    <param>
+      <value><string>master</string></value>
+    </param>
+    <param>
+      <value><string>developer</string></value>
+    </param>
+    <param>
+      <value><string>true</string></value>
+    </param>
+    <param>
+      <value><string>builds@192.168.150.1:/home/builds/win</string></value>
+    </param>
+    <param>
+      <value><string>git://github.com/OpenXT</string></value>
+    </param>
+    <param>
+      <value><string>sample-config.xml</string></value>
+    </param>
+  </params>
+</methodCall>
