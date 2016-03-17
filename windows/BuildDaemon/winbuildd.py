@@ -188,7 +188,11 @@ class RPCInterface(object):
             build_id_file.close()
             # Rsync the build output to the builder
             command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
-            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            child_error = subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            if child_error != 0:
+                # Misery
+                write("ERROR: OpenXT Tools failed to rsync!")
+                result = 'FAILURE'
         else:
             # Misery
             write("ERROR: OpenXT Tools failed to build!")
