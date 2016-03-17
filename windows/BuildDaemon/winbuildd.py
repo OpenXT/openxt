@@ -141,7 +141,7 @@ class RPCInterface(object):
         try:
             os.chdir(BUILDDIR)
             log = open('output.log',"w")
-            print "Log file created @ " + socket.gethostname() + " file: " + BUILDDIR + "\\output.log"
+            print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
             subprocess = PopenWrapper(log)
             write = subprocess.write
         except:
@@ -154,20 +154,20 @@ class RPCInterface(object):
         write('Running in dir: ' + os.getcwd())
 
         # Nuke existing build
-        if os.path.exists(BUILDDIR + '\\openxt'):
-            shutil.rmtree(BUILDDIR + '\\openxt', onerror=onerror)
+        if os.path.exists(os.path.join(BUILDDIR, 'openxt')):
+            shutil.rmtree(os.path.join(BUILDDIR, 'openxt'), onerror=onerror)
 
         # Yes, this is ridiculous, but for some reason the directory is still there for a few seconds after shutil.rmtree returned...
-        while os.path.exists(BUILDDIR + '\\openxt'):
+        while os.path.exists(os.path.join(BUILDDIR, 'openxt')):
             time.sleep(1)
 
         # Clone the main OpenXT repo and checkout branch
         subprocess.Popen('git clone '+ giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
         write("Completed cloning " + giturl + "/openxt.git")
-        os.chdir(BUILDDIR + "\\openxt")
+        os.chdir(os.path.join(BUILDDIR, "openxt"))
         subprocess.Popen('git checkout -b '+ branch, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
         write('Checked out '+ branch +' in openxt.git')
-        os.chdir(BUILDDIR + "\\openxt\\windows")
+        os.chdir(os.path.join(BUILDDIR, "openxt", "windows"))
 
         command = 'sed -i "s/Put Your Company Name Here/OpenXT/g" config\\sample-config.xml'
         subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
@@ -179,7 +179,7 @@ class RPCInterface(object):
         subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
 
         # rsync the output unless something went wrong
-        os.chdir(BUILDDIR + "\\openxt\\windows\\output")
+        os.chdir(os.path.join(BUILDDIR, "openxt", "windows", "output"))
         if os.path.exists('xctools-iso.zip') and os.path.exists('xc-wintools.iso'):
             # Save build ID
             build_id_file = open('BUILD_ID', 'w')
