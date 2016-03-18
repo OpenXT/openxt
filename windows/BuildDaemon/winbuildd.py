@@ -154,20 +154,14 @@ class RPCInterface(object):
         write('Running in dir: ' + os.getcwd())
 
         # Nuke existing build
-        if os.path.exists(os.path.join(BUILDDIR, 'openxt')):
-            shutil.rmtree(os.path.join(BUILDDIR, 'openxt'), onerror=onerror)
-
-        # Yes, this is ridiculous, but for some reason the directory is still there for a few seconds after shutil.rmtree returned...
-        while os.path.exists(os.path.join(BUILDDIR, 'openxt')):
-            time.sleep(1)
+        if os.path.exists('openxt'):
+            os.rename('openxt', 'openxt.removeme')
+            shutil.rmtree(('openxt.removeme'), onerror=onerror)
 
         # Clone the main OpenXT repo and checkout branch
-        subprocess.Popen('git clone '+ giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+        subprocess.Popen('git clone -b ' + branch + ' ' + giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
         write("Completed cloning " + giturl + "/openxt.git")
-        os.chdir(os.path.join(BUILDDIR, "openxt"))
-        subprocess.Popen('git checkout -b '+ branch, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-        write('Checked out '+ branch +' in openxt.git')
-        os.chdir(os.path.join(BUILDDIR, "openxt", "windows"))
+        os.chdir(os.path.join("openxt", "windows"))
 
         command = 'sed -i "s/Put Your Company Name Here/OpenXT/g" config\\sample-config.xml'
         subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
