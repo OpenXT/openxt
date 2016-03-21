@@ -2,7 +2,7 @@
 
 [ $# -eq 1 ] || exit 1
 
-# Generate a token there: https://github.com/settings/applications
+# Generate a token there: https://github.com/settings/tokens
 TOKEN="$1"
 
 # Get the list of OpenXT repos

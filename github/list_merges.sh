@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Generate a token there: https://github.com/settings/applications
+# Generate a token there: https://github.com/settings/tokens
 
 usage()
 {
