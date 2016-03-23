@@ -2,7 +2,7 @@
 
 [ $# -eq 3 ] || exit 1
 
-# Generate a token there: https://github.com/settings/applications
+# Generate a token there: https://github.com/settings/tokens
 TOKEN="$1"
 REPO="$2"
 COMMIT="$3"
