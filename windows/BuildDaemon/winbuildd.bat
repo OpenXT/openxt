@@ -1,2 +1,2 @@
 cd C:\winbuildd
-powershell .\winbuildd.ps1
+powershell .\start.ps1
