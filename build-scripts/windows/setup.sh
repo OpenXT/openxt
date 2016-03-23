@@ -39,7 +39,8 @@ if [ -e disk ]; then
     exit
 fi
 
-[ -e win.iso ] || wget -O win.iso $ISO_URL
+[ -e win.iso ]   || wget -O win.iso $ISO_URL
+[ -e tools.iso ] || wget -O tools.iso 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso'
 
 apt-get install qemu-kvm virtinst
 
@@ -47,17 +48,26 @@ virt-install \
     --virt-type kvm \
     --name ${BUILD_USER}-win \
     --memory 2048 \
-    --cdrom /home/windows/${BUILD_USER}/win.iso \
-    --disk /home/windows/${BUILD_USER}/disk,size=80 \
-    -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR} \
+    --disk /home/windows/${BUILD_USER}/disk,bus=virtio,size=80 \
+    --disk /home/windows/${BUILD_USER}/win.iso,device=cdrom,bus=ide \
+    --disk /home/windows/${BUILD_USER}/tools.iso,device=cdrom,bus=ide \
+    -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR},model=virtio \
     --graphics vnc,listen=0.0.0.0,port=59${MAC_E}
 
-echo "User action needed to install Windows"
-echo "Please VNC to this machine, port 59${MAC_E}."
-echo "Follow the wiki instructions for the installation:"
-echo "https://openxt.atlassian.net/wiki/display/OD/How+to+build+OpenXT#HowtobuildOpenXT-Windowsbuildmachinesetup"
-echo "The VM won't come back up after the first reboot,"
-echo "  please type \"continue\" and press enter once you reach that point."
+cat <<EOF
+
+
+------ IMPORTANT, please read ------
+
+User action is needed to install Windows
+Please VNC to this machine, port 59${MAC_E}. If the connection breaks, just re-VNC.
+
+- Windows won't find a driver for the disk.
+  Click "Load driver" and use the "viostor" driver from the second CDROM drive.
+
+- The VM won't come back up after the first reboot,
+  please type "continue" and press enter once you reach that point.
+EOF
 
 while read s; do
     [ "x$s" = "xcontinue" ] && break
@@ -65,6 +75,24 @@ done
 
 virsh start ${BUILD_USER}-win
 
-echo "The VM should come back now, please re-VNC."
-echo "Finish the installation and setup the VM using the wiki instructions."
-echo "This script will now terminate, use virsh to start/stop the VM if needed."
+cat <<EOF
+
+
+------ IMPORTANT, please read ------
+
+- I ran "virsh start ${BUILD_USER}-win", the VM should come back now, please re-VNC.
+
+- Once the installation is finished, install the network driver ("NetKVM" on the CD)
+
+- Install all the critical upgrades from Windows update
+
+- Follow the wiki instructions to install the packages needed for building the OpenXT tools:
+  https://openxt.atlassian.net/wiki/display/OD/How+to+build+OpenXT#HowtobuildOpenXT-Windowsbuildmachinesetup
+
+- Install the guest RPC tool
+
+IMPORTANT: This script will terminate in 1 minute, but the Windows VM will stay alive.
+           Use virsh to start/stop the VM as needed.
+EOF
+
+sleep 60
