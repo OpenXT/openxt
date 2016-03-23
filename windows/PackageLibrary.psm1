@@ -366,3 +366,14 @@ function Install-VS2012U4 {
   PerformDownload "http://download.microsoft.com/download/D/4/8/D48D1AC2-A297-4C9E-A9D0-A218E6609F06/VSU4/VS2012.4.exe" $vsu
   Invoke-CommandChecked $vsu /Passive /norestart /log $log
 }
+
+function Test-Python {
+  $exe = "C:\Python27\python.exe"
+  return (Test-Path($dll))
+}
+
+function Install-Python {
+  $python = $env:temp + '\python.msi'
+  PerformDownload "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi" $python
+  Invoke-CommandChecked msiexec.exe /i $python /qn
+}

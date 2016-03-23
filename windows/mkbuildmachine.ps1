@@ -35,5 +35,6 @@ if ($package) {
     Handle($p)
   }
   Write-Host "SUCCESS: This machine is now fully configured for building XT"
+  exit 0
 }
 
