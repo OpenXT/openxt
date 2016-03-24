@@ -15,8 +15,9 @@ $winbuildd_exists = Test-Path("C:\winbuildd")
 if ($winbuildd_exists -ne $True) {
   mkdir C:\winbuildd
 }
-xcopy BuildDaemon\winbuild.cfg C:\winbuildd\winbuild.cfg
-xcopy BuildDaemon\winbuildd.py C:\winbuildd\winbuildd.py
+copy BuildDaemon\winbuild.cfg C:\winbuildd\winbuild.cfg
+copy BuildDaemon\winbuildd.py C:\winbuildd\winbuildd.py
+copy BuildDaemon\start.ps1 C:\winbuildd\start.ps1
 
 # Auto-start the build daemon
 $startmenu = [Environment]::GetFolderPath("StartMenu")
