@@ -1,11 +1,11 @@
 # Install all the default mkbuildmachine packages
-.\mkbuildmachine.ps1
+& .\mkbuildmachine.ps1
 if ($LastExitCode -ne 0) {
   exit 1
 }
 
 # Install specific packages required by the build daemon
-.\mkbuildmachine.ps1 -package python
+& .\mkbuildmachine.ps1 -package python
 if ($LastExitCode -ne 0) {
   exit 1
 }
@@ -13,7 +13,7 @@ if ($LastExitCode -ne 0) {
 # Install the build daemon
 $winbuildd_exists = Test-Path("C:\winbuildd")
 if ($winbuildd_exists -ne $True) {
-  mkdir C:\windbuildd
+  mkdir C:\winbuildd
 }
 xcopy BuildDaemon\winbuild.cfg C:\winbuildd\winbuild.cfg
 xcopy BuildDaemon\winbuildd.py C:\winbuildd\winbuildd.py

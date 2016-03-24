@@ -245,7 +245,7 @@ function Install-SqlSce32 {
   PerformDownload "http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x86-ENU.exe" $ssce32 "0C-1E-76-83-EC-B6-4C-A9-1E-6C-74-C5-D3-35-FC-B0-EC-33-DB-AF-F2-05-4D-F3-F1-F4-1C-7F-51-D6-17-FF"
   Invoke-CommandChecked $ssce32 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
-  Exit
+  Exit 4
 }
 
 function Test-SqlSce64 {
@@ -260,7 +260,7 @@ function Install-SqlSce64 {
   PerformDownload "http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x64-ENU.exe" $ssce64 "96-70-F4-B3-BD-59-C2-06-52-A0-25-9B-92-E4-2E-8F-3E-A8-48-6C-11-39-B6-4D-63-61-A4-17-9E-77-49-65"
   Invoke-CommandChecked $ssce64 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
-  Exit
+  Exit 5
 }
 
 function Test-VS2012 {
@@ -326,7 +326,7 @@ function Install-Wix {
     }else{
         Write-Host "Unable to obtain the build number for the wix download URL. Please download it manually at:"
         Write-Host "http://wix.codeplex.com/downloads/get/762937"
-        Exit
+        Exit 6
     }
   }
 }
