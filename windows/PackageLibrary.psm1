@@ -369,7 +369,7 @@ function Install-VS2012U4 {
 
 function Test-Python {
   $exe = "C:\Python27\python.exe"
-  return (Test-Path($dll))
+  return (Test-Path($exe))
 }
 
 function Install-Python {
