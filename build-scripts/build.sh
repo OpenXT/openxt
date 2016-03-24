@@ -36,15 +36,11 @@
 #   To change just the OE branch, please edit oe/build.sh
 BRANCH="master"
 
-# This /16 subnet prefix is used for networking in the containers.
-# Strongly advised to use part of the private IP address space (eg. "192.168")
-# This value should be configured to match the setting used in setup.sh
-SUBNET_PREFIX="192.168"
-
 # -- End of script configuration settings.
 
 CONTAINER_USER=%CONTAINER_USER%
 GIT_ROOT_PATH=%GIT_ROOT_PATH%
+SUBNET_PREFIX=%SUBNET_PREFIX%
 BUILD_USER="$(whoami)"
 BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"

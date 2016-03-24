@@ -41,7 +41,7 @@ CONTAINER_USER="build"
 
 # This /16 subnet prefix is used for networking in the containers.
 # Strongly advised to use part of the private IP address space (eg. "192.168")
-SUBNET_PREFIX="192.168"
+SUBNET_PREFIX="172.21"
 
 # Ethernet mac address prefix for the container vnics. (eg. "00:FF:AA:42")
 MAC_PREFIX="00:FF:AA:42"
@@ -56,7 +56,7 @@ REMOVE_CONTAINER_ON_ERROR=1
 GIT_ROOT_PATH="/home/git"
 
 # URL to a Windows installer ISO
-WINDOWS_ISO_URL="http://CHANGEME.microsoft.com/windows7-x86.iso"
+WINDOWS_ISO_URL=""
 
 # -- End of script configuration settings.
 
@@ -299,7 +299,9 @@ setup_container "03" "centos" \
                 "centos" "" "--arch x86_64 --release 7"
 
 # Create a Windows VM
-./windows/setup.sh "04" "${BUILD_USER}" "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}"
+if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
+    ./windows/setup.sh "04" "${BUILD_USER}" "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}"
+fi
 
 # Setup a mirror of the git repositories for the build to be consistent
 # (and slightly faster)
@@ -322,7 +324,8 @@ if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
 fi
 
 cp -f build.sh "${BUILD_USER_HOME}/"
-sed -i "s/\%CONTAINER_USER\%/${CONTAINER_USER}/" ${BUILD_USER_HOME}/build.sh
-sed -i "s/\%GIT_ROOT_PATH\%/${GIT_ROOT_PATH}/" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."
