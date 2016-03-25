@@ -41,7 +41,7 @@ CONTAINER_USER="build"
 
 # This /16 subnet prefix is used for networking in the containers.
 # Strongly advised to use part of the private IP address space (eg. "192.168")
-SUBNET_PREFIX="192.168"
+SUBNET_PREFIX="172.21"
 
 # Ethernet mac address prefix for the container vnics. (eg. "00:FF:AA:42")
 MAC_PREFIX="00:FF:AA:42"
@@ -55,17 +55,21 @@ REMOVE_CONTAINER_ON_ERROR=1
 #   and to use the code from build.sh to start the git service
 GIT_ROOT_PATH="/home/git"
 
+# URL to a Windows installer ISO
+WINDOWS_ISO_URL=""
+
 # -- End of script configuration settings.
 
 usage() {
     echo "usage: $0 [-h] [-u build_user] [-d debian_mirror]" >&2
     echo "                  [-c container_user] [-s subnet_prefix] [-m mac_prefix]" >&2
     echo "                  [-r remove_container_on_error] [-g git_root_path]" >&2
+    echo "                  [-w windows_iso_url]" >&2
     exit $1
 }
 
 
-while getopts "hu:d:c:s:m:r:g:" opt; do
+while getopts "hu:d:c:s:m:r:g:w:" opt; do
     case $opt in
         h)
             usage 0
@@ -91,6 +95,9 @@ while getopts "hu:d:c:s:m:r:g:" opt; do
         g)
             GIT_ROOT_PATH="${OPTARG}"
             ;;
+	w)
+	    WINDOWS_ISO_URL="${OPTARG}"
+	    ;;
         \?)
             usage 1
             ;;
@@ -168,8 +175,8 @@ fi
 BUILD_USER_ID=$(id -u ${BUILD_USER})
 IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 MAC_E=$(( ${BUILD_USER_ID} % 100 ))
-if [ "x${MAC_E}" == "x0" ] ; then
-    MAC_E="00"
+if [ ${MAC_E} -lt 10 ] ; then
+    MAC_E="0${MAC_E}"
 fi
 
 # Setup LXC networking on the host, to give known IPs to the containers
@@ -182,9 +189,10 @@ if [ ! -f /etc/libvirt/qemu/networks/${BUILD_USER}.xml ]; then
   <ip address="${SUBNET_PREFIX}.${IP_C}.1" netmask="255.255.255.0">
     <dhcp>
       <range start="${SUBNET_PREFIX}.${IP_C}.2" end="${SUBNET_PREFIX}.${IP_C}.254"/>
-      <host mac="${MAC_PREFIX}:${MAC_E}:01" name="${BUILD_USER}-oe"     ip="${SUBNET_PREFIX}.${IP_C}.101" />
-      <host mac="${MAC_PREFIX}:${MAC_E}:02" name="${BUILD_USER}-debian" ip="${SUBNET_PREFIX}.${IP_C}.102" />
-      <host mac="${MAC_PREFIX}:${MAC_E}:03" name="${BUILD_USER}-centos" ip="${SUBNET_PREFIX}.${IP_C}.103" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:01" name="${BUILD_USER}-oe"      ip="${SUBNET_PREFIX}.${IP_C}.101" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:02" name="${BUILD_USER}-debian"  ip="${SUBNET_PREFIX}.${IP_C}.102" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:03" name="${BUILD_USER}-centos"  ip="${SUBNET_PREFIX}.${IP_C}.103" />
+      <host mac="${MAC_PREFIX}:${MAC_E}:04" name="${BUILD_USER}-windows" ip="${SUBNET_PREFIX}.${IP_C}.104" />
     </dhcp>
   </ip>
 </network>
@@ -290,6 +298,11 @@ setup_container "02" "debian" \
 setup_container "03" "centos" \
                 "centos" "" "--arch x86_64 --release 7"
 
+# Create a Windows VM
+if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
+    ./windows/setup.sh "04" "${BUILD_USER}" "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}"
+fi
+
 # Setup a mirror of the git repositories for the build to be consistent
 # (and slightly faster)
 if [ ! -d ${GIT_ROOT_PATH} ]; then
@@ -311,7 +324,8 @@ if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
 fi
 
 cp -f build.sh "${BUILD_USER_HOME}/"
-sed -i "s/\%CONTAINER_USER\%/${CONTAINER_USER}/" ${BUILD_USER_HOME}/build.sh
-sed -i "s/\%GIT_ROOT_PATH\%/${GIT_ROOT_PATH}/" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."

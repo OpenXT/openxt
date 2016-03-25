@@ -39,6 +39,7 @@ import sys
 import getopt
 import shutil
 import ConfigParser
+import tempfile
 
 subprocess = subprocess_
 linesep = '\n'
@@ -64,12 +65,12 @@ def onerror(func, path, exc_info):
     Usage : ``shutil.rmtree(path, onerror=onerror)``
     """
     import stat
-    if not os.access(path, os.W_OK):
-        # Is the error an access error ?
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
-    else:
-        raise
+    print "Retrying " + path + " after chmod"
+    mode = os.stat(path).st_mode
+    if stat.S_ISDIR(mode):
+        os.system('ls -laR ' + path)
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 class PopenWrapper(object):
   """Like popen but actually writes stuff out to a log file too."""
@@ -121,12 +122,6 @@ class PopenWrapper(object):
         self.logfile.write(linesep)
         self.logfile.flush()
 
-class FakeLog(object):
-    """Used when log hasn't been created."""
-    def close(self):
-        """Place-holder close command."""
-        pass
-
 class RPCInterface(object):
     def make(self,build='',branch='master',certname='',developer='false',rsyncdest='',giturl='',config='sample-config.xml'):
         """make(build,branch,certname,developer,rsyncdest,giturl,config)
@@ -134,66 +129,75 @@ class RPCInterface(object):
            Call powershell scripts to do the real work
         """
 
-        log = FakeLog()
         result = 'SUCCESS'
 
         # Create log directory/file
         try:
             os.chdir(BUILDDIR)
-            log = open('output.log',"w")
+
+            if os.path.exists('output.log'):
+                os.remove('output.log')
+            log = open('output.log', "w")
             print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
             subprocess = PopenWrapper(log)
             write = subprocess.write
-        except:
-            raise Exception, "ERROR: Unable to chdir directory " + BUILDDIR + " or open log"
 
-        write("Start build, RPC input:")
-        write('make(build='+repr(build)+',branch='+repr(branch)+\
-              ',certname='+repr(certname)+'developer='+repr(developer)+\
-              'rsyncdest='+repr(rsyncdest)+'giturl='+repr(giturl)+'config='+repr(config)+')')
-        write('Running in dir: ' + os.getcwd())
+            write("Start build, RPC input:")
+            write('make(build='+repr(build)+',branch='+repr(branch)+\
+                  ',certname='+repr(certname)+'developer='+repr(developer)+\
+                  'rsyncdest='+repr(rsyncdest)+'giturl='+repr(giturl)+'config='+repr(config)+')')
+            write('Running in dir: ' + os.getcwd())
 
-        # Nuke existing build
-        if os.path.exists('openxt'):
-            os.rename('openxt', 'openxt.removeme')
-            shutil.rmtree(('openxt.removeme'), onerror=onerror)
+            # Nuke existing build(s)
+            if not os.path.exists('garbage'):
+                os.mkdir('garbage')
+            if os.path.exists('openxt'):
+                grave = tempfile.mkdtemp(dir='garbage')
+                os.rename('openxt', os.path.join(grave, 'openxt'))
+            try:
+                shutil.rmtree('garbage', onerror=onerror)
+            except:
+                pass
 
-        # Clone the main OpenXT repo and checkout branch
-        subprocess.Popen('git clone -b ' + branch + ' ' + giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-        write("Completed cloning " + giturl + "/openxt.git")
-        os.chdir(os.path.join("openxt", "windows"))
+            # Clone the main OpenXT repo and checkout branch
+            subprocess.Popen('git clone -b ' + branch + ' ' + giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            write("Completed cloning " + giturl + "/openxt.git")
+            os.chdir(os.path.join("openxt", "windows"))
 
-        command = 'sed -i "s/Put Your Company Name Here/OpenXT/g" config\\sample-config.xml'
-        subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            command = 'sed -i "s/Put Your Company Name Here/OpenXT/g" config\\sample-config.xml'
+            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
 
-        write("Building Windows bits...")
-        command = 'powershell .\winbuild-prepare.ps1 config=' + config + ' build=' + build + ' branch=' + branch + ' certname=' + certname + ' developer=' + developer
-        subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-        command = 'powershell .\winbuild-all.ps1'
-        subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            write("Building Windows bits...")
+            command = 'powershell .\winbuild-prepare.ps1 config=' + config + ' build=' + build + ' branch=' + branch + ' certname=' + certname + ' developer=' + developer
+            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            command = 'powershell .\winbuild-all.ps1'
+            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
 
-        # rsync the output unless something went wrong
-        os.chdir(os.path.join(BUILDDIR, "openxt", "windows", "output"))
-        if os.path.exists('xctools-iso.zip') and os.path.exists('xc-wintools.iso'):
-            # Save build ID
-            build_id_file = open('BUILD_ID', 'w')
-            build_id_file.write(str(build))
-            build_id_file.write('\n')
-            build_id_file.close()
-            # Rsync the build output to the builder
-            command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
-            child_error = subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-            if child_error != 0:
+            # rsync the output unless something went wrong
+            os.chdir(os.path.join(BUILDDIR, "openxt", "windows", "output"))
+            if os.path.exists('xctools-iso.zip') and os.path.exists('xc-wintools.iso'):
+                # Save build ID
+                build_id_file = open('BUILD_ID', 'w')
+                build_id_file.write(str(build))
+                build_id_file.write('\n')
+                build_id_file.close()
+                # Rsync the build output to the builder
+                command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
+                child_error = subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+                if child_error != 0:
+                    # Misery
+                    write("ERROR: OpenXT Tools failed to rsync!")
+                    result = 'FAILURE'
+            else:
                 # Misery
-                write("ERROR: OpenXT Tools failed to rsync!")
+                write("ERROR: OpenXT Tools failed to build!")
                 result = 'FAILURE'
-        else:
-            # Misery
-            write("ERROR: OpenXT Tools failed to build!")
-            result = 'FAILURE'
+        finally:
+            if log is not None:
+                log.close()
 
-        log.close()
         return result
+ 
 
     def hello(self):
         return "hello back"
