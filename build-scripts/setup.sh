@@ -61,10 +61,31 @@ WINDOWS_ISO_URL=""
 # -- End of script configuration settings.
 
 usage() {
-    echo "usage: $0 [-h] [-u build_user] [-d debian_mirror]" >&2
-    echo "                  [-c container_user] [-s subnet_prefix] [-m mac_prefix]" >&2
-    echo "                  [-r remove_container_on_error] [-g git_root_path]" >&2
-    echo "                  [-w windows_iso_url]" >&2
+    cat >&2 <<EOF
+usage: $0 [-h] [-u build_user] [-d debian_mirror]
+                  [-c container_user] [-s subnet_prefix] [-m mac_prefix]
+                  [-r remove_container_on_error] [-g git_root_path]
+                  [-w windows_iso_url]
+
+ Note: debian_mirror   must be the full URL to a Debian mirror,
+   like in the example below
+ Note: windows_iso_url must be an http URL to a Windows 32 bits iso
+
+ Example (defaults): $0					\\
+                     -u openxt					\\
+                     -d http://httpredir.debian.org/debian	\\
+                     -c build					\\
+                     -s 172.21					\\
+                     -m 00:FF:AA:42				\\
+                     -r 1					\\
+                     -g /home/git
+
+ Important: this script will create containers that could grow to
+   ~100GB in size. By default, lxc stores containers in /var/lib/lxc.
+   Make sure there's enough room there, or change that location by:
+     - Installing lxc: apt-get install lxc
+     - Runing: echo "lxc.lxcpath = <path>" >> /etc/lxc/lxc.conf
+EOF
     exit $1
 }
 
