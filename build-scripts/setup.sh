@@ -113,7 +113,7 @@ fi
 # When installing packages, do all at once to be faster.
 PKGS="lxc"
 #PKGS="$PKGS virtualbox" # Un-comment to setup a Windows VM
-PKGS="$PKGS bridge-utils libvirt-bin curl jq git sudo" # lxc and misc
+PKGS="$PKGS bridge-utils libvirt-bin curl jq git" # lxc and misc
 PKGS="$PKGS debootstrap" # Debian container
 PKGS="$PKGS librpm3 librpmbuild3 librpmio3 librpmsign1 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-support python-urlgrabber rpm \
@@ -123,7 +123,7 @@ apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
 apt-get install $PKGS || apt-get install $PKGS
 
-# Ensure that the build user exists on the host and is a sudoer.
+# Ensure that the build user exists on the host
 if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then
     echo "Creating ${BUILD_USER} user for building, please choose a password."
     adduser --gecos "" ${BUILD_USER}
@@ -133,7 +133,6 @@ if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then
     touch "${BUILD_USER_HOME}"/.ssh/known_hosts
     touch "${BUILD_USER_HOME}"/.ssh/config
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh
-    echo "${BUILD_USER}  ALL=(ALL:ALL) ALL" >> /etc/sudoers
 else
     # The user exists, check and verbosely fix missing configuration bits
     BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
@@ -157,10 +156,6 @@ else
         touch "${BUILD_USER_HOME}"/.ssh/config
         chown ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/.ssh/config
     fi
-    grep ${BUILD_USER} /etc/sudoers >/dev/null 2>&1 || {
-        echo "${BUILD_USER} is not a sudoer, adding him."
-        echo "${BUILD_USER}  ALL=(ALL:ALL) ALL" >> /etc/sudoers
-    }
 fi
 
 # Create an SSH key for the user, to communicate with the containers
@@ -221,6 +216,11 @@ setup_container() {
     echo "Creating the ${NAME} container..."
     MIRROR=${MIRROR} lxc-create -n "${BUILD_USER}-${NAME}" -t $TEMPLATE -- $TEMPLATE_OPTIONS
     cat >> ${LXC_PATH}/${BUILD_USER}-${NAME}/config <<EOF
+# Autostart
+lxc.start.auto = 1
+lxc.start.delay = 5
+
+# Network
 lxc.network.type = veth
 lxc.network.flags = up
 lxc.network.link = ${BUILD_USER}br0
@@ -284,6 +284,9 @@ EOF
 
     # Copy resolv.conf over for networking, shouldn't be needed
     #cp /etc/resolv.conf ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/etc/resolv.conf
+
+    # Start the container
+    lxc-start -d -n "${BUILD_USER}-${NAME}"
 }
 
 # Create a container for the main part of the OpenXT build

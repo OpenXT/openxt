@@ -99,31 +99,7 @@ build_container() {
     NAME=$2             # oe
     echo "Building container: ${NUMBER} : ${NAME}"
 
-    # Start the OE container
-    sudo lxc-info -n ${BUILD_USER}-${NAME} | \
-        grep STOPPED >/dev/null && sudo lxc-start -d -n ${BUILD_USER}-${NAME}
-
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
-    echo "Accessing container at network address: ${CONTAINER_IP}"
-
-    # Wait a few seconds and exit if the host doesn't respond
-    # We ping the host until we get a reponse,
-    # then we also ssh it until it's up, using the ping as a "sleep 1"
-    tries=0
-    until ping -c 1 -w 1 ${CONTAINER_IP} >/dev/null 2>&1 && \
-          ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt ${CONTAINER_USER}@${CONTAINER_IP} \
-              -oStrictHostKeyChecking=no true >/dev/null 2>&1; do
-       tries=$(( tries + 1 ))
-       if [ $tries -ge 30 ]; then
-           echo "Error: Could not connect to container ${BUILD_USER}-${NAME}" \
-                "at ${CONTAINER_IP}. Exiting." >&2
-           exit 2
-       fi
-        echo "Could not connect to container ${BUILD_USER}-${NAME}" \
-            "at ${CONTAINER_IP} (${tries}/30). Retrying." >&2
-    done
-
-    echo "${BUILD_USER}-${NAME} is up, starting the build now!"
 
     # Build
     cat $NAME/build.sh | \
