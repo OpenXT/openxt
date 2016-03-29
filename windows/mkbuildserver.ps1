@@ -10,6 +10,9 @@ if ($LastExitCode -ne 0) {
   exit 1
 }
 
+# Create the certificate
+& .\makecert.bat developer
+
 # Install the build daemon
 $winbuildd_exists = Test-Path("C:\winbuildd")
 if ($winbuildd_exists -ne $True) {
