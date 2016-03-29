@@ -32,26 +32,17 @@ except NameError:
 
 import SimpleXMLRPCServer
 import os
-import subprocess as subprocess_
+import subprocess
 import socket
-import time
 import sys
 import getopt
 import shutil
 import ConfigParser
 import tempfile
+import logging
 
-subprocess = subprocess_
 linesep = '\n'
 SCRIPTDIR = os.path.dirname(__file__)
-
-def write_(*args):
-  """Place-holder for print"""
-  if args:
-    print ' '.join(map(str, args))
-  else:
-    print
-write = write_
 
 def onerror(func, path, exc_info):
     """
@@ -72,55 +63,18 @@ def onerror(func, path, exc_info):
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
-class PopenWrapper(object):
-  """Like popen but actually writes stuff out to a log file too."""
-  class WaitWrapper(object):
-    """Wraps the wait object."""
-    def __init__(self, waiter, log, cmdline):
-        super(PopenWrapper.WaitWrapper, self).__init__()
-        self.waiter = waiter
-        self.log = log
-        self.cmdline = cmdline
-    def __getattr__(self, name):
-        return getattr(self.waiter, name)
-    def wait(self, *args, **kwargs):
-        cmdline = self.cmdline
-        self.log.write(linesep + 'EXECUTING: ' + cmdline)
-        start = time.time()
-        result = self.waiter.wait(*args, **kwargs)
-        end = time.time()
-        self.log.write(('FINISHED EXECUTING (%.02f' % (end - start)) + '): ' + cmdline + linesep)
-        return result
-
-  def __init__(self, logfile):
-    """Initialise this PopenWrapper instance.
-        Parameters:
-          logfile  - File to write any output to.
-    """
-    super(PopenWrapper, self).__init__()
-    self.logfile = logfile
-
-  def Popen(self, *unargs, **kwargs):
-    """Wrapper around the real popen. Dump the command line...
-        Parameters:
-          cmdline  - Command line being executed.
-    """
-    cmdline = None
-    if 'args' in kwargs:
-        cmdline = kwargs['args']
-    else:
-      cmdline = unargs[0]
-    return PopenWrapper.WaitWrapper(subprocess_.Popen(*unargs, **kwargs), self, cmdline)
-
-  def write(self, *args):
-    """Placeholder for print"""
-    write_(*args) #Print in build server.
-    if args:
-        self.logfile.write(' '.join(map(str, args)) + linesep) #Print to log file.
-        self.logfile.flush()
-    else:
-        self.logfile.write(linesep)
-        self.logfile.flush()
+def runCommand(command):
+    s = subprocess.Popen(command, shell = True,
+                      stdout = subprocess.PIPE, stderr = subprocess.STDOUT,
+                      universal_newlines=True)
+    while True:
+        output = s.stdout.readline()
+        if output == '' and s.poll() is not None:
+            break
+        if output:
+            logging.info(output.strip())
+    ret = s.poll()
+    return ret
 
 class RPCInterface(object):
     def make(self,build='',branch='master',certname='',developer='false',rsyncdest='',giturl='',config='sample-config.xml'):
@@ -131,22 +85,22 @@ class RPCInterface(object):
 
         result = 'SUCCESS'
 
+        if not os.path.exists(BUILDDIR):
+            os.mkdir(BUILDDIR)
+        os.chdir(BUILDDIR)
+
+        if os.path.exists('output.log'):
+            os.remove('output.log')
+        log = logging.basicConfig(filename='output.log', level=logging.DEBUG)
+        print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
+
         # Create log directory/file
         try:
-            os.chdir(BUILDDIR)
-
-            if os.path.exists('output.log'):
-                os.remove('output.log')
-            log = open('output.log', "w")
-            print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
-            subprocess = PopenWrapper(log)
-            write = subprocess.write
-
-            write("Start build, RPC input:")
-            write('make(build='+repr(build)+',branch='+repr(branch)+\
+            logging.info("Start build, RPC input:")
+            logging.info('make(build='+repr(build)+',branch='+repr(branch)+\
                   ',certname='+repr(certname)+'developer='+repr(developer)+\
                   'rsyncdest='+repr(rsyncdest)+'giturl='+repr(giturl)+'config='+repr(config)+')')
-            write('Running in dir: ' + os.getcwd())
+            logging.info('Running in dir: ' + os.getcwd())
 
             # Nuke existing build(s)
             if not os.path.exists('garbage'):
@@ -160,18 +114,18 @@ class RPCInterface(object):
                 pass
 
             # Clone the main OpenXT repo and checkout branch
-            subprocess.Popen('git clone -b ' + branch + ' ' + giturl + '/openxt.git', shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
-            write("Completed cloning " + giturl + "/openxt.git")
+            runCommand('git clone -b ' + branch + ' ' + giturl + '/openxt.git')
+            logging.info("Completed cloning " + giturl + "/openxt.git")
             os.chdir(os.path.join("openxt", "windows"))
 
             command = 'sed -i "s/Put Your Company Name Here/OpenXT/g" config\\sample-config.xml'
-            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            runCommand(command)
 
-            write("Building Windows bits...")
+            logging.info("Building Windows bits...")
             command = 'powershell .\winbuild-prepare.ps1 config=' + config + ' build=' + build + ' branch=' + branch + ' certname=' + certname + ' developer=' + developer
-            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            runCommand(command)
             command = 'powershell .\winbuild-all.ps1'
-            subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+            runCommand(command)
 
             # rsync the output unless something went wrong
             os.chdir(os.path.join(BUILDDIR, "openxt", "windows", "output"))
@@ -183,18 +137,21 @@ class RPCInterface(object):
                 build_id_file.close()
                 # Rsync the build output to the builder
                 command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
-                child_error = subprocess.Popen(command, shell = True, stdout = log, stderr = log, universal_newlines=True).wait()
+                child_error = runCommand(command)
                 if child_error != 0:
                     # Misery
-                    write("ERROR: OpenXT Tools failed to rsync!")
+                    logging.error("ERROR: OpenXT Tools failed to rsync!")
                     result = 'FAILURE'
             else:
                 # Misery
-                write("ERROR: OpenXT Tools failed to build!")
+                logging.error("ERROR: OpenXT Tools failed to build!")
                 result = 'FAILURE'
         finally:
             if log is not None:
-                log.close()
+                log.handlers[0].close()
+
+        if log is not None:
+            log.handlers[0].close()
 
         return result
  
