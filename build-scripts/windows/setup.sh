@@ -31,10 +31,15 @@ ISO_URL=$5
 
 MAC_ADDR=${MAC_PREFIX}:${MAC_E}:${NUMBER}
 
-mkdir -p /home/windows/${BUILD_USER}
-cd /home/windows/${BUILD_USER}
+mkdir -p /home/${BUILD_USER}/windows
+cd /home/${BUILD_USER}/windows
 
-if [ -e disk ]; then
+disk_pool=${BUILD_USER}-pool
+vm_name=${BUILD_USER}-win
+
+mkdir -p $disk_pool
+
+if [ -e ${disk_pool}/disk ]; then
     echo "Windows disk already present, not setting up the Windows VM."
     exit
 fi
@@ -46,13 +51,14 @@ apt-get install qemu-kvm virtinst
 
 virt-install \
     --virt-type kvm \
-    --name ${BUILD_USER}-win \
+    --name ${vm_name} \
     --memory 2048 \
-    --disk /home/windows/${BUILD_USER}/disk,bus=virtio,size=80 \
-    --disk /home/windows/${BUILD_USER}/win.iso,device=cdrom,bus=ide \
-    --disk /home/windows/${BUILD_USER}/tools.iso,device=cdrom,bus=ide \
+    --disk /home/${BUILD_USER}/windows/${disk_pool}/disk,bus=virtio,size=80 \
+    --disk /home/${BUILD_USER}/windows/win.iso,device=cdrom,bus=ide \
+    --disk /home/${BUILD_USER}/windows/tools.iso,device=cdrom,bus=ide \
     -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR},model=virtio \
-    --graphics vnc,listen=0.0.0.0,port=59${MAC_E}
+    --graphics vnc,listen=0.0.0.0,port=59${MAC_E} \
+    --noautoconsole
 
 cat <<EOF
 
@@ -66,11 +72,25 @@ Please VNC to this machine, port 59${MAC_E}. If the connection breaks, just re-V
   Click "Load driver" and use the "viostor" driver from the second CDROM drive.
 
 - The VM won't come back up after the first reboot,
-  please type "continue" and press enter once you reach that point.
+  please type "continue" and press enter once you reach that point,
+  or type "fail" if anything went wrong, and I'll wipe out the VM so you can try again
 EOF
 
 while read s; do
     [ "x$s" = "xcontinue" ] && break
+    [ "x$s" = "xfail" ] && {
+	echo "Trying to shutdown and remove the VM..." >&2
+	set +e
+	set -x
+	virsh destroy ${vm_name}
+	virsh undefine ${vm_name}
+	virsh vol-delete --pool ${disk_pool} disk
+	virsh pool-destroy ${disk_pool}
+	virsh pool-delete ${disk_pool}
+	virsh pool-undefine ${disk_pool}
+	/etc/init.d/libvirtd restart
+	exit 1
+    }
 done
 
 virsh start ${BUILD_USER}-win
