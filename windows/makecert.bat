@@ -11,9 +11,9 @@ if defined ProgramFiles(x86) (
     set PROGRAMPATH="%ProgramFiles%"
 )
 
-for /f %%x in ('wmic path win32_utctime get /format:list ^| findstr "="') do set %%x
-if %Day% LSS 10 set Day=0%Day%
-if %Month% LSS 10 set Month=0%Month%
+set Day=%date:~7,2%
+set Month=%date:~4,2%
+set Year=%date:~10,4%
 set /a Expires=%Year%+1
 set cn="cn=\"%~1\""
 
