@@ -1,4 +1,5 @@
 param (
+  [string]$mirror = "",
   [int]$timeout = 3600000
 )
 
@@ -62,11 +63,15 @@ Function PerformDownloadGeneric ($url, $targetFile) {
       $responseStream.Dispose()
     } catch {
        Write-Host "Unable to download $url error " $_.Exception.Message
-       Exit 1
+       return $False
     }
+
+    return $True
 }
 
-Function PerformDownload ($url, $targetFile, $expectedHash) {
+Function PerformDownload ($mirror, $url, $target, $expectedHash) {
+    $targetFile = $env:temp + "\" + $target
+
     # Check if the file is already downloaded
     if (($expectedHash) -and (Test-Path $targetFile)) {
       $hash = Get-FileHash($targetFile)
@@ -79,19 +84,32 @@ Function PerformDownload ($url, $targetFile, $expectedHash) {
     }
 
     # Download the file
-    PerformDownloadGeneric $url $targetFile
+    if ($mirror) {
+       if (-Not (PerformDownloadGeneric "$($mirror)/$($target)" $targetFile)) {
+          Write-Host "Downloading $target from the mirror $mirror failed, falling back to the upstream URL: $url"
+          if (-Not (PerformDownloadGeneric "$url" $targetFile)) {
+             Exit 1
+          }
+       }
+    } else {
+       if (-Not (PerformDownloadGeneric "$url" $targetFile) {
+          Exit 1
+       }
+    }
 
     # Check the hash of the downloaded file
     $hash = Get-FileHash($targetFile)
-    Write-Host "$hash calculated for downloaded $url"
+    Write-Host "$hash calculated for $targetFile"
     if ($expectedHash -and ($hash -ne $expectedHash)) {
-        Write-Host "ERROR: $url does not contain the expected content (found hash $hash rather than $expectedHash)"
+        Write-Host "ERROR: $targetFile does not contain the expected content (found hash $hash rather than $expectedHash)"
         Exit 2
     }
 }
 
-Function PerformDownloadGpg ($url, $targetFile, $cert, $sig) {
+Function PerformDownloadGpg ($mirror, $url, $target, $cert, $sig) {
     Import-Module BitsTransfer
+
+    $targetFile = $env:temp + "\" + $target
 
     # Download cert and sig
     $targetCert = $targetFile + ".cert"
@@ -110,13 +128,24 @@ Function PerformDownloadGpg ($url, $targetFile, $cert, $sig) {
     }
 
     # Download the file
-    PerformDownloadGeneric $url $targetFile
+    if ($mirror) {
+       if (-Not (PerformDownloadGeneric "$($mirror)/$($target)" $targetFile)) {
+          Write-Host "Downloading $target from the mirror $mirror failed, falling back to the upstream URL: $url"
+          if (-Not (PerformDownloadGeneric "$url" $targetFile)) {
+             Exit 1
+          }
+       }
+    } else {
+       if (-Not (PerformDownloadGeneric "$url" $targetFile)) {
+          Exit 1
+       }
+    }
 
     # Check the signature of the downloaded file
     Check-GpgSig $targetFile $targetCert $targetSig
     $gpg_valid = $LastExitCode
     if ($gpg_valid -ne 0) {
-        Write-Host "ERROR: $url does not contain the expected content"
+        Write-Host "ERROR: $targetFile does not contain the expected content"
         Exit 2
     }
 }
