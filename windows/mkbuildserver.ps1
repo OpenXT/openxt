@@ -29,4 +29,4 @@ $startupExists = Test-Path $($startup)
 if ($startupExists -ne $True) {
   mkdir $startup
 }
-xcopy BuildDaemon\winbuildd.bat "$($startup)\winbuildd.bat"
+copy BuildDaemon\winbuildd.bat "$($startup)\winbuildd.bat"
