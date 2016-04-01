@@ -25,12 +25,9 @@ META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
 META_JAVA_TAG=a73939323984fca1e919d3408d3301ccdbceac9c
 
-# WORK-AROUND: Compatible meta-selinux rev.
-# Later commits will eventually conflict with oe-core jethro branch.
-# Known conflicts are:
-# - findutils_4.6.%.bbappend
-# - e2fsprogs_git.bbappend
-META_SELINUX_TAG=2188d5b09b8f79cce935890ad814b0afafa09b9c
+# Default to the same branch of meta-selinux as OE_BRANCH (e.g. jethro).
+# Uncomment and edit if you need a specific commit from meta-selinux.
+#META_SELINUX_TAG=jethro
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
 OPENXT_MIRROR="http://mirror.openxt.org"
