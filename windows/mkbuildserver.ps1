@@ -10,6 +10,9 @@ if ($LastExitCode -ne 0) {
   exit 1
 }
 
+# Create the certificate
+& .\makecert.bat developer
+
 # Install the build daemon
 $winbuildd_exists = Test-Path("C:\winbuildd")
 if ($winbuildd_exists -ne $True) {
@@ -26,4 +29,4 @@ $startupExists = Test-Path $($startup)
 if ($startupExists -ne $True) {
   mkdir $startup
 }
-xcopy BuildDaemon\winbuildd.bat "$($startup)\winbuildd.bat"
+copy BuildDaemon\winbuildd.bat "$($startup)\winbuildd.bat"
