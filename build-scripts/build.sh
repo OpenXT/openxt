@@ -39,7 +39,6 @@ BRANCH="master"
 # -- End of script configuration settings.
 
 CONTAINER_USER=%CONTAINER_USER%
-GIT_ROOT_PATH=%GIT_ROOT_PATH%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 BUILD_USER="$(whoami)"
 BUILD_USER_ID="$(id -u ${BUILD_USER})"
@@ -72,25 +71,7 @@ if ! mkdir -p "${BUILD_DIR_PATH}" ; then
     exit 1
 fi
 
-# Fetch git mirrors
-for i in ${GIT_ROOT_PATH}/${BUILD_USER}/*.git; do
-    echo -n "Fetching `basename $i`: "
-    cd $i
-    git fetch --all > /dev/null 2>&1
-    git log -1 --pretty='tformat:%H'
-    cd - > /dev/null
-done | tee /tmp/git_heads_$BUILD_USER
-
-# Start the git service if needed
-ps -p `cat /tmp/openxt_git.pid 2>/dev/null` >/dev/null 2>&1 || {
-    rm -f /tmp/openxt_git.pid
-    git daemon --base-path=${GIT_ROOT_PATH} \
-               --pid-file=/tmp/openxt_git.pid \
-               --detach \
-               --syslog \
-               --export-all
-    chmod 666 /tmp/openxt_git.pid
-}
+./fetch.sh
 
 echo "Running build: ${BUILD_DIR}"
 
