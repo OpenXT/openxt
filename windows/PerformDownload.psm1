@@ -69,7 +69,7 @@ Function PerformDownloadGeneric ($url, $targetFile) {
     return $True
 }
 
-Function PerformDownload ($mirror, $url, $target, $expectedHash) {
+Function PerformDownload ($url, $target, $expectedHash) {
     $targetFile = $env:temp + "\" + $target
 
     # Check if the file is already downloaded
@@ -92,7 +92,7 @@ Function PerformDownload ($mirror, $url, $target, $expectedHash) {
           }
        }
     } else {
-       if (-Not (PerformDownloadGeneric "$url" $targetFile) {
+       if (-Not (PerformDownloadGeneric "$url" $targetFile)) {
           Exit 1
        }
     }
@@ -106,7 +106,7 @@ Function PerformDownload ($mirror, $url, $target, $expectedHash) {
     }
 }
 
-Function PerformDownloadGpg ($mirror, $url, $target, $cert, $sig) {
+Function PerformDownloadGpg ($url, $target, $cert, $sig) {
     Import-Module BitsTransfer
 
     $targetFile = $env:temp + "\" + $target
