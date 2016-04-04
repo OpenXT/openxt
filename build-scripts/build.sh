@@ -94,6 +94,25 @@ build_container() {
             -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
 }
 
+build_windows() {
+    NUMBER=$1           # 04
+    echo "Building windows"
+
+    DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
+
+    mkdir -p $DEST
+
+    # Build
+    cd windows
+    ./build.sh "$NUMBER" \
+               "$BRANCH" \
+               "$BUILD_USER" \
+               "${SUBNET_PREFIX}.${IP_C}" \
+               "${DEST}"
+    cd - >/dev/null
+}
+
 build_container "01" "oe"
 build_container "02" "debian"
 build_container "03" "centos"
+build_windows   "04"

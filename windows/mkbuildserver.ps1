@@ -1,11 +1,24 @@
+param
+(
+  [string]$mirror = ""
+)
+
 # Install all the default mkbuildmachine packages
-& .\mkbuildmachine.ps1
+if ($mirror) {
+  & .\mkbuildmachine.ps1 -mirror $mirror
+} else {
+  & .\mkbuildmachine.ps1
+}
 if ($LastExitCode -ne 0) {
   exit 1
 }
 
 # Install specific packages required by the build daemon
-& .\mkbuildmachine.ps1 -package python
+if ($mirror) {
+  & .\mkbuildmachine.ps1 -mirror $mirror -package python
+} else {
+  & .\mkbuildmachine.ps1 -package python
+}
 if ($LastExitCode -ne 0) {
   exit 1
 }
@@ -30,3 +43,12 @@ if ($startupExists -ne $True) {
   mkdir $startup
 }
 copy BuildDaemon\winbuildd.bat "$($startup)\winbuildd.bat"
+
+# Create ssh key
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+cd C:\winbuildd
+ssh-keygen -t rsa -N "''" -f id_rsa
+
+# Done
+Write-Host "Done. Please reboot one last time."
+Write-Host "Make sure winbuildd starts and continue the host setup script."

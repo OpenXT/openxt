@@ -324,7 +324,16 @@ setup_container "03" "centos" \
 
 # Create a Windows VM
 if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
-    ./windows/setup.sh "04" "${BUILD_USER}" "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}"
+    cd windows
+    ./setup.sh "04" "${BUILD_USER}" \
+               "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}" \
+               "${SUBNET_PREFIX}.${IP_C}"
+    cd - > /dev/null
+    mkdir -p "${BUILD_USER_HOME}"/windows
+    cp windows/build.sh "${BUILD_USER_HOME}"/windows/
+    mkdir -p "${BUILD_USER_HOME}"/windows/xmls
+    cp windows/xmls/xmlbuild "${BUILD_USER_HOME}"/windows/xmls
+    chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/windows
 fi
 
 # Setup a mirror of the git repositories for the build to be consistent

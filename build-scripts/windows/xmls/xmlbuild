@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<methodCall>
+  <methodName>make</methodName>
+  <params>
+    <param>
+      <value><string>%BUILD_ID%</string></value>
+    </param>
+    <param>
+      <value><string>%BRANCH%</string></value>
+    </param>
+    <param>
+      <value><string>%CERTIFICATE%</string></value>
+    </param>
+    <param>
+      <value><string>%IS_DEVELOPER%</string></value>
+    </param>
+    <param>
+      <value><string>%RSYNC_DESTINATION%</string></value>
+    </param>
+    <param>
+      <value><string>%GIT_PATH%</string></value>
+    </param>
+    <param>
+      <value><string>sample-config.xml</string></value>
+    </param>
+  </params>
+</methodCall>

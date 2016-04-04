@@ -28,15 +28,43 @@ BUILD_USER=$2
 MAC_PREFIX=$3
 MAC_E=$4
 ISO_URL=$5
+IP_PREFIX=$6
 
 MAC_ADDR=${MAC_PREFIX}:${MAC_E}:${NUMBER}
+IP=${IP_PREFIX}.1${NUMBER}
+BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
+
+continue_or_fail() {
+    cat <<EOF
+
+Please type "continue" and press enter once you reach that point,
+    or type "fail" if anything went wrong, and I'll wipe out the VM so you can try again
+EOF
+
+    while read s; do
+        echo
+        [ "x$s" = "xcontinue" ] && break
+        [ "x$s" = "xfail" ] && {
+            echo "Trying to shutdown and remove the VM..." >&2
+            set +e
+            set -x
+            virsh destroy ${vm_name}
+            virsh undefine ${vm_name}
+            virsh vol-delete --pool ${disk_pool} disk
+            virsh pool-destroy ${disk_pool}
+            virsh pool-delete ${disk_pool}
+            virsh pool-undefine ${disk_pool}
+            /etc/init.d/libvirtd restart
+            exit 1
+        }
+    done
+}
 
 mkdir -p /home/${BUILD_USER}/windows
 cd /home/${BUILD_USER}/windows
 
 disk_pool=${BUILD_USER}-pool
 vm_name=${BUILD_USER}-win
-
 mkdir -p $disk_pool
 
 if [ -e ${disk_pool}/disk ]; then
@@ -58,7 +86,8 @@ virt-install \
     --disk /home/${BUILD_USER}/windows/tools.iso,device=cdrom,bus=ide \
     -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR},model=virtio \
     --graphics vnc,listen=0.0.0.0,port=59${MAC_E} \
-    --noautoconsole
+    --noautoconsole \
+    --autostart
 
 cat <<EOF
 
@@ -72,26 +101,9 @@ Please VNC to this machine, port 59${MAC_E}. If the connection breaks, just re-V
   Click "Load driver" and use the "viostor" driver from the second CDROM drive.
 
 - The VM won't come back up after the first reboot,
-  please type "continue" and press enter once you reach that point,
-  or type "fail" if anything went wrong, and I'll wipe out the VM so you can try again
 EOF
 
-while read s; do
-    [ "x$s" = "xcontinue" ] && break
-    [ "x$s" = "xfail" ] && {
-	echo "Trying to shutdown and remove the VM..." >&2
-	set +e
-	set -x
-	virsh destroy ${vm_name}
-	virsh undefine ${vm_name}
-	virsh vol-delete --pool ${disk_pool} disk
-	virsh pool-destroy ${disk_pool}
-	virsh pool-delete ${disk_pool}
-	virsh pool-undefine ${disk_pool}
-	/etc/init.d/libvirtd restart
-	exit 1
-    }
-done
+continue_or_fail
 
 virsh start ${BUILD_USER}-win
 
@@ -108,11 +120,29 @@ cat <<EOF
 
 - Follow the wiki instructions to install the packages needed for building the OpenXT tools:
   https://openxt.atlassian.net/wiki/display/OD/How+to+build+OpenXT#HowtobuildOpenXT-Windowsbuildmachinesetup
+  and install the guest RPC tool
+OR
+- Disable UAC, Set ExecutionPolicy Unrestricted, install git, open Administrator cmd and run:
+  git clone https://github.com/OpenXT/openxt.git
+  cd openxt\\windows
+  powershell .\mkbuildserver.ps1
 
-- Install the guest RPC tool
-
-IMPORTANT: This script will terminate in 1 minute, but the Windows VM will stay alive.
-           Use virsh to start/stop the VM as needed.
+- Reboot the VM and wait for winbuildd to come up
 EOF
 
-sleep 60
+continue_or_fail
+
+cd - > /dev/null
+
+getcert="curl -s -m 5 -H \"Content-Type: text/xml\" --data @xmls/xmlgetcert http://${IP}:6288"
+cert=`$getcert | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
+while [ -z "$cert" ]; do
+    echo "winbuildd is not installed/running/configured properly."
+    continue_or_fail
+    cert=`$getcert`
+done
+echo "$cert" >> ${BUILD_USER_HOME}/.ssh/authorized_keys
+
+echo
+echo 'Success! The Windows build VM is now properly configured.'
+echo
