@@ -3,9 +3,9 @@
 Version: %{xc_release}
 Release: 1%{?dist}
 Group: Applications/System
-Vendor: Citrix Systems
-License: Proprietary
-URL: http://www.citrix.com/xenclient/xt
+Vendor: OpenXT
+License: GPLv2
+URL: http://github.com/OpenXT
 BuildRoot: %{name}-%{version}-%{release}
 
 %define desc %{summary}.
