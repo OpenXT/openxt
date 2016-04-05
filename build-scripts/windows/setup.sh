@@ -134,14 +134,14 @@ continue_or_fail
 
 cd - > /dev/null
 
-getcert="curl -s -m 5 -H \"Content-Type: text/xml\" --data @xmls/xmlgetcert http://${IP}:6288"
-cert=`$getcert | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
-while [ -z "$cert" ]; do
+get_ssh_public_key="curl -s -m 5 -H \"Content-Type: text/xml\" --data @xmls/xml_get_ssh_public_key http://${IP}:6288"
+ssh_public_key=`$get_ssh_public_key | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
+while [ -z "$ssh_public_key" ]; do
     echo "winbuildd is not installed/running/configured properly."
     continue_or_fail
-    cert=`$getcert`
+    ssh_public_key=`$get_ssh_public_key | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
 done
-echo "$cert" >> ${BUILD_USER_HOME}/.ssh/authorized_keys
+echo "$ssh_public_key" >> ${BUILD_USER_HOME}/.ssh/authorized_keys
 
 echo
 echo 'Success! The Windows build VM is now properly configured.'

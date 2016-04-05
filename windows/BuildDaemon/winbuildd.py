@@ -79,7 +79,8 @@ class RPCInterface(object):
 
         if os.path.exists('output.log'):
             os.remove('output.log')
-        log = logging.basicConfig(filename='output.log', level=logging.DEBUG)
+        logging.basicConfig(filename='output.log', level=logging.DEBUG)
+        log = logging.getLogger()
         print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
 
         # Create log directory/file
@@ -139,17 +140,17 @@ class RPCInterface(object):
                 result = 'FAILURE'
         finally:
             if log is not None:
-                log.handlers[0].close()
-
-        if log is not None:
-            log.handlers[0].close()
+                handlers = log.handlers[:]
+                for handler in handlers:
+                    handler.close()
+                    log.removeHandler(handler)
 
         return result
 
     def hello(self):
         return "hello back"
 
-    def getcert(self):
+    def get_ssh_public_key(self):
         certfile = open(os.path.join(SCRIPTDIR, "id_rsa.pub"))
         cert = certfile.readline()
         certfile.close()

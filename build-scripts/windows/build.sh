@@ -36,11 +36,11 @@ IP=${IP_PREFIX}.1${NUMBER}
 xmlfile=`mktemp`
 cat xmls/xmlbuild | \
     sed -e "s|\%BUILD_ID\%|${BUILD_ID}|" \
-	-e "s|\%BRANCH\%|${BRANCH}|" \
-	-e "s|\%CERTIFICATE\%|developer|" \
-	-e "s|\%IS_DEVELOPER\%|true|" \
-	-e "s|\%RSYNC_DESTINATION\%|${BUILD_USER}@${IP_PREFIX}.1:${DEST}|" \
-	-e "s|\%GIT_PATH\%|git://${IP_PREFIX}.1/${BUILD_USER}|" > $xmlfile
+        -e "s|\%BRANCH\%|${BRANCH}|" \
+        -e "s|\%CERTIFICATE\%|developer|" \
+        -e "s|\%IS_DEVELOPER\%|true|" \
+        -e "s|\%RSYNC_DESTINATION\%|${BUILD_USER}@${IP_PREFIX}.1:${DEST}|" \
+        -e "s|\%GIT_PATH\%|git://${IP_PREFIX}.1/${BUILD_USER}|" > $xmlfile
 dobuild="curl -s --connect-timeout 5 -H \"Content-Type: text/xml\" --data @${xmlfile} http://${IP}:6288"
 
 buildout=`mktemp`
