@@ -1,0 +1,4 @@
+<?xml version='1.0'?>
+<methodCall>
+  <methodName>get_ssh_public_key</methodName>
+</methodCall>

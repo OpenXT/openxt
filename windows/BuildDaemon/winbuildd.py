@@ -20,16 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
-# Some idiot interpreters don't always set up __file__
-# (I'm looking at you PythonWin)
-try:
-    __file__
-except NameError:
-    import sys
-    __file__ = sys.argv[0]
-    del sys
-
 import SimpleXMLRPCServer
 import os
 import subprocess
@@ -40,9 +30,10 @@ import shutil
 import ConfigParser
 import tempfile
 import logging
+import sys
 
 linesep = '\n'
-SCRIPTDIR = os.path.dirname(__file__)
+SCRIPTDIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def onerror(func, path, exc_info):
     """
@@ -57,9 +48,6 @@ def onerror(func, path, exc_info):
     """
     import stat
     print "Retrying " + path + " after chmod"
-    mode = os.stat(path).st_mode
-    if stat.S_ISDIR(mode):
-        os.system('ls -laR ' + path)
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
@@ -91,7 +79,8 @@ class RPCInterface(object):
 
         if os.path.exists('output.log'):
             os.remove('output.log')
-        log = logging.basicConfig(filename='output.log', level=logging.DEBUG)
+        logging.basicConfig(filename='output.log', level=logging.DEBUG)
+        log = logging.getLogger()
         print "Log file created @ " + socket.gethostname() + " file: " + os.path.join(BUILDDIR, "output.log")
 
         # Create log directory/file
@@ -136,7 +125,10 @@ class RPCInterface(object):
                 build_id_file.write('\n')
                 build_id_file.close()
                 # Rsync the build output to the builder
-                command = 'rsync --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso ' + rsyncdest + '\\' + branch
+                command = "rsync --rsh='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i " \
+                          + os.path.join(SCRIPTDIR, "id_rsa") \
+                          + "' --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso " \
+                          + rsyncdest
                 child_error = runCommand(command)
                 if child_error != 0:
                     # Misery
@@ -148,16 +140,21 @@ class RPCInterface(object):
                 result = 'FAILURE'
         finally:
             if log is not None:
-                log.handlers[0].close()
-
-        if log is not None:
-            log.handlers[0].close()
+                handlers = log.handlers[:]
+                for handler in handlers:
+                    handler.close()
+                    log.removeHandler(handler)
 
         return result
- 
 
     def hello(self):
         return "hello back"
+
+    def get_ssh_public_key(self):
+        certfile = open(os.path.join(SCRIPTDIR, "id_rsa.pub"))
+        cert = certfile.readline()
+        certfile.close()
+        return cert.strip()
 
 def main(argv):
 
