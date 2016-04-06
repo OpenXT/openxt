@@ -29,14 +29,15 @@ BRANCH=%BRANCH%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
+GIT_MIRROR=git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}
 SBUILD="sbuild --purge-deps=never"
 
 # Build
 mkdir $BUILD_DIR
 cd $BUILD_DIR
-git clone -b $BRANCH https://github.com/OpenXT/pv-linux-drivers.git
-git clone -b $BRANCH https://github.com/OpenXT/v4v.git
-git clone -b $BRANCH https://github.com/OpenXT/xctools.git
+git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
+git clone -b $BRANCH $GIT_MIRROR/v4v.git
+git clone -b $BRANCH $GIT_MIRROR/xctools.git
 cp -r v4v/v4v/linux v4v/libv4v/src/
 cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
