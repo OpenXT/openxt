@@ -49,15 +49,16 @@ ALL_BUILDS_SUBDIR_NAME="xt-builds"
 # Determine the intended build directory
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
 if [ -z $1 ] ; then
-    BUILD_DIR_PREFIX=$(date +%y%m%d)
+    BUILD_DATE=$(date +%y%m%d)
 
-#FIXME: the sorting in this isnt quite correct:
-    COUNTER=$(/bin/ls -1d "${ALL_BUILDS_DIRECTORY}/${BUILD_DIR_PREFIX}"-* \
-                      2>/dev/null | \
-              sort -nr | \
-              sed -e 's/^.*-//' -n  -e 1p)
-    COUNTER=$((COUNTER + 1))
-    BUILD_DIR="${BUILD_DIR_PREFIX}-${COUNTER}"
+    cd ${ALL_BUILDS_DIRECTORY}
+    LAST_BUILD=0
+    if [[ -d "${BUILD_DATE}-1" ]]; then
+	LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
+    fi
+    cd - >/dev/null
+    NEW_BUILD=$((LAST_BUILD + 1))
+    BUILD_DIR="${BUILD_DATE}-${NEW_BUILD}"
 else
     BUILD_DIR="$1"
 fi
