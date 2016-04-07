@@ -79,9 +79,15 @@ echo "Running build: ${BUILD_DIR}"
 build_container() {
     NUMBER=$1           # 01
     NAME=$2             # oe
-    echo "Building container: ${NUMBER} : ${NAME}"
 
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
+
+    if [ -d $NAME ]; then
+	echo "Building container $NUMBER : $NAME"
+    else
+	echo "Not building $NUMBER : $NAME"
+	return
+    fi
 
     # Build
     cat $NAME/build.sh | \
@@ -97,9 +103,15 @@ build_container() {
 
 build_windows() {
     NUMBER=$1           # 04
-    echo "Building windows"
 
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
+
+    if [ -d windows ]; then
+	echo "Building the Windows tools"
+    else
+	echo "Not building the Windows tools"
+	return
+    fi
 
     mkdir -p $DEST
 
