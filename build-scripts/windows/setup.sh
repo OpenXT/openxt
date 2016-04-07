@@ -123,7 +123,7 @@ cat <<EOF
   and install the guest RPC tool
 OR
 - Disable UAC, Set ExecutionPolicy Unrestricted, install git, open Administrator cmd and run:
-  git clone https://github.com/OpenXT/openxt.git
+  git clone git://${IP_PREFIX}.1/${BUILD_USER}/openxt.git
   cd openxt\\windows
   powershell .\mkbuildserver.ps1
 

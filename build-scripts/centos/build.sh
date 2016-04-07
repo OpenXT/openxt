@@ -29,6 +29,8 @@ BRANCH=%BRANCH%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
+GIT_MIRROR=git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}
+
 # On first build, setup Oracle
 if [ ! -e ~/oracled ]; then
     while [ ! -f /tmp/oracle-xe-11.2.0-1.0.x86_64.rpm.zip ]; do
@@ -56,7 +58,7 @@ cd $BUILD_DIR
 KERNEL_VERSION=`ls /lib/modules | tail -1`
 
 rm -rf pv-linux-drivers
-git clone -b $BRANCH https://github.com/OpenXT/pv-linux-drivers.git
+git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
 
 # Build the tools
 for i in `ls -d pv-linux-drivers/openxt-*`; do
@@ -78,15 +80,15 @@ done
 
 # Build syncxt
 rm -rf openxt
-git clone -b $BRANCH https://github.com/OpenXT/openxt.git
+git clone -b $BRANCH $GIT_MIRROR/openxt.git
 cd openxt
 OPENXT_DIR=`pwd`
 mkdir src
 cd src
-git clone -b $BRANCH https://github.com/OpenXT/sync-database.git
-git clone -b $BRANCH https://github.com/OpenXT/sync-cli.git
-git clone -b $BRANCH https://github.com/OpenXT/sync-server.git
-git clone -b $BRANCH https://github.com/OpenXT/sync-ui-helper.git
+git clone -b $BRANCH $GIT_MIRROR/sync-database.git
+git clone -b $BRANCH $GIT_MIRROR/sync-cli.git
+git clone -b $BRANCH $GIT_MIRROR/sync-server.git
+git clone -b $BRANCH $GIT_MIRROR/sync-ui-helper.git
 cd ..
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/u01/app/oracle/product/11.2.0/xe/lib"
 ./do_sync_xt.sh ${OPENXT_DIR}
