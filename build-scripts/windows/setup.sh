@@ -122,8 +122,9 @@ cat <<EOF
   https://openxt.atlassian.net/wiki/display/OD/How+to+build+OpenXT#HowtobuildOpenXT-Windowsbuildmachinesetup
   and install the guest RPC tool
 OR
-- Disable UAC, Set ExecutionPolicy Unrestricted, install git, open Administrator cmd and run:
-  git clone git://${IP_PREFIX}.1/${BUILD_USER}/openxt.git
+- Disable UAC, Set-ExecutionPolicy Unrestricted, install git, open Administrator cmd and run:
+  cd \\
+  git clone https://github.com/OpenXT/openxt.git
   cd openxt\\windows
   powershell .\mkbuildserver.ps1
 
