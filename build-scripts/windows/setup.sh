@@ -134,6 +134,7 @@ continue_or_fail
 
 cd - > /dev/null
 
+set +e
 get_ssh_public_key="curl -s -m 5 -H \"Content-Type: text/xml\" --data @xmls/xml_get_ssh_public_key http://${IP}:6288"
 ssh_public_key=`$get_ssh_public_key | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
 while [ -z "$ssh_public_key" ]; do
@@ -142,6 +143,7 @@ while [ -z "$ssh_public_key" ]; do
     ssh_public_key=`$get_ssh_public_key | xmllint --xpath 'string(methodResponse/params/param/value/string)' -`
 done
 echo "$ssh_public_key" >> ${BUILD_USER_HOME}/.ssh/authorized_keys
+set -e
 
 echo
 echo 'Success! The Windows build VM is now properly configured.'

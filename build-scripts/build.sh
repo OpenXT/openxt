@@ -48,6 +48,7 @@ ALL_BUILDS_SUBDIR_NAME="xt-builds"
 
 # Determine the intended build directory
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
+mkdir -p $ALL_BUILDS_DIRECTORY
 if [ -z $1 ] ; then
     BUILD_DATE=$(date +%y%m%d)
 

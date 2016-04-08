@@ -30,12 +30,12 @@ Import-Module $ScriptDir\PackageLibrary.psm1 -ArgumentList $mirror
 
 if ($package) {
   Handle($package)
-  Write-Host "SUCCESS: This machine is now configured for $package"
+  Write-Host "$package package successfully installed"
 } else {
   foreach ($p in (Get-Packages)) {
     Handle($p)
   }
-  Write-Host "SUCCESS: This machine is now fully configured for building XT"
+  Write-Host "Default packages successfully installed"
   exit 0
 }
 
