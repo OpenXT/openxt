@@ -31,11 +31,13 @@ Import-Module $ScriptDir\PackageLibrary.psm1 -ArgumentList $mirror
 if ($package) {
   Handle($package)
   Write-Host "$package package successfully installed"
+  Stop-Transcript
 } else {
   foreach ($p in (Get-Packages)) {
     Handle($p)
   }
   Write-Host "Default packages successfully installed"
+  Stop-Transcript
   exit 0
 }
 
