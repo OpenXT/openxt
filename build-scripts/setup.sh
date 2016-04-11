@@ -218,6 +218,35 @@ EOF
 fi
 virsh net-start ${BUILD_USER} >/dev/null 2>&1 || true
 
+# Setup a mirror of the git repositories for the build to be consistent
+# (and slightly faster)
+if [ ! -d ${GIT_ROOT_PATH} ]; then
+    mkdir ${GIT_ROOT_PATH}
+    chown nobody:nogroup ${GIT_ROOT_PATH}
+    chmod 777 ${GIT_ROOT_PATH}
+fi
+if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
+    mkdir -p ${GIT_ROOT_PATH}/${BUILD_USER}
+    cd ${GIT_ROOT_PATH}/${BUILD_USER}
+    for repo in \
+        $(curl -s "https://api.github.com/orgs/OpenXT/repos?per_page=100" | \
+          jq '.[].name' | cut -d '"' -f 2 | sort -u)
+    do
+        git clone --mirror https://github.com/OpenXT/${repo}.git
+    done
+    cd - > /dev/null
+    chown -R ${BUILD_USER}:${BUILD_USER} ${GIT_ROOT_PATH}/${BUILD_USER}
+fi
+
+# Copy the main build scripts to the home directory of the user
+cp -f build.sh "${BUILD_USER_HOME}/"
+cp -f fetch.sh "${BUILD_USER_HOME}/"
+sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/fetch.sh
+chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
+chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/fetch.sh
+
 LXC_PATH=`lxc-config lxc.lxcpath`
 
 setup_container() {
@@ -336,31 +365,4 @@ if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/windows
 fi
 
-# Setup a mirror of the git repositories for the build to be consistent
-# (and slightly faster)
-if [ ! -d ${GIT_ROOT_PATH} ]; then
-    mkdir ${GIT_ROOT_PATH}
-    chown nobody:nogroup ${GIT_ROOT_PATH}
-    chmod 777 ${GIT_ROOT_PATH}
-fi
-if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
-    mkdir -p ${GIT_ROOT_PATH}/${BUILD_USER}
-    cd ${GIT_ROOT_PATH}/${BUILD_USER}
-    for repo in \
-        $(curl -s "https://api.github.com/orgs/OpenXT/repos?per_page=100" | \
-          jq '.[].name' | cut -d '"' -f 2 | sort -u)
-    do
-        git clone --mirror https://github.com/OpenXT/${repo}.git
-    done
-    cd - > /dev/null
-    chown -R ${BUILD_USER}:${BUILD_USER} ${GIT_ROOT_PATH}/${BUILD_USER}
-fi
-
-cp -f build.sh "${BUILD_USER_HOME}/"
-cp -f fetch.sh "${BUILD_USER_HOME}/"
-sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
-sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
-sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/fetch.sh
-chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
-chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/fetch.sh
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."
