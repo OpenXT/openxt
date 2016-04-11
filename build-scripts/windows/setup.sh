@@ -87,7 +87,13 @@ virt-install \
     -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR},model=virtio \
     --graphics vnc,listen=0.0.0.0,port=59${MAC_E} \
     --noautoconsole \
-    --autostart
+    --autostart || {
+    rm /home/${BUILD_USER}/windows/${disk_pool}/disk
+    echo "virt-install failed. Please make sure vt-x is enabled."
+    echo "If it is, try to rmmod kvm_intel and kvm and modprobe them back."
+    echo "Then restart this script."
+    exit 2
+}
 
 cat <<EOF
 
