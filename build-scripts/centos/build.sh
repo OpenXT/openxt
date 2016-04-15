@@ -35,7 +35,7 @@ GIT_MIRROR=git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}
 if [ ! -e ~/oracled ]; then
     while [ ! -f /tmp/oracle-xe-11.2.0-1.0.x86_64.rpm.zip ]; do
         echo "Please scp oracle-xe-11.2.0-1.0.x86_64.rpm.zip to my /tmp."
-        echo "  example: scp -i ssh-key/openxt oracle-xe-11.2.0-1.0.x86_64.rpm.zip build@${SUBNET_PREFIX}.${IP_C}.103:/tmp"
+        echo "  example: scp oracle-xe-11.2.0-1.0.x86_64.rpm.zip centos:/tmp"
         sleep 60
     done
     unzip /tmp/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
