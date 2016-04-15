@@ -36,7 +36,55 @@
 #   To change just the OE branch, please edit oe/build.sh
 BRANCH="master"
 
+NO_OE=
+NO_DEBIAN=
+NO_CENTOS=
+NO_WINDOWS=
+
 # -- End of script configuration settings.
+
+usage() {
+    cat >&2 <<EOF
+usage: $0 [-h] [-b branch] [-O] [-D] [-C] [-W]
+  -h: help
+  -O: Do not build OpenEmbedded (OpenXT core), not recommended
+  -D: Do not build the Debian guest tools
+  -C: Do not build the RPM tools and SyncXT
+  -W: Do not build the Windows guest tools
+
+ Note: if a container/VM didn't get setup, it will get skipped,
+   even when not explicitely excluded
+
+ Example (defaults): $0 -b master
+EOF
+    exit $1
+}
+
+while getopts "hb:ODCW" opt; do
+    case $opt in
+	h)
+	    usage 0
+	    ;;
+	b)
+	    BRANCH="${OPTARG}"
+	    ;;
+	O)
+	    NO_OE=1
+	    ;;
+	D)
+	    NO_DEBIAN=1
+	    ;;
+	C)
+	    NO_CENTOS=1
+	    ;;
+	W)
+	    NO_WINDOWS=1
+	    ;;
+	\?)
+	    usage 1
+	    ;;
+    esac
+done
 
 CONTAINER_USER=%CONTAINER_USER%
 SUBNET_PREFIX=%SUBNET_PREFIX%
@@ -126,7 +174,7 @@ build_windows() {
     cd - >/dev/null
 }
 
-build_container "01" "oe"
-build_container "02" "debian"
-build_container "03" "centos"
-build_windows   "04"
+[ -z $NO_OE ]      && build_container "01" "oe"
+[ -z $NO_DEBIAN ]  && build_container "02" "debian"
+[ -z $NO_CENTOS ]  && build_container "03" "centos"
+[ -z $NO_WINDOWS ] && build_windows   "04"
