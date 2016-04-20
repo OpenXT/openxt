@@ -36,6 +36,8 @@
 #   To change just the OE branch, please edit oe/build.sh
 BRANCH="master"
 
+BUILD_DIR=""
+
 NO_OE=
 NO_DEBIAN=
 NO_CENTOS=
@@ -45,8 +47,10 @@ NO_WINDOWS=
 
 usage() {
     cat >&2 <<EOF
-usage: $0 [-h] [-b branch] [-O] [-D] [-C] [-W]
+usage: $0 [-h] [-b branch] [-n build] [-O] [-D] [-C] [-W]
   -h: help
+  -b: Branch to build
+  -n: Continue the specified build instead of creating a new one
   -O: Do not build OpenEmbedded (OpenXT core), not recommended
   -D: Do not build the Debian guest tools
   -C: Do not build the RPM tools and SyncXT
@@ -60,13 +64,16 @@ EOF
     exit $1
 }
 
-while getopts "hb:ODCW" opt; do
+while getopts "hb:n:ODCW" opt; do
     case $opt in
 	h)
 	    usage 0
 	    ;;
 	b)
 	    BRANCH="${OPTARG}"
+	    ;;
+	n)
+	    BUILD_DIR="${OPTARG}"
 	    ;;
 	O)
 	    NO_OE=1
@@ -93,11 +100,12 @@ BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
 IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 ALL_BUILDS_SUBDIR_NAME="xt-builds"
-
-# Determine the intended build directory
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
+
 mkdir -p $ALL_BUILDS_DIRECTORY
-if [ -z $1 ] ; then
+
+# If no build number was specified, create a new one
+if [ -z $BUILD_DIR ] ; then
     BUILD_DATE=$(date +%y%m%d)
 
     cd ${ALL_BUILDS_DIRECTORY}
@@ -108,8 +116,6 @@ if [ -z $1 ] ; then
     cd - >/dev/null
     NEW_BUILD=$((LAST_BUILD + 1))
     BUILD_DIR="${BUILD_DATE}-${NEW_BUILD}"
-else
-    BUILD_DIR="$1"
 fi
 
 BUILD_DIR_PATH="${ALL_BUILDS_DIRECTORY}/${BUILD_DIR}"
