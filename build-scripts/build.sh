@@ -66,30 +66,30 @@ EOF
 
 while getopts "hb:n:ODCW" opt; do
     case $opt in
-	h)
-	    usage 0
-	    ;;
-	b)
-	    BRANCH="${OPTARG}"
-	    ;;
-	n)
-	    BUILD_DIR="${OPTARG}"
-	    ;;
-	O)
-	    NO_OE=1
-	    ;;
-	D)
-	    NO_DEBIAN=1
-	    ;;
-	C)
-	    NO_CENTOS=1
-	    ;;
-	W)
-	    NO_WINDOWS=1
-	    ;;
-	\?)
-	    usage 1
-	    ;;
+        h)
+            usage 0
+            ;;
+        b)
+            BRANCH="${OPTARG}"
+            ;;
+        n)
+            BUILD_DIR="${OPTARG}"
+            ;;
+        O)
+            NO_OE=1
+            ;;
+        D)
+            NO_DEBIAN=1
+            ;;
+        C)
+            NO_CENTOS=1
+            ;;
+        W)
+            NO_WINDOWS=1
+            ;;
+        \?)
+            usage 1
+            ;;
     esac
 done
 
@@ -111,7 +111,7 @@ if [ -z $BUILD_DIR ] ; then
     cd ${ALL_BUILDS_DIRECTORY}
     LAST_BUILD=0
     if [[ -d "${BUILD_DATE}-1" ]]; then
-	LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
+        LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
     fi
     cd - >/dev/null
     NEW_BUILD=$((LAST_BUILD + 1))
@@ -138,10 +138,10 @@ build_container() {
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
 
     if [ -d $NAME ]; then
-	echo "Building container $NUMBER : $NAME"
+        echo "Building container $NUMBER : $NAME"
     else
-	echo "Not building $NUMBER : $NAME"
-	return
+        echo "Not building $NUMBER : $NAME"
+        return
     fi
 
     # Build
@@ -162,10 +162,10 @@ build_windows() {
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
 
     if [ -d windows ]; then
-	echo "Building the Windows tools"
+        echo "Building the Windows tools"
     else
-	echo "Not building the Windows tools"
-	return
+        echo "Not building the Windows tools"
+        return
     fi
 
     mkdir -p $DEST

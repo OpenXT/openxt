@@ -105,18 +105,18 @@ while getopts "hODCWu:d:c:s:m:r:g:w:" opt; do
         h)
             usage 0
             ;;
-	O)
-	    NO_OE=1
-	    ;;
-	D)
-	    NO_DEBIAN=1
-	    ;;
-	C)
-	    NO_CENTOS=1
-	    ;;
-	W)
-	    NO_WINDOWS=1
-	    ;;
+        O)
+            NO_OE=1
+            ;;
+        D)
+            NO_DEBIAN=1
+            ;;
+        C)
+            NO_CENTOS=1
+            ;;
+        W)
+            NO_WINDOWS=1
+            ;;
         u)
             BUILD_USER="${OPTARG}"
             ;;
@@ -138,9 +138,9 @@ while getopts "hODCWu:d:c:s:m:r:g:w:" opt; do
         g)
             GIT_ROOT_PATH="${OPTARG}"
             ;;
-	w)
-	    WINDOWS_ISO_URL="${OPTARG}"
-	    ;;
+        w)
+            WINDOWS_ISO_URL="${OPTARG}"
+            ;;
         \?)
             usage 1
             ;;
