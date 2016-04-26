@@ -1440,22 +1440,12 @@ do_build()
 
 usage()
 {
-        echo "$CMD: [-b branch (default: master)] [-i id] [-s steps] [-e ] [-N name] [-d rsync_destination] [-S]"
+  echo "$CMD: [-b branch (default: master)] [-i id] [-s steps] [-e ] [-c config_file] [-N name] [-d rsync_destination] [-S]"
 }
 
 sanitize_build_id() {
         echo "$1" | grep -q '^[0-9]\+$'
 }
-
-if [ "x$CONFIG" != "x" ] ; then
-        . "$CONFIG"
-else
-        if [ ! -f ".config" ] ; then
-                echo ".config file is missing"
-                exit 1
-        fi
-        . .config
-fi
 
 ORIGIN_BRANCH="$BRANCH"
 BUILD_SCRIPTS="`pwd`/`dirname $0`"
@@ -1469,6 +1459,7 @@ while [ "$#" -ne 0 ]; do
                 -N) ARGNAME="$2"; shift 2;;
                 -S) SOURCE=1; shift ;;
                 -d) BUILD_RSYNC_DESTINATION="$2"; shift 2;;
+                -c) CONFIG="$2"; shift 2;;
                 -w) WIN_BUILD_OUTPUT="$2"; shift 2;;
                 --) shift ; break ;;
                 *) usage ; exit 1;;
@@ -1476,5 +1467,20 @@ while [ "$#" -ne 0 ]; do
 done
 
 [ "x$DEBUG" != "x" ] && env >&2 && set -x
+
+if [ -n "$CONFIG" ]; then
+        if [ -r "$CONFIG" ]; then
+                . "$CONFIG"
+        else
+                echo "Config file does not exist or could not be read: ${CONFIG}"
+                exit 1
+        fi
+else
+        if [ ! -f ".config" ]; then
+                echo ".config file is missing"
+                exit 1
+        fi
+        . .config
+fi
 
 do_build
