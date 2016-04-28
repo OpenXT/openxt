@@ -58,14 +58,24 @@ GIT_ROOT_PATH="/home/git"
 # URL to a Windows installer ISO
 WINDOWS_ISO_URL=""
 
+NO_OE=
+NO_DEBIAN=
+NO_CENTOS=
+NO_WINDOWS=
+
 # -- End of script configuration settings.
 
 usage() {
     cat >&2 <<EOF
-usage: $0 [-h] [-u build_user] [-d debian_mirror]
+usage: $0 [-h] [-O] [-D] [-C] [-W] [-u build_user] [-d debian_mirror]
                   [-c container_user] [-s subnet_prefix] [-m mac_prefix]
                   [-r remove_container_on_error] [-g git_root_path]
                   [-w windows_iso_url]
+  -h: help
+  -O: Do not setup the OpenEmbedded container, not recommended
+  -D: Do not setup the Debian container
+  -C: Do not setup the Centos container
+  -W: Do not setup the Windows VM even if an iso was provided with -w
 
  Note: debian_mirror   must be the full URL to a Debian mirror,
    like in the example below
@@ -90,10 +100,22 @@ EOF
 }
 
 
-while getopts "hu:d:c:s:m:r:g:w:" opt; do
+while getopts "hODCWu:d:c:s:m:r:g:w:" opt; do
     case $opt in
         h)
             usage 0
+            ;;
+        O)
+            NO_OE=1
+            ;;
+        D)
+            NO_DEBIAN=1
+            ;;
+        C)
+            NO_CENTOS=1
+            ;;
+        W)
+            NO_WINDOWS=1
             ;;
         u)
             BUILD_USER="${OPTARG}"
@@ -116,9 +138,9 @@ while getopts "hu:d:c:s:m:r:g:w:" opt; do
         g)
             GIT_ROOT_PATH="${OPTARG}"
             ;;
-	w)
-	    WINDOWS_ISO_URL="${OPTARG}"
-	    ;;
+        w)
+            WINDOWS_ISO_URL="${OPTARG}"
+            ;;
         \?)
             usage 1
             ;;
@@ -340,19 +362,19 @@ EOF
 }
 
 # Create a container for the main part of the OpenXT build
-setup_container "01" "oe" \
+[ -z $NO_OE ] && setup_container "01" "oe" \
                 "debian" "${DEBIAN_MIRROR}" "--arch i386  --release jessie"
 
 # Create a container for the Debian tool packages for OpenXT
-setup_container "02" "debian" \
+[ -z $NO_DEBIAN ] && setup_container "02" "debian" \
                 "debian" "${DEBIAN_MIRROR}" "--arch amd64 --release jessie"
 
 # Create a container for the Centos tool packages for OpenXT
-setup_container "03" "centos" \
+[ -z $NO_CENTOS ] && setup_container "03" "centos" \
                 "centos" "" "--arch x86_64 --release 7"
 
 # Create a Windows VM
-if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
+if [ -z $NO_WINDOWS ] && [ "x${WINDOWS_ISO_URL}" != "x" ]; then
     cd windows
     ./setup.sh "04" "${BUILD_USER}" \
                "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}" \

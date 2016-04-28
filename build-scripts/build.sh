@@ -36,7 +36,62 @@
 #   To change just the OE branch, please edit oe/build.sh
 BRANCH="master"
 
+BUILD_DIR=""
+
+NO_OE=
+NO_DEBIAN=
+NO_CENTOS=
+NO_WINDOWS=
+
 # -- End of script configuration settings.
+
+usage() {
+    cat >&2 <<EOF
+usage: $0 [-h] [-b branch] [-n build] [-O] [-D] [-C] [-W]
+  -h: help
+  -b: Branch to build
+  -n: Continue the specified build instead of creating a new one
+  -O: Do not build OpenEmbedded (OpenXT core), not recommended
+  -D: Do not build the Debian guest tools
+  -C: Do not build the RPM tools and SyncXT
+  -W: Do not build the Windows guest tools
+
+ Note: if a container/VM didn't get setup, it will get skipped,
+   even when not explicitely excluded
+
+ Example (defaults): $0 -b master
+EOF
+    exit $1
+}
+
+while getopts "hb:n:ODCW" opt; do
+    case $opt in
+        h)
+            usage 0
+            ;;
+        b)
+            BRANCH="${OPTARG}"
+            ;;
+        n)
+            BUILD_DIR="${OPTARG}"
+            ;;
+        O)
+            NO_OE=1
+            ;;
+        D)
+            NO_DEBIAN=1
+            ;;
+        C)
+            NO_CENTOS=1
+            ;;
+        W)
+            NO_WINDOWS=1
+            ;;
+        \?)
+            usage 1
+            ;;
+    esac
+done
 
 CONTAINER_USER=%CONTAINER_USER%
 SUBNET_PREFIX=%SUBNET_PREFIX%
@@ -45,23 +100,22 @@ BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
 IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 ALL_BUILDS_SUBDIR_NAME="xt-builds"
-
-# Determine the intended build directory
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
+
 mkdir -p $ALL_BUILDS_DIRECTORY
-if [ -z $1 ] ; then
+
+# If no build number was specified, create a new one
+if [ -z $BUILD_DIR ] ; then
     BUILD_DATE=$(date +%y%m%d)
 
     cd ${ALL_BUILDS_DIRECTORY}
     LAST_BUILD=0
     if [[ -d "${BUILD_DATE}-1" ]]; then
-	LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
+        LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
     fi
     cd - >/dev/null
     NEW_BUILD=$((LAST_BUILD + 1))
     BUILD_DIR="${BUILD_DATE}-${NEW_BUILD}"
-else
-    BUILD_DIR="$1"
 fi
 
 BUILD_DIR_PATH="${ALL_BUILDS_DIRECTORY}/${BUILD_DIR}"
@@ -84,10 +138,10 @@ build_container() {
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
 
     if [ -d $NAME ]; then
-	echo "Building container $NUMBER : $NAME"
+        echo "Building container $NUMBER : $NAME"
     else
-	echo "Not building $NUMBER : $NAME"
-	return
+        echo "Not building $NUMBER : $NAME"
+        return
     fi
 
     # Build
@@ -108,10 +162,10 @@ build_windows() {
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
 
     if [ -d windows ]; then
-	echo "Building the Windows tools"
+        echo "Building the Windows tools"
     else
-	echo "Not building the Windows tools"
-	return
+        echo "Not building the Windows tools"
+        return
     fi
 
     mkdir -p $DEST
@@ -126,7 +180,7 @@ build_windows() {
     cd - >/dev/null
 }
 
-build_container "01" "oe"
-build_container "02" "debian"
-build_container "03" "centos"
-build_windows   "04"
+[ -z $NO_OE ]      && build_container "01" "oe"
+[ -z $NO_DEBIAN ]  && build_container "02" "debian"
+[ -z $NO_CENTOS ]  && build_container "03" "centos"
+[ -z $NO_WINDOWS ] && build_windows   "04"
