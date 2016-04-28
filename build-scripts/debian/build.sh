@@ -33,6 +33,10 @@ GIT_MIRROR=git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}
 SBUILD="sbuild --purge-deps=never"
 
 # Build
+# Note: sbuild doesn't like to build something that's already built.
+#   If the build directory already exist, we don't know what its state is.
+#   Remove and re-create it, to rebuild everything, it doesn't take that long...
+rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 cd $BUILD_DIR
 git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git

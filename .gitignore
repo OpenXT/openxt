@@ -6,7 +6,6 @@ build/manifest
 build/oe
 build/oeenv
 build/pseudodone
-build/repos
 build/cache
 build/sstate-cache
 build/tmp-glibc
