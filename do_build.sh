@@ -14,7 +14,7 @@ STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,i
 
 # packages_tree: Adds the built packages to an OpenEmbedded repository pool.
 # Packages tree can use hardlinks to save disk space, if $SYNC_CACHE_OE/oe-archives is populated
-# Requires a valid SYNC_CACHE_OE, BUILD_RSYNC_DESTINATION and NETBOOT_HTTP_URL in .config
+# Requires a valid NETBOOT_HTTP_URL in .config
 
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
@@ -507,26 +507,13 @@ do_oe_source()
 do_oe_packages_tree()
 {
         local path="$1"
-        local dest="$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME"
+        local dest="$OUTPUT_DIR/$NAME/packages"
 
-        # Create a separate package tree populated with symlinks for stuffs that didn't change
-        # rsync seems to delegate non-remote operations to another program, ignoring --rsync-path
-        # If the destination is not remote, we have to run the --rsync-path command hack manualy
-        ( echo $BUILD_RSYNC_DESTINATION | grep ':' > /dev/null 2>&1) || mkdir -p "$dest"
-
-        # Update oe-archive with the packages from the current build
-        # Exclude the Package list files, we don't want hardlinks to them
-        # Don't fail if the user doesn't have an oe-archive folder, the next rsync will
-        #   just make no hardlinks and copy everything instead
-        rsync -a --exclude "Packages*" "$path/tmp-glibc/deploy/ipk/" "$SYNC_CACHE_OE/oe-archive/" || true
-
-        # Create a hardlink tree, using $SYNC_CACHE_OE/oe-archive/ as a target
-        # $SYNC_CACHE_OE and $dest can be remote (<IP>:<FOLDER>), removing "<IP>:"
-        sync_cache_oe_folder="`echo $SYNC_CACHE_OE | sed 's/^.*://'`"
-        dest_folder="`echo $dest | sed 's/^.*://'`"
-        rsync -rv --size-only --exclude "morgue" --link-dest="$sync_cache_oe_folder/oe-archive/" \
-            --rsync-path="mkdir -p \"$dest_folder/packages/ipk\" && rsync"                       \
-            "$path/tmp-glibc/deploy/ipk/" "$dest/packages/ipk"
+        # Copy the packages to the destination directory
+        mkdir -p "$dest"
+        echo "Copying the packages to the build output directory..."
+        rsync -a --exclude "morgue" "$path/tmp-glibc/deploy/ipk" "$dest"
+        echo "Done"
 }
 
 do_oe_copy_licenses()
