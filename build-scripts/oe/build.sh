@@ -123,6 +123,13 @@ build_image() {
     fi
 }
 
+collect_packages() {
+    # Build the extra packages
+    MACHINE=xenclient-dom0 ./bb packagegroup-xenclient-extra | tee -a build.log
+
+    $RSYNC tmp-glibc/deploy/ipk ${TARGET}/packages
+}
+
 collect_logs() {
     TARGET=${BUILD_USER}@${HOST_IP}:${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/
 
@@ -170,6 +177,7 @@ build_image "xenclient-ndvm"       "xenclient-ndvm"                 "xc.ext3.vhd
 build_image "xenclient-dom0"       "xenclient-installer"            "cpio.gz"
 build_image "xenclient-dom0"       "xenclient-installer-part2"      "tar.bz2"
 
+collect_packages
 collect_logs
 
 # The script may run in an "ssh -t -t" environment, that won't exit on its own
