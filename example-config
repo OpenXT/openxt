@@ -67,14 +67,11 @@ REPO_DEV_SIGNING_KEY=
 # It is used by those do_build.sh steps:
 # - sync_cache: rsync oe-download (tarballs) to SYNC_CACHE_OE
 # - sync_cache_back: rsync oe-download from SYNC_CACHE_OE to the tree
-# - packages_tree: hardlinks packages if they exist in SYNC_CACHE_OE
 #SYNC_CACHE_OE=/home/builds/oe
 
 # BUILD_RSYNC_DESTINATION is where the build output is copied to
 # It is used by those do_build.sh steps:
 # - copy: copies the build output to BUILD_RSYNC_DESTINATION
-# - packages_tree: copies all OE packages over, except for the ones that can \
-#                  be hardlinked to SYNC_CACHE_OE
 #BUILD_RSYNC_DESTINATION=/home/builds
 
 # NETBOOT_HTTP_URL is used by the package manager to find the package repository
