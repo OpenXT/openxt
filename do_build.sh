@@ -276,7 +276,7 @@ do_oe_extra_pkgs()
 {
         local path="$1"
 
-        do_oe "$path" "xenclient-dom0" "task-xenclient-extra"
+        do_oe "$path" "xenclient-dom0" "packagegroup-xenclient-extra"
         do_oe "$path" "xenclient-dom0" "package-index"
 }
 
