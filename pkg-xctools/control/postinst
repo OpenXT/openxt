@@ -40,7 +40,7 @@ do_dkms_stage()
 }
 
 # Loop over all the pv driver packages and install them
-for PVD in "audio" "v4v" "xenmou" "vusb"
+for PVD in "v4v" "xenmou" "vusb"
 do
     # Figure out what pv drivers are getting installed
     if [[ "x$XC_TOOLS_EXCLUDE" != "x" ]] && [[ "$XC_TOOLS_EXCLUDE" =~ "$PVD" ]]; then

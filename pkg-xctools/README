@@ -5,8 +5,8 @@ to this directory and execute:
 
 The various PV drivers can be excluded from the install using the following:
 
- $ sudo XC_TOOLS_EXCLUDE=audio,v4v ./install.sh
+ $ sudo XC_TOOLS_EXCLUDE=vusb,v4v ./install.sh
 
-This would prevent both the audio and v4v PV drivers from being insalled.
+This would prevent both the vusb and v4v PV drivers from being insalled.
 
-Possible values for XC_TOOLS_EXCLUDE: audio v4v xenmou vusb
+Possible values for XC_TOOLS_EXCLUDE: v4v xenmou vusb

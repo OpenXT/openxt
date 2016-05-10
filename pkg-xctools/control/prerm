@@ -22,7 +22,7 @@ else
     DKMS_RPM_SAFE=
 fi
 
-for PVD in "audio" "v4v" "xenmou" "vusb"
+for PVD in "v4v" "xenmou" "vusb"
 do
     NAME=openxt-${PVD}
     PACKAGE=${NAME}-dkms
