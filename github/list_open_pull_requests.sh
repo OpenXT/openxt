@@ -19,17 +19,20 @@ do
     IFS=$'\n'
     TITLES=(`echo $PULLS | jq '.[].title'`)
     LOGINS=(`echo $PULLS | jq '.[].user.login' | tr -d '"'`)
+    BRANCHES=(`echo $PULLS | jq '.[].head.ref' | tr -d '"'`)
     IFS=$OIFS
     if [ "$PRS" != "" ]; then
         echo "Repository: $i  -- Open pull requests:"
         n=0
         for PR in $PRS; do
-            echo -n "https://github.com/OpenXT/$i/pull/$PR"
-            echo " - ${TITLES[$n]} (${LOGINS[$n]})"
+            echo "  ## ${TITLES[$n]} ##"
+            echo "       PR URL:   https://github.com/OpenXT/$i/pull/$PR"
+            echo "       Buildbot: github.com/${LOGINS[$n]}:${BRANCHES[$n]}"
+            echo "       Code:     https://github.com/${LOGINS[$n]}/tree/${BRANCHES[$n]}"
             n=$(( $n + 1 ))
         done
-	total=$(( $total + $n ))
-	echo
+        total=$(( $total + $n ))
+        echo
     fi
 done
 
