@@ -1,6 +1,14 @@
 #!/bin/bash
 
-[ $# -eq 1 ] || exit 1
+[ $# -ge 1 ] || exit 1
+
+SHORT=
+if [ "$1" = "-s" ]; then
+    SHORT=1
+    shift
+fi
+
+[ $# -eq 1 ] || exit 2
 
 # Generate a token there: https://github.com/settings/tokens
 TOKEN="$1"
@@ -19,16 +27,21 @@ do
     IFS=$'\n'
     TITLES=(`echo $PULLS | jq '.[].title'`)
     LOGINS=(`echo $PULLS | jq '.[].user.login' | tr -d '"'`)
-    BRANCHES=(`echo $PULLS | jq '.[].head.ref' | tr -d '"'`)
+    [ -z $SHORT ] && BRANCHES=(`echo $PULLS | jq '.[].head.ref' | tr -d '"'`)
     IFS=$OIFS
     if [ "$PRS" != "" ]; then
         echo "Repository: $i  -- Open pull requests:"
         n=0
         for PR in $PRS; do
-            echo "  ## ${TITLES[$n]} ##"
-            echo "       PR URL:   https://github.com/OpenXT/$i/pull/$PR"
-            echo "       Buildbot: github.com/${LOGINS[$n]}:${BRANCHES[$n]}"
-            echo "       Code:     https://github.com/${LOGINS[$n]}/tree/${BRANCHES[$n]}"
+            if [ -z $SHORT ]; then
+                echo "  ## ${TITLES[$n]} ##"
+                echo "       PR URL:   https://github.com/OpenXT/$i/pull/$PR"
+                echo "       Buildbot: github.com/${LOGINS[$n]}:${BRANCHES[$n]}"
+                echo "       Code:     https://github.com/${LOGINS[$n]}/tree/${BRANCHES[$n]}"
+            else
+                echo -n "https://github.com/OpenXT/$i/pull/$PR"
+                echo " - ${TITLES[$n]} (${LOGINS[$n]})"
+            fi
             n=$(( $n + 1 ))
         done
         total=$(( $total + $n ))
