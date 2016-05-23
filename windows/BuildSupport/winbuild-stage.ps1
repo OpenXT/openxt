@@ -45,17 +45,6 @@ if (!(Test-Path -Path ($outdir + "\xctools-iso.zip") -PathType Leaf))
 	ExitWithCode -exitcode $global:failure
 }
 
-# Create sdk zip.
-Write-Host "Zipping up sdk directory."
-Push-Location -Path "sdk"
-& "$zip" a -bd "..\$OutDir\sdk.zip"  . 2>&1
-Pop-Location
-if (!(Test-Path -Path ($outdir + "\sdk.zip") -PathType Leaf))
-{
-	Write-Host "Error: Check for sdk.zip failed. Build unsuccessful."
-	ExitWithCode -exitcode $global:failure
-}
-
 # Create an ISO if genisoimage is available
 if (Get-Command "genisoimage.exe" -ErrorAction SilentlyContinue) 
 {
