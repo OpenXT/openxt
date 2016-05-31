@@ -37,7 +37,7 @@ do
                 echo "  ## ${TITLES[$n]} ##"
                 echo "       PR URL:   https://github.com/OpenXT/$i/pull/$PR"
                 echo "       Buildbot: github.com/${LOGINS[$n]}:${BRANCHES[$n]}"
-                echo "       Code:     https://github.com/${LOGINS[$n]}/tree/${BRANCHES[$n]}"
+                echo "       Code:     https://github.com/${LOGINS[$n]}/$i/tree/${BRANCHES[$n]}"
             else
                 echo -n "https://github.com/OpenXT/$i/pull/$PR"
                 echo " - ${TITLES[$n]} (${LOGINS[$n]})"
