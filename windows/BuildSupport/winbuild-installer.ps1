@@ -23,13 +23,4 @@ if (-Not ($?)) {
 # Create directory to store the necessary merge modules
 new-item -ItemType directory -Path ".\msi-installer\installer\Modules" -Force
 
-#Copy in the win-tools bits
-Copy-Item -Path .\win-tools\MSMs\bin\XenGuestPlugin.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\XenGuestPlugin64.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\XenGuestAgent.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\XenClientGuestService.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\Udbus.Bindings.Interfaces.Libraries.Installer.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\Udbus.Bindings.Client.Libraries.Installer.msm .\msi-installer\installer\Modules -Verbose
-Copy-Item -Path .\win-tools\MSMs\bin\Udbus.Bindings.Service.Libraries.Installer.msm .\msi-installer\installer\Modules -Verbose
-
 ExitWithCode -exitcode $global:success

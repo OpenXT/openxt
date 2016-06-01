@@ -127,7 +127,7 @@ class RPCInterface(object):
                 # Rsync the build output to the builder
                 command = "rsync --rsh='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i " \
                           + os.path.join(SCRIPTDIR, "id_rsa") \
-                          + "' --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a BUILD_ID sdk.zip win-tools.zip xctools-iso.zip xc-windows.zip xc-wintools.iso " \
+                          + "' --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r -a * " \
                           + rsyncdest
                 child_error = runCommand(command)
                 if child_error != 0:
