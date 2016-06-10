@@ -28,13 +28,6 @@ if (!(Test-Path -Path ($outdir + "\xc-windows.zip") -PathType Leaf))
 	Write-Host "Warning: Check for xc-windows.zip failed. But it's not build vital so carry on..."
 }
 
-Write-Host "Zipping up win-tools build."
-& "$zip" a -bd "$OutDir\win-tools.zip" win-tools 2>&1
-if (!(Test-Path -Path ($outdir + "\win-tools.zip") -PathType Leaf))
-{
-	Write-Host "Error: Check for win-tools.zip failed. But it's not build vital so carry on..."
-}
-
 Push-Location -Path "msi-installer\iso"
 Write-Host "Zipping up xctools-iso directory."
 & "$zip" a -bd "..\..\$OutDir\xctools-iso.zip" . 2>&1
@@ -42,17 +35,6 @@ Pop-Location
 if (!(Test-Path -Path ($outdir + "\xctools-iso.zip") -PathType Leaf))
 {
 	Write-Host "Error: Check for xctools-iso.zip failed. Build unsuccessful."
-	ExitWithCode -exitcode $global:failure
-}
-
-# Create sdk zip.
-Write-Host "Zipping up sdk directory."
-Push-Location -Path "sdk"
-& "$zip" a -bd "..\$OutDir\sdk.zip"  . 2>&1
-Pop-Location
-if (!(Test-Path -Path ($outdir + "\sdk.zip") -PathType Leaf))
-{
-	Write-Host "Error: Check for sdk.zip failed. Build unsuccessful."
 	ExitWithCode -exitcode $global:failure
 }
 
