@@ -1185,7 +1185,7 @@ do_xctools_win()
             mkdir -p "$xct"
 
             cp "xctools-iso.zip" "$xct" || exit 5
-            cp "sdk.zip" "$xct" || exit 4
+            [ -f "sdk.zip" ] && cp "sdk.zip" "$xct"
             [ -f "win-tools.zip" ] && cp "win-tools.zip" "$xct"
             [ -f "xc-windows.zip" ] && cp "xc-windows.zip" "$xct"
             [ -f "oz-bits.zip" ] && cp "oz-bits.zip" "$xct"
