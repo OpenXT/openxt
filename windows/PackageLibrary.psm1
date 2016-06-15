@@ -1,5 +1,6 @@
 param (
   [string]$mirror = "",
+  [string]$proxy = "",
   [string]$nsisVersion = "nsis-2.46",
   [string]$nsisBaseUrl = "http://prdownloads.sourceforge.net/nsis"
 )
@@ -176,7 +177,13 @@ function Install-Cygwin {
 
   # NOTE:  Looks like the issue above might have been due to picking a mirror and resolved by
   #        -O and -s below.  Need to make sure git, zip, and unzip are the only packages needed.
-  Invoke-CommandChecked $cygwinsetup -q -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip,mkisofs" | Write-Host
+  $cygwin_mirror = "http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/"
+  $cygwin_packages = "git,zip,unzip,mkisofs,wget"
+  if ($proxy) {
+    Invoke-CommandChecked $cygwinsetup -q -X -O -s $cygwin_mirror -P $cygwin_packages -p $proxy | Write-Host
+  } else {
+    Invoke-CommandChecked $cygwinsetup -q -X -O -s $cygwin_mirror -P $cygwin_packages | Write-Host
+  }
 }
 
 function Test-7zip {

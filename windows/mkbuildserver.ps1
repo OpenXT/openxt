@@ -1,24 +1,17 @@
 param
 (
-  [string]$mirror = ""
+  [string]$mirror = "",
+  [string]$proxy = ""
 )
 
 # Install all the default mkbuildmachine packages
-if ($mirror) {
-  & .\mkbuildmachine.ps1 -mirror $mirror
-} else {
-  & .\mkbuildmachine.ps1
-}
+& .\mkbuildmachine.ps1 -mirror $mirror -proxy $proxy
 if ($LastExitCode -ne 0) {
   exit 1
 }
 
 # Install specific packages required by the build daemon
-if ($mirror) {
-  & .\mkbuildmachine.ps1 -mirror $mirror -package python
-} else {
-  & .\mkbuildmachine.ps1 -package python
-}
+& .\mkbuildmachine.ps1 -mirror $mirror -proxy $proxy -package python
 if ($LastExitCode -ne 0) {
   exit 1
 }

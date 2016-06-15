@@ -1,6 +1,7 @@
 param
 (
   [string]$mirror = "",
+  [string]$proxy = "",
   [string]$workdir = $env:temp,
   [string]$package
 )
@@ -26,7 +27,7 @@ if ($workdir -ne $env:temp) {
 Start-Transcript -Append -Path ($env:temp+'\mkbuildmachine.log')
 
 $ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Path
-Import-Module $ScriptDir\PackageLibrary.psm1 -ArgumentList $mirror
+Import-Module $ScriptDir\PackageLibrary.psm1 -ArgumentList $mirror,$proxy
 
 if ($package) {
   Handle($package)
