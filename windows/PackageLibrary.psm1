@@ -165,8 +165,10 @@ function Install-Cygwin {
   cd $env:temp
   $cygwinsetup = $tmp + $cygwinInstaller
   PerformDownloadGpg "$cygwinUrl" $cygwinInstaller "https://cygwin.com/key/pubring.asc" "https://cygwin.com/setup-x86.exe.sig"
+  
   # Ideally we would like to run the cygwin installer with something like the following package list:
   #  -P "vim,git,rsync,zip,unzip,libiconv,guilt,openssh"
+  # Optionally, use the system's HTTP proxy settings, if set.
   # Unfortunately doing this with the -q silent option does not work. The workaround is to do the following:
   # 1. Add the -X option to the command line below, disabling validation of setup.ini
   # 2. From the local package repository mirror, get a copy of setup.bz2 and unpack it.
@@ -176,7 +178,16 @@ function Install-Cygwin {
 
   # NOTE:  Looks like the issue above might have been due to picking a mirror and resolved by
   #        -O and -s below.  Need to make sure git, zip, and unzip are the only packages needed.
-  Invoke-CommandChecked $cygwinsetup -q -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip,mkisofs" | Write-Host
+  $ProxyEnable = (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyEnable
+  if ($ProxyEnable -eq "1")
+  {
+    $ProxyHost = (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer
+    Invoke-CommandChecked $cygwinsetup -q -p $ProxyHost -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip,mkisofs" | Write-Host
+  }
+  else
+  {
+    Invoke-CommandChecked $cygwinsetup -q -X -O -s http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/ -P "git,zip,unzip,mkisofs" | Write-Host
+  }
 }
 
 function Test-7zip {
