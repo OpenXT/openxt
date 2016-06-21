@@ -43,7 +43,7 @@ if (Get-Command "genisoimage.exe" -ErrorAction SilentlyContinue)
 {
 	Write-Host "Creating Windows tools ISO."
 	Push-Location -Path "msi-installer\iso"
-	& genisoimage -R -J -joliet-long -o "..\..\$Outdir\xc-wintools.iso" -V "OpenXT-wintools" . 2>&1	
+	& genisoimage -R -J -joliet-long -input-charset utf-8 -o "..\..\$Outdir\xc-wintools.iso" -V "OpenXT-wintools" . 2>&1	
 	Pop-Location
 	if (!(Test-Path -Path ($outdir + "\xc-wintools.iso") -PathType Leaf))
 	{
