@@ -74,6 +74,15 @@ INHERIT += "xenclient-src-info"
 # OpenXT specific OE tasks
 INHERIT += "xenclient-customtask"
 
+# Prefer libressl over openssl
+PREFERRED_PROVIDER_openssl = "libressl"
+PREFERRED_PROVIDER_openssl-native = "libressl-native"
+PREFERRED_PROVIDER_libcrypto = "libressl-libcrypto"
+PREFERRED_PROVIDER_libssl = "libressl-libssl"
+PREFERRED_PROVIDER_openssl-conf = "libressl-openssl-conf"
+PREFERRED_PROVIDER_nativesdk-openssl = "nativesdk-libressl"
+PREFERRED_PROVIDER_nativesdk-openssl-conf = "nativesdk-libressl-conf"
+
 # 2) Build tweaks/hacks
 
 PREFERRED_PROVIDER_console-tools = "console-tools"
