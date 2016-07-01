@@ -410,6 +410,8 @@ do_oe_installer_copy()
                 "$OUTPUT_DIR/$NAME/raw/installer/tboot.gz"
         cp "$binaries/$machine"/*.acm \
                 "$OUTPUT_DIR/$NAME/raw/installer/"
+        cp "$binaries/$machine"/license-*.txt \
+                "$OUTPUT_DIR/$NAME/raw/installer/"
         popd
 }
 
@@ -768,6 +770,7 @@ do_updates()
 }
 
 ACM_LIST="ivb_snb.acm gm45.acm duali.acm quadi.acm q35.acm q45q43.acm xeon56.acm xeone7.acm hsw.acm bdw.acm skl.acm"
+ACM_LICENSE="license-SINIT-ACMs.txt"
 
 extract_acms()
 {
@@ -775,7 +778,7 @@ extract_acms()
         local src="$2"
         local dst="$3"
 
-        for ACM in $ACM_LIST; do
+        for ACM in $ACM_LIST $ACM_LICENSE; do
                 echo "    - extract $ACM"
                 if [ -f "$src/$ACM" ]; then
                         cp "$src/$ACM" "$dst/$ACM"
