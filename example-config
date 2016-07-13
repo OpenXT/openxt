@@ -2,7 +2,7 @@
 BRANCH="master"
 
 # OpenXT branch to build.
-OE_BRANCH="jethro"
+OE_BRANCH="b3a3935c69b6e74e19cd0cb69d47350b9ea9c58e"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
 OPENXT_GIT_MIRROR="github.com/OpenXT"
