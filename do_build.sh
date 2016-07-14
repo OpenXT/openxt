@@ -88,8 +88,6 @@ EOF
         check_repo_signing_file "$REPO_DEV_CACERT_PATH" \
                 "Development repository-signing CA certificate"
 
-        [ "x$ORIGIN_BRANCH" != "x" ] && branch="$ORIGIN_BRANCH"
-
         oedl="$OE_BUILD_CACHE/downloads"
         [ "x$OE_BUILD_CACHE_DL" != "x" ] && oedl="$OE_BUILD_CACHE_DL"
 
@@ -112,7 +110,7 @@ EOF
                 cat >> conf/local.conf <<EOF
 
 # Distribution feed
-XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${ORIGIN_BRANCH}/${NAME}/packages/ipk"
+XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${BRANCH}/${NAME}/packages/ipk"
 
 # Local generated configuration for build $ID
 INHERIT += "$EXTRA_CLASSES"
@@ -125,7 +123,7 @@ CCACHE_TARGET_DIR="$CACHE_DIR"
 OPENXT_MIRROR="$OPENXT_MIRROR"
 OPENXT_GIT_MIRROR="$OPENXT_GIT_MIRROR"
 OPENXT_GIT_PROTOCOL="$OPENXT_GIT_PROTOCOL"
-OPENXT_BRANCH="$ORIGIN_BRANCH"
+OPENXT_BRANCH="$BRANCH"
 OPENXT_TAG="$BRANCH"
 
 EOF
@@ -138,7 +136,7 @@ EOF
 
                 cat >> conf/local.conf <<EOF
 XENCLIENT_BUILD_DATE = "`date +'%T %D'`"
-XENCLIENT_BUILD_BRANCH = "${ORIGIN_BRANCH}"
+XENCLIENT_BUILD_BRANCH = "${BRANCH}"
 XENCLIENT_VERSION = "$VERSION"
 XENCLIENT_RELEASE = "$RELEASE"
 XENCLIENT_TOOLS = "$XENCLIENT_TOOLS"
@@ -577,7 +575,7 @@ do_sync_cache()
     # FIXME: We explicitely exclude obselete folders from the list, as they still exist $SYNC_CACHE_OE
 #    OIFS=$IFS
 #    IFS=$'\n'
-#    for i in `find $SYNC_CACHE_OE/oe-archive/$ORIGIN_BRANCH -name Packages | grep -v xenclient-iovm | grep -v xenclient-vpnvm`; do
+#    for i in `find $SYNC_CACHE_OE/oe-archive/$BRANCH -name Packages | grep -v xenclient-iovm | grep -v xenclient-vpnvm`; do
 #        folder=`dirname $i | sed "s|^$SYNC_CACHE_OE/oe-archive/||"`
 #        grep "^Filename: " $i | sed "s|^Filename: |$folder/|"
 #    done | rsync -ltvvzru --no-whole-file --files-from=- "$SYNC_CACHE_OE/oe-archive/" "$OE_BUILD_CACHE/oe-archive"
@@ -1118,7 +1116,7 @@ do_debian_xctools()
 xctools_iso_from_zip()
 {
     local path="$1"
-#    local pkgdir="$OE_BUILD_CACHE/oe-archive/$ORIGIN_BRANCH/all"
+#    local pkgdir="$OE_BUILD_CACHE/oe-archive/$BRANCH/all"
 #    local linuxtools_ipk=$pkgdir/`grep "^Filename: xenclient-linuxtools_" $pkgdir/Packages | head -n1 | sed 's/^Filename: //'`
     local raw="$OUTPUT_DIR/$NAME/raw"
     local label="OpenXT-tools"
@@ -1164,7 +1162,7 @@ do_xctools_debian_repo()
 
 do_xctools_debian_repo_copy()
 {
-    rsync -ltzr --chmod=Fgo+r,Dgo+rx "$OUTPUT_DIR/$NAME" "$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH"
+    rsync -ltzr --chmod=Fgo+r,Dgo+rx "$OUTPUT_DIR/$NAME" "$BUILD_RSYNC_DESTINATION/$BRANCH"
 }
 
 do_xctools_win()
@@ -1201,9 +1199,7 @@ do_xctools_linux() {
 
     pushd "$path"
     # build the linuxtools pkg, make iso with it
-    if [ $ORIGIN_BRANCH != "tracy" ]; then
-        xctools_iso_from_zip "./.."
-    fi
+    xctools_iso_from_zip "./.."
     popd
 }
 
@@ -1277,9 +1273,9 @@ do_ship()
 do_copy()
 {
         echo "Copy output:"
-        echo "   - $BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH/$NAME"
+        echo "   - $BUILD_RSYNC_DESTINATION/$BRANCH/$NAME"
 
-        rsync -ltzr --chmod=Fgo+r,Dgo+rx "$OUTPUT_DIR/$NAME" "$BUILD_RSYNC_DESTINATION/$ORIGIN_BRANCH"
+        rsync -ltzr --chmod=Fgo+r,Dgo+rx "$OUTPUT_DIR/$NAME" "$BUILD_RSYNC_DESTINATION/$BRANCH"
 }
 
 get_version()
@@ -1437,12 +1433,11 @@ sanitize_build_id() {
         echo "$1" | grep -q '^[0-9]\+$'
 }
 
-ORIGIN_BRANCH="$BRANCH"
 BUILD_SCRIPTS="`pwd`/`dirname $0`"
 
 while [ "$#" -ne 0 ]; do
         case "$1" in
-                -b) ORIGIN_BRANCH="$2" ; BRANCH="$2" ; shift 2 ;;
+                -b) BRANCH="$2" ; shift 2 ;;
                 -i) ID="$2"; sanitize_build_id "$ID" || die "Invalid build id: '$ID'"; shift 2 ;;
                 -s) STEPS="$2"; shift 2;;
                 -v) VERBOSE=1; shift 1;;
