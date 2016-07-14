@@ -150,12 +150,16 @@ cd $BUILD_DIR
 
 if [ ! -d openxt ] ; then
     # Clone main repos
-    git clone -b disag2 https://github.com/jean-edouard/openxt.git
+    git clone -b $BRANCH git://${HOST_IP}/${BUILD_USER}/openxt.git
     cd openxt
 
-    # Fetch "upstream" layers
+    # Fetch the "upstream" layers
+    # Initialise the submodules using .gitmodules
     git submodule init
-    git submodule update
+    # Clone the submodules, using their saved HEAD
+    git submodule update --checkout
+    # Update the submodules that follow a branch (update != none)
+    git submodule update --remote
 
     # Clone OpenXT layers
     git clone -b ${BRANCH} git://${HOST_IP}/${BUILD_USER}/xenclient-oe.git build/repos/xenclient-oe
