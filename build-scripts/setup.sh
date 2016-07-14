@@ -58,14 +58,24 @@ GIT_ROOT_PATH="/home/git"
 # URL to a Windows installer ISO
 WINDOWS_ISO_URL=""
 
+NO_OE=
+NO_DEBIAN=
+NO_CENTOS=
+NO_WINDOWS=
+
 # -- End of script configuration settings.
 
 usage() {
     cat >&2 <<EOF
-usage: $0 [-h] [-u build_user] [-d debian_mirror]
+usage: $0 [-h] [-O] [-D] [-C] [-W] [-u build_user] [-d debian_mirror]
                   [-c container_user] [-s subnet_prefix] [-m mac_prefix]
                   [-r remove_container_on_error] [-g git_root_path]
                   [-w windows_iso_url]
+  -h: help
+  -O: Do not setup the OpenEmbedded container, not recommended
+  -D: Do not setup the Debian container
+  -C: Do not setup the Centos container
+  -W: Do not setup the Windows VM even if an iso was provided with -w
 
  Note: debian_mirror   must be the full URL to a Debian mirror,
    like in the example below
@@ -90,10 +100,22 @@ EOF
 }
 
 
-while getopts "hu:d:c:s:m:r:g:w:" opt; do
+while getopts "hODCWu:d:c:s:m:r:g:w:" opt; do
     case $opt in
         h)
             usage 0
+            ;;
+        O)
+            NO_OE=1
+            ;;
+        D)
+            NO_DEBIAN=1
+            ;;
+        C)
+            NO_CENTOS=1
+            ;;
+        W)
+            NO_WINDOWS=1
             ;;
         u)
             BUILD_USER="${OPTARG}"
@@ -116,9 +138,9 @@ while getopts "hu:d:c:s:m:r:g:w:" opt; do
         g)
             GIT_ROOT_PATH="${OPTARG}"
             ;;
-	w)
-	    WINDOWS_ISO_URL="${OPTARG}"
-	    ;;
+        w)
+            WINDOWS_ISO_URL="${OPTARG}"
+            ;;
         \?)
             usage 1
             ;;
@@ -133,8 +155,8 @@ fi
 # Ensure that all required packages are installed on this host.
 # When installing packages, do all at once to be faster.
 PKGS="lxc"
-#PKGS="$PKGS virtualbox" # Un-comment to setup a Windows VM
-PKGS="$PKGS bridge-utils libvirt-bin curl jq git" # lxc and misc
+PKGS="$PKGS bridge-utils libvirt-bin curl jq git genisoimage syslinux-utils"
+PKGS="$PKGS openssl unzip"
 PKGS="$PKGS debootstrap" # Debian container
 PKGS="$PKGS librpm3 librpmbuild3 librpmio3 librpmsign1 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-support python-urlgrabber rpm \
@@ -186,6 +208,20 @@ if [ ! -d "${BUILD_USER_HOME}"/ssh-key ]; then
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/ssh-key
 fi
 
+# Create build certs
+if [ ! -d "${BUILD_USER_HOME}"/certificates ]; then
+    mkdir "${BUILD_USER_HOME}"/certificates
+    openssl genrsa -out "${BUILD_USER_HOME}"/certificates/prod-cakey.pem 2048
+    openssl genrsa -out "${BUILD_USER_HOME}"/certificates/dev-cakey.pem 2048
+    openssl req -new -x509 -key "${BUILD_USER_HOME}"/certificates/prod-cakey.pem \
+            -out "${BUILD_USER_HOME}"/certificates/prod-cacert.pem -days 1095 \
+            -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
+    openssl req -new -x509 -key "${BUILD_USER_HOME}"/certificates/dev-cakey.pem \
+            -out "${BUILD_USER_HOME}"/certificates/dev-cacert.pem -days 1095 \
+            -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
+    chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/certificates
+fi
+
 # Make up a network range ${SUBNET_PREFIX}.(150 + uid % 100).0
 # And a MAC range ${MAC_PREFIX}:(uid % 100):01
 BUILD_USER_ID=$(id -u ${BUILD_USER})
@@ -228,12 +264,14 @@ fi
 if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
     mkdir -p ${GIT_ROOT_PATH}/${BUILD_USER}
     cd ${GIT_ROOT_PATH}/${BUILD_USER}
+    echo "Mirroring the OpenXT repositories..."
     for repo in \
         $(curl -s "https://api.github.com/orgs/OpenXT/repos?per_page=100" | \
           jq '.[].name' | cut -d '"' -f 2 | sort -u)
     do
-        git clone --mirror https://github.com/OpenXT/${repo}.git
+        git clone --quiet --mirror https://github.com/OpenXT/${repo}.git
     done
+    echo "Done"
     cd - > /dev/null
     chown -R ${BUILD_USER}:${BUILD_USER} ${GIT_ROOT_PATH}/${BUILD_USER}
 fi
@@ -241,20 +279,22 @@ fi
 # Copy the main build scripts to the home directory of the user
 cp -f build.sh "${BUILD_USER_HOME}/"
 cp -f fetch.sh "${BUILD_USER_HOME}/"
+cp -f ../version "${BUILD_USER_HOME}/"
 sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
 sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
 sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/fetch.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/fetch.sh
+chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/version
 
 LXC_PATH=`lxc-config lxc.lxcpath`
 
 setup_container() {
-    NUMBER=$1           # 01
-    NAME=$2             # oe
-    TEMPLATE=$3         # debian
-    MIRROR=$4           # http://httpredir.debian.org/debian
-    TEMPLATE_OPTIONS=$5 # --arch i386 --release squeeze
+    local NUMBER=$1           # 01
+    local NAME=$2             # oe
+    local TEMPLATE=$3         # debian
+    local MIRROR=$4           # http://httpredir.debian.org/debian
+    local TEMPLATE_OPTIONS=$5 # --arch i386 --release squeeze
 
     # Skip setup if the container already exists
     if [ `lxc-ls | grep ${BUILD_USER}-${NAME}` ]; then
@@ -278,6 +318,8 @@ lxc.network.hwaddr = ${MAC_PREFIX}:${MAC_E}:${NUMBER}
 lxc.network.ipv4 = 0.0.0.0/24
 EOF
 
+    local ROOTFS=${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs
+
     echo "Configuring the ${NAME} container..."
     #mount -o bind /dev ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/dev
 
@@ -285,7 +327,7 @@ EOF
     cat ${NAME}/setup.sh | \
         sed "s|\%MIRROR\%|${MIRROR}|" | \
         sed "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" | \
-        chroot ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs /bin/bash -e
+        chroot ${ROOTFS} /bin/bash -e
 
     # If the in-container setup script failed, check our configuration to see
     # whether to destroy the container so that it can be recreated and setup
@@ -302,21 +344,23 @@ EOF
 
     #umount ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/dev
 
-    # Important:
-    # We expect the container-specific setup.sh script to create /home/${CONTAINER_USER},
-    #  as well as authorized_keys, id_dsa.pub and known_hosts under /home/${CONTAINER_USER}/.ssh
-    # We can't create those files here, since we don't want to figure out the user ID to chown to.
+    # Find the UID and GID of CONTAINER_USER
+    local cpasswd=`grep "^${CONTAINER_USER}:" ${ROOTFS}/etc/passwd`
+    local cuid=`echo $cpasswd | cut -d ':' -f 3`
+    local cgid=`echo $cpasswd | cut -d ':' -f 4`
 
     # Allow the host to SSH to the container
     cat "${BUILD_USER_HOME}"/ssh-key/openxt.pub \
-        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/authorized_keys
+        >> ${ROOTFS}/home/${CONTAINER_USER}/.ssh/authorized_keys
+    chown ${cuid}:${cgid} ${ROOTFS}/home/${CONTAINER_USER}/.ssh/authorized_keys
 
     # Allow the container to SSH to the host
-    cat ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/id_dsa.pub \
+    cat ${ROOTFS}/home/${CONTAINER_USER}/.ssh/id_dsa.pub \
         >> "${BUILD_USER_HOME}"/.ssh/authorized_keys
 
     ssh-keyscan -H ${SUBNET_PREFIX}.${IP_C}.1 \
-        >> ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/home/${CONTAINER_USER}/.ssh/known_hosts
+                >> ${ROOTFS}/home/${CONTAINER_USER}/.ssh/known_hosts
+    chown ${cuid}:${cgid} ${ROOTFS}/home/${CONTAINER_USER}/.ssh/known_hosts
 
     # Add config bits to easily ssh to the container
     cat >> "${BUILD_USER_HOME}/.ssh/config" <<EOF
@@ -326,6 +370,11 @@ Host ${NAME}
         IdentityFile ~/ssh-key/openxt
 
 EOF
+
+    # Copy the build certificates into the container for signing build bits
+    cp -r "${BUILD_USER_HOME}"/certificates \
+       ${ROOTFS}/home/${CONTAINER_USER}/certs
+    chown -R ${cuid}:${cgid} ${ROOTFS}/home/${CONTAINER_USER}/certs
 
     # Copy the build script for that container to the user home directory
     mkdir -p "${BUILD_USER_HOME}"/${NAME}
@@ -340,19 +389,19 @@ EOF
 }
 
 # Create a container for the main part of the OpenXT build
-setup_container "01" "oe" \
+[ -z $NO_OE ] && setup_container "01" "oe" \
                 "debian" "${DEBIAN_MIRROR}" "--arch i386  --release jessie"
 
 # Create a container for the Debian tool packages for OpenXT
-setup_container "02" "debian" \
+[ -z $NO_DEBIAN ] && setup_container "02" "debian" \
                 "debian" "${DEBIAN_MIRROR}" "--arch amd64 --release jessie"
 
 # Create a container for the Centos tool packages for OpenXT
-setup_container "03" "centos" \
+[ -z $NO_CENTOS ] && setup_container "03" "centos" \
                 "centos" "" "--arch x86_64 --release 7"
 
 # Create a Windows VM
-if [ "x${WINDOWS_ISO_URL}" != "x" ]; then
+if [ -z $NO_WINDOWS ] && [ "x${WINDOWS_ISO_URL}" != "x" ]; then
     cd windows
     ./setup.sh "04" "${BUILD_USER}" \
                "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}" \

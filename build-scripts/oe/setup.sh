@@ -33,6 +33,7 @@ PKGS=""
 PKGS="$PKGS openssh-server openssl"
 PKGS="$PKGS sed wget cvs subversion git-core coreutils unzip texi2html texinfo docbook-utils gawk python-pysqlite2 diffstat help2man make gcc build-essential g++ desktop-file-utils chrpath cpio" # OE main deps
 PKGS="$PKGS guilt iasl quilt bin86 bcc libsdl1.2-dev liburi-perl genisoimage policycoreutils unzip vim sudo rpm curl libncurses5-dev" # OpenXT-specific deps
+
 apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
 apt-get -y install $PKGS </dev/null || apt-get -y install $PKGS </dev/null
@@ -67,17 +68,7 @@ chmod +x /bin/uname
 # Add a build user
 adduser --disabled-password --gecos "" ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
-touch /home/${CONTAINER_USER}/.ssh/authorized_keys
-touch /home/${CONTAINER_USER}/.ssh/known_hosts
 ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-oe -f /home/${CONTAINER_USER}/.ssh/id_dsa
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 echo "export MACHINE=xenclient-dom0" >> /home/${CONTAINER_USER}/.bashrc
 chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bashrc
-
-# Create build certs
-mkdir /home/${CONTAINER_USER}/certs
-openssl genrsa -out /home/${CONTAINER_USER}/certs/prod-cakey.pem 2048
-openssl genrsa -out /home/${CONTAINER_USER}/certs/dev-cakey.pem 2048
-openssl req -new -x509 -key /home/${CONTAINER_USER}/certs/prod-cakey.pem -out /home/${CONTAINER_USER}/certs/prod-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
-openssl req -new -x509 -key /home/${CONTAINER_USER}/certs/dev-cakey.pem -out /home/${CONTAINER_USER}/certs/dev-cacert.pem -days 1095 -subj "/C=US/ST=Massachusetts/L=Boston/O=OpenXT/OU=OpenXT/CN=openxt.org"
-chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/certs

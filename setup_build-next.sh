@@ -47,6 +47,9 @@ process_git_repo() {
 	local repo="$2"
 	local branch="$3"
 
+	# Remove the directory if it's empty
+	[ -d $path ] && [ -z "`ls -A1 $path | head -1`" ] && rmdir $path
+
 	if [ ! -d $path ]; then
 		# The path does not exist.  Proceed.
 		fetch_git_repo $path $repo $branch
