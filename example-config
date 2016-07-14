@@ -1,8 +1,8 @@
 # OpenXT branch to build.
-BRANCH="master"
+BRANCH="stable-6"
 
 # OpenXT branch to build.
-OE_BRANCH="b3a3935c69b6e74e19cd0cb69d47350b9ea9c58e"
+OE_BRANCH="jethro"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
 OPENXT_GIT_MIRROR="github.com/OpenXT"
@@ -23,11 +23,10 @@ META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
 
 # Use the lines below out to override checking out the branch matching the OE release
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
+OE_CORE_TAG=1f4bfa33073584c25396d74f3929f263f3df188b
+META_OE_TAG=8ab04afbffb4bc5184cfe0655049de6f44269990
 META_JAVA_TAG=a73939323984fca1e919d3408d3301ccdbceac9c
-
-# Default to the same branch of meta-selinux as OE_BRANCH (e.g. jethro).
-# Uncomment and edit if you need a specific commit from meta-selinux.
-#META_SELINUX_TAG=jethro
+META_SELINUX_TAG=4c75d9cbcf1d75043c7c5ab315aa383d9b227510
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
 OPENXT_MIRROR="http://mirror.openxt.org"
