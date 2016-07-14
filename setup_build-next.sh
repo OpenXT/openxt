@@ -38,7 +38,7 @@ fetch_git_repo() {
 
 	echo "Fetching $repo..."
 	set +e
-	git clone -n $repo "$path" || die "Clone of git repo failed: $repo"
+	git clone -q -n $repo "$path" || die "Clone of git repo failed: $repo"
 	set -e
 }
 
@@ -71,18 +71,15 @@ mkdir -p $REPOS || die "Could not create local build dir"
 # Pull down the OpenXT repos
 process_git_repo $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
 process_git_repo $REPOS/bitbake $BITBAKE_REPO $BB_BRANCH
-process_git_repo $REPOS/openembedded-core $OE_CORE_REPO $OE_BRANCH
-process_git_repo $REPOS/meta-openembedded $META_OE_REPO $OE_BRANCH
-if [ ! -z ${META_JAVA_TAG+x} ]; then
-	process_git_repo $REPOS/meta-java $META_JAVA_REPO $META_JAVA_TAG
-else
-	process_git_repo $REPOS/meta-java $META_JAVA_REPO $OE_BRANCH
-fi
-if [ ! -z ${META_SELINUX_TAG+x} ]; then
-	process_git_repo $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
-else
-	process_git_repo $REPOS/meta-selinux $META_SELINUX_REPO $OE_BRANCH
-fi
+for repo in openembedded-core meta-openembedded meta-java meta-selinux; do
+    repo_var=`echo $repo | sed -e 's/openembedded/oe/' -e 's/-/_/' | tr '[a-z]' '[A-Z]'`
+    git_var="${repo_var}_REPO"
+    git=${!git_var}
+    tag_var="${repo_var}_TAG"
+    tag=${!tag_var}
+    [ -z ${tag} ] && tag=$OE_BRANCH
+    process_git_repo $REPOS/$repo $git $tag
+done
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
   ln -s $OE_XENCLIENT_DIR/conf/local.conf-dist \
