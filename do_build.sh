@@ -1107,10 +1107,8 @@ do_debian_xctools()
     export XEN_VERSION XEN_SRC_URI
 
     # add linux xctools artifacts
-    for n in pkg-xctools pkg-xcswitcher; do
-        ${BUILD_SCRIPTS}/$n/build.sh ${path}
-        ${BUILD_SCRIPTS}/$n/copy.sh ${debdir}
-    done
+    ${BUILD_SCRIPTS}/pkg-xctools/build.sh ${path}
+    ${BUILD_SCRIPTS}/pkg-xctools/copy.sh ${debdir}
 }
 
 xctools_iso_from_zip()
