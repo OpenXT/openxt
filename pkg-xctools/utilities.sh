@@ -65,8 +65,6 @@ Please install them using:
  $ sudo apt-get install gdebi-core"
                 fi
         fi
-
-        # FIXME: dkms? (but not for switcher?)
 }
 
 # Install a package

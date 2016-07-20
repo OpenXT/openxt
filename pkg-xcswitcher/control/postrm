@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set +e
-
-# xc-switcher-1.0 post-installed stuff
-rm -rf /usr/src/xc-switcher-1.0 /usr/share/xc-switcher /usr/bin/xc-switcher* /etc/xdg/autostart/xc-switcher.desktop
-
-exit 0

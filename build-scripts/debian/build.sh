@@ -51,8 +51,6 @@ for tool in ../pv-linux-drivers/openxt-*; do
 done
 $SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v
 $SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v
-$SBUILD --dist=wheezy --arch=i386  ../xctools/xc-switcher
-$SBUILD --dist=wheezy --arch=amd64 ../xctools/xc-switcher
 cd - >/dev/null
 mkdir wheezy
 cd wheezy

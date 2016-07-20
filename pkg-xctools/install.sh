@@ -19,7 +19,7 @@ prerequisite_check
         if [ "$DISTRO" = rhel ] ; then
                 # Remove the packages first. This shouldn't be necessary,
                 # but is done for consistency with Debian/Ubuntu.
-                yum -y erase xc-switcher xc-tools
+                yum -y erase xc-tools
 
                 # For dkms, we need to make sure that every installed kernel
                 # RPM has a matching installed kernel-devel RPM.
@@ -40,11 +40,7 @@ prerequisite_check
                 yum -y install "${INSTALLER_PATH}"/xc-tools-*.rpm \
                                "${INSTALLER_PATH}"/dkms-*.rpm \
                                ${KERNEL_DEVEL_RPMS}
-                $INSTALLER_PATH/install_switcher.sh
         else
-                # Remove switcher
-                dpkg --purge xc-switcher
-
                 # FIXME: see the debian package to know why we can't reinstall the package
                 # gdebi must do it, but it fails. It can't find xenstore source
 
@@ -54,10 +50,6 @@ prerequisite_check
                 # libappindicator was added in debian with Wheezy
                 distrib=`lsb_release -is`
                 codename=`lsb_release -rs`
-
-                if [ \( "x$distrib" != "xDebian" \) -o \( "x$codename" = "xwheezy" \) ]; then
-                        $INSTALLER_PATH/install_switcher.sh
-                fi
         fi
 )
 exit_code=$?
