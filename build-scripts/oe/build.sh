@@ -162,7 +162,20 @@ if [ ! -d openxt ] ; then
     git submodule update --remote
 
     # Clone OpenXT layers
-    git clone -b ${BRANCH} git://${HOST_IP}/${BUILD_USER}/xenclient-oe.git build/repos/xenclient-oe
+    for layer in $openxt_layers; do
+	name_var="openxt_layer_${layer}_name"
+	repo_var="openxt_layer_${layer}_repository"
+	rev_var="openxt_layer_${layer}_revision"
+	git clone ${!repo_var} build/repos/${!name_var}
+	cd build/repos/${!name_var}
+	if [ -z ${!rev_var} ]; then
+	    git checkout $BRANCH
+	else
+	    git checkout ${!rev_var}
+	fi
+	cd - >/dev/null
+	echo "BBLAYERS =+ \"\${TOPDIR}/repos/${!name_var}\"" >> build/conf/bblayers.conf
+    done
 
     # Configure OpenXT
     setupoe
@@ -173,13 +186,19 @@ fi
 # Build
 mkdir -p build
 cd build
-build_image "xenclient-dom0"       "xenclient-initramfs"            "cpio.gz"
-build_image "xenclient-stubdomain" "xenclient-stubdomain-initramfs" "cpio.gz"
-build_image "xenclient-dom0"       "xenclient-dom0"                 "xc.ext3.gz"
-build_image "xenclient-uivm"       "xenclient-uivm"                 "xc.ext3.vhd.gz"
-build_image "xenclient-ndvm"       "xenclient-ndvm"                 "xc.ext3.vhd.gz"
-build_image "xenclient-dom0"       "xenclient-installer"            "cpio.gz"
-build_image "xenclient-dom0"       "xenclient-installer-part2"      "tar.bz2"
+for layer in $openxt_layers; do
+    echo "Building layer ${layer}..."
+    images_var="openxt_layer_${layer}_images"
+    images=${!images_var}
+    for image in "${images[@]}"; do
+	echo $image
+	machine=`echo $image | awk '{print $1}'`
+	step=`echo $image | awk '{print $2}'`
+	format=`echo $image | awk '{print $3}'`
+	echo "Building $step for $machine in $format"
+	build_image $machine $step $format
+    done
+done
 
 collect_packages
 collect_logs
