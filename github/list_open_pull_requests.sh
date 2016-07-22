@@ -28,13 +28,15 @@ do
     TITLES=(`echo $PULLS | jq '.[].title'`)
     LOGINS=(`echo $PULLS | jq '.[].user.login' | tr -d '"'`)
     [ -z $SHORT ] && BRANCHES=(`echo $PULLS | jq '.[].head.ref' | tr -d '"'`)
+    [ -z $SHORT ] && ORIG_BRANCHES=(`echo $PULLS | jq '.[].base.ref' | tr -d '"'`)
     IFS=$OIFS
     if [ "$PRS" != "" ]; then
         echo "Repository: $i  -- Open pull requests:"
         n=0
         for PR in $PRS; do
             if [ -z $SHORT ]; then
-                echo "  ## ${TITLES[$n]} ##"
+                b=`echo ${ORIG_BRANCHES[$n]} | sed -e 's/^master$/MA/' -e 's/^stable-\([0-9]\+\)$/S\1/'`
+                echo "  ## $b ## ${TITLES[$n]} ##"
                 echo "       PR URL:   https://github.com/OpenXT/$i/pull/$PR"
                 echo "       Buildbot: github.com/${LOGINS[$n]}:${BRANCHES[$n]}"
                 echo "       Code:     https://github.com/${LOGINS[$n]}/$i/tree/${BRANCHES[$n]}"
