@@ -134,15 +134,16 @@ fi
 # When installing packages, do all at once to be faster.
 PKGS="lxc"
 #PKGS="$PKGS virtualbox" # Un-comment to setup a Windows VM
-PKGS="$PKGS bridge-utils libvirt-bin curl jq git" # lxc and misc
+PKGS="$PKGS bridge-utils libvirt-bin curl jq git rsync ebtables dnsmasq" # lxc and misc
+PKGS="$PKGS haveged" # Entropy seeding
 PKGS="$PKGS debootstrap" # Debian container
 PKGS="$PKGS librpm3 librpmbuild3 librpmio3 librpmsign1 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-support python-urlgrabber rpm \
-rpm-common rpm2cpio yum debootstrap bridge-utils" # Centos container
+rpm-common rpm2cpio yum" # Centos container
 
 apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
-apt-get install $PKGS || apt-get install $PKGS
+apt-get install -y -q $PKGS || apt-get -y -q install $PKGS
 
 # Ensure that the build user exists on the host
 if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then

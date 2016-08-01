@@ -55,7 +55,7 @@ if [ -z $1 ] ; then
     cd ${ALL_BUILDS_DIRECTORY}
     LAST_BUILD=0
     if [[ -d "${BUILD_DATE}-1" ]]; then
-	LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
+        LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
     fi
     cd - >/dev/null
     NEW_BUILD=$((LAST_BUILD + 1))
@@ -84,10 +84,10 @@ build_container() {
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
 
     if [ -d $NAME ]; then
-	echo "Building container $NUMBER : $NAME"
+        echo "Building container $NUMBER : $NAME"
     else
-	echo "Not building $NUMBER : $NAME"
-	return
+        echo "Not building $NUMBER : $NAME"
+        return
     fi
 
     # Build
@@ -98,8 +98,8 @@ build_container() {
             -e "s|\%IP_C\%|${IP_C}|" \
             -e "s|\%BRANCH\%|${BRANCH}|" \
             -e "s|\%ALL_BUILDS_SUBDIR_NAME\%|${ALL_BUILDS_SUBDIR_NAME}|" |\
-        ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
-            -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
+        ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt -oStrictHostKeyChecking=no \
+            ${CONTAINER_USER}@${CONTAINER_IP} '/bin/bash -s'
 }
 
 build_windows() {
@@ -108,10 +108,10 @@ build_windows() {
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
 
     if [ -d windows ]; then
-	echo "Building the Windows tools"
+        echo "Building the Windows tools"
     else
-	echo "Not building the Windows tools"
-	return
+        echo "Not building the Windows tools"
+        return
     fi
 
     mkdir -p $DEST
