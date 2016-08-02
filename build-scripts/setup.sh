@@ -156,11 +156,12 @@ fi
 # When installing packages, do all at once to be faster.
 PKGS="lxc"
 PKGS="$PKGS bridge-utils libvirt-bin curl jq git genisoimage syslinux-utils"
-PKGS="$PKGS openssl unzip"
+PKGS="$PKGS openssl unzip rsync ebtables dnsmasq"
+PKGS="$PKGS haveged" # seeds entropy
 PKGS="$PKGS debootstrap" # Debian container
 PKGS="$PKGS librpm3 librpmbuild3 librpmio3 librpmsign1 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-support python-urlgrabber rpm \
-rpm-common rpm2cpio yum debootstrap bridge-utils" # Centos container
+rpm-common rpm2cpio yum" # Centos container
 
 apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
