@@ -20,6 +20,7 @@ OE_CORE_REPO=git://git.openembedded.org/openembedded-core
 META_OE_REPO=git://git.openembedded.org/meta-openembedded
 META_JAVA_REPO=git://git.yoctoproject.org/meta-java
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
+META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
 
 # Use the lines below out to override checking out the branch matching the OE release
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6

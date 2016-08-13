@@ -71,7 +71,7 @@ mkdir -p $REPOS || die "Could not create local build dir"
 # Pull down the OpenXT repos
 process_git_repo $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
 process_git_repo $REPOS/bitbake $BITBAKE_REPO $BB_BRANCH
-for repo in openembedded-core meta-openembedded meta-java meta-selinux; do
+for repo in openembedded-core meta-openembedded meta-java meta-selinux meta-intel; do
     repo_var=`echo $repo | sed -e 's/openembedded/oe/' -e 's/-/_/' | tr '[a-z]' '[A-Z]'`
     git_var="${repo_var}_REPO"
     git=${!git_var}
