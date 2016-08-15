@@ -3,6 +3,8 @@
 source ${BUILD_SCRIPTS}/build_helpers.sh
 source ${BUILD_SCRIPTS}/version
 
+export AWK=/usr/bin/awk
+
 make_bundle_pv_drivers()
 {
     local PDST_DIR="${3}/usr/src/openxt-${1}-1.0"
