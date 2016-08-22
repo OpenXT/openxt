@@ -805,13 +805,13 @@ generic_do_netboot()
         if [ -f "$path/xen.gz" ]; then
                 cp "$path/xen.gz" "$netboot/xen.gz"
         else
-                get_file_from_tar_or_cpio "$tarball" "boot/xen-3.4.1-xc.gz" > "$netboot/xen.gz"
+                get_file_from_tar_or_cpio "$tarball" "boot/xen-*-xc.gz" > "$netboot/xen.gz"
         fi
         echo "  - extract vmlinuz"
         if [ -f "$path/vmlinuz" ]; then
                 cp "$path/vmlinuz" "$netboot/vmlinuz"
         else
-                get_file_from_tar_or_cpio "$tarball" "boot/vmlinuz" > "$netboot/vmlinuz"
+                get_file_from_tar_or_cpio "$tarball" "boot/bzImage" > "$netboot/vmlinuz"
         fi
         echo "  - extract tboot.gz"
         if [ -f "$path/tboot.gz" ]; then
