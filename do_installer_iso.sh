@@ -36,6 +36,7 @@ genisoimage -o "${ISO_IMAGE}" \
         -boot-info-table \
         -r \
         -J \
+        -l \
         -V "${ISO_LABEL}" \
         -quiet \
         "${ISO_DIR}" || die "genisoimage failed"
