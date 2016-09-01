@@ -332,6 +332,7 @@ build_iso() {
                 -boot-info-table \
                 -r \
                 -J \
+                -l \
                 -V "OpenXT-${VERSION}" \
 		-f \
 		-quiet \
