@@ -410,7 +410,7 @@ do_oe_installer_copy()
                 "$OUTPUT_DIR/$NAME/raw/installer/"
         cp "$binaries/$machine"/license-*.txt \
                 "$OUTPUT_DIR/$NAME/raw/installer/"
-        cp "$binaries/$machine"/microcode-intel.bin \
+        cp "$binaries/$machine"/microcode_intel.bin \
                 "$OUTPUT_DIR/$NAME/raw/installer"
         popd
 }
@@ -788,7 +788,7 @@ extract_acms()
         done
 }
 
-UCODE_LIST="microcode-intel.bin"
+UCODE_LIST="microcode_intel.bin"
 extract_ucode()
 {
         local tarball="$1"
