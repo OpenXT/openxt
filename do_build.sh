@@ -410,6 +410,8 @@ do_oe_installer_copy()
                 "$OUTPUT_DIR/$NAME/raw/installer/"
         cp "$binaries/$machine"/license-*.txt \
                 "$OUTPUT_DIR/$NAME/raw/installer/"
+        cp "$binaries/$machine"/microcode_intel.bin \
+                "$OUTPUT_DIR/$NAME/raw/installer"
         popd
 }
 
@@ -786,6 +788,23 @@ extract_acms()
         done
 }
 
+UCODE_LIST="microcode_intel.bin"
+extract_ucode()
+{
+        local tarball="$1"
+        local src="$2"
+        local dst="$3"
+
+        for UCODE in $UCODE_LIST; do
+            echo "    - extract $UCODE"
+            if [ -f "$src/$UCODE" ]; then
+                    cp "$src/$UCODE" "$dst/$UCODE"
+            else
+                    get_file_from_tar_or_cpio "$tarball" "boot/$UCODE" > "$dst/$UCODE"
+            fi
+        done
+}
+
 generic_do_netboot()
 {
         local suffix="$1"
@@ -805,13 +824,13 @@ generic_do_netboot()
         if [ -f "$path/xen.gz" ]; then
                 cp "$path/xen.gz" "$netboot/xen.gz"
         else
-                get_file_from_tar_or_cpio "$tarball" "boot/xen-3.4.1-xc.gz" > "$netboot/xen.gz"
+                get_file_from_tar_or_cpio "$tarball" "boot/xen-*-xc.gz" > "$netboot/xen.gz"
         fi
         echo "  - extract vmlinuz"
         if [ -f "$path/vmlinuz" ]; then
                 cp "$path/vmlinuz" "$netboot/vmlinuz"
         else
-                get_file_from_tar_or_cpio "$tarball" "boot/vmlinuz" > "$netboot/vmlinuz"
+                get_file_from_tar_or_cpio "$tarball" "boot/bzImage" > "$netboot/vmlinuz"
         fi
         echo "  - extract tboot.gz"
         if [ -f "$path/tboot.gz" ]; then
@@ -821,6 +840,10 @@ generic_do_netboot()
         fi
         echo "  - extract ACMs"
         extract_acms "$tarball" "$path" "$netboot"
+
+        echo "  - extract microcode"
+        extract_ucode "$tarball" "$path" "$netboot"
+
         echo "  - copy rootfs"
         cp "$path/rootfs.i686.cpio.gz" "$netboot/rootfs.gz"
 
@@ -887,6 +910,10 @@ generic_do_installer_iso()
         fi
         echo "  - extract ACMs"
         extract_acms "$tarball" "$path/installer/" "$iso_path/isolinux"
+
+        echo "  - extract microcode"
+        extract_ucode "$tarball" "$path/installer/" "$iso_path/isolinux"
+
         echo "  - copy rootfs"
         cp "$path/installer/rootfs.i686.cpio.gz" "$iso_path/isolinux/rootfs.gz"
 
