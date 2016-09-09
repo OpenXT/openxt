@@ -162,7 +162,12 @@ build_container() {
     fi
 
     # Build
-    cat $NAME/build.sh | \
+    # Note: we cat all the layers and the build script to the ssh command
+    #   Another approach could be to `source *.layer` here and send them to the
+    #   container using the ssh option "SendEnv".
+    #   The way we do it here, the shell will for example turn tabulations into
+    #   completion requests, which is not ideal...
+    cat *.layer $NAME/build.sh | \
         sed -e "s|\%BUILD_USER\%|${BUILD_USER}|" \
             -e "s|\%BUILD_DIR\%|${BUILD_DIR}|" \
             -e "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" \

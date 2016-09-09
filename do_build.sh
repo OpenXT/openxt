@@ -53,6 +53,10 @@ do_oe_setup()
 
         echo "*:$BRANCH" > "manifest"
 
+        if ! grep xenclient-oe conf/bblayers.conf >/dev/null; then
+            echo 'BBLAYERS =+ "${TOPDIR}/repos/xenclient-oe"' >> conf/bblayers.conf
+        fi
+
         if [ ! -f "local.settings" ]; then
                 cat > local.settings <<EOF
 META_SELINUX_REPO=$META_SELINUX_REPO
