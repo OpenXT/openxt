@@ -189,9 +189,8 @@ mkdir -p build
 cd build
 for layer in $openxt_layers; do
     echo "Building layer ${layer}..."
-    images_var="openxt_layer_${layer}_images"
-    images=${!images_var}
-    for image in "${images[@]}"; do
+    images_var="openxt_layer_${layer}_images[@]"
+    for image in "${!images_var}"; do
 	echo $image
 	machine=`echo $image | awk '{print $1}'`
 	step=`echo $image | awk '{print $2}'`
