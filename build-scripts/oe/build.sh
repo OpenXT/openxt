@@ -104,7 +104,7 @@ build_image() {
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/*.acm \
                    tmp-glibc/deploy/images/${MACHINE}/tboot.gz \
                    tmp-glibc/deploy/images/${MACHINE}/xen.gz \
-                   tmp-glibc/deploy/images/${MACHINE}/microcode-intel.bin \
+                   tmp-glibc/deploy/images/${MACHINE}/microcode_intel.bin \
                    ${TARGET}/netboot/
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-xenclient-dom0.bin \
                    ${TARGET}/netboot/vmlinuz
