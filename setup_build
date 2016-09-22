@@ -99,6 +99,7 @@ if [ "$1" != "env" ]; then
   mkdir -p $REPOS || die "Could not create local build dir"
 
   getgit $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
+  getgit $REPOS/meta-syncxt $META_SYNCXT_REPO $META_SYNCXT_TAG
   getgit $REPOS/bitbake $BITBAKE_REPO $BITBAKE_TAG
   for p in `pwd`/repos/xenclient-oe/patches/bitbake/*.patch; do
       if [ ! -f "$p.APPLIED" ]; then
