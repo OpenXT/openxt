@@ -1,0 +1,14 @@
+openxt_layer_meta_syncxt_name="meta-syncxt"
+
+openxt_layer_meta_syncxt_repository="https://github.com/OpenXT/meta-syncxt.git"
+# Specify a revision here to freeze the repository
+# If not revision is specified, $BRANCH will be used
+#openxt_layer_meta_syncxt_revision="master"
+
+openxt_layer_meta_syncxt_images=(                                              \
+#Machine                Step                                   Format          \
+"xenclient-syncvm       xenclient-syncvm-image                 vhd.gz"         \
+"xenclient-syncui       sync-wui                               tar.gz"         \
+)
+
+openxt_layers+=" meta_syncxt "

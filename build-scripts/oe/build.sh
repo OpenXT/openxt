@@ -111,6 +111,8 @@ build_image() {
                    ${TARGET}/netboot/
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-xenclient-dom0.bin \
                    ${TARGET}/netboot/vmlinuz
+        elif [ "$IMAGE_NAME" = "sync-wui" ]; then
+            $RSYNC tmp-glibc/deploy/tar/sync-wui-* ${TARGET}/raw/
         else
             $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.i686.${EXTENSION}
         fi
