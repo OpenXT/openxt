@@ -47,8 +47,8 @@ process_git_repo() {
 	local repo="$2"
 	local branch="$3"
 
-	if [ ! -d $path ]; then
-		# The path does not exist.  Proceed.
+	if [ ! -d $path ] || [ -z "`ls -A $path`" ]; then
+		# The path does not exist or is empty.  Proceed.
 		fetch_git_repo $path $repo $branch
 		checkout_git_branch $path $branch
 	fi
