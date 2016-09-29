@@ -1,0 +1,20 @@
+[submodule "build/repos/openembedded-core"]
+	path = build/repos/openembedded-core
+	url = git://git.openembedded.org/openembedded-core
+	update = none
+[submodule "build/repos/bitbake"]
+	path = build/repos/bitbake
+	url = git://git.openembedded.org/bitbake.git
+	branch = 1.28
+[submodule "build/repos/meta-openembedded"]
+	path = build/repos/meta-openembedded
+	url = git://git.openembedded.org/meta-openembedded
+	update = none
+[submodule "build/repos/meta-java"]
+	path = build/repos/meta-java
+	url = git://git.yoctoproject.org/meta-java
+	update = none
+[submodule "build/repos/meta-selinux"]
+	path = build/repos/meta-selinux
+	url = git://git.yoctoproject.org/meta-selinux
+	update = none
