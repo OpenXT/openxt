@@ -41,6 +41,14 @@ for kernelpath in `ls -d /usr/src/kernels/*`; do
     [ -e /lib/modules/virt/source ] || ln -s ${kernelpath} /lib/modules/virt/source
 done
 
+# Get rid of a broken lib
+if [ -f /usr/lib64/security/pam_systemd.so ]; then
+    mv /usr/lib64/security/pam_systemd.so /usr/lib64/security/pam_systemd.so.bak
+fi
+
+# Make sudo happy even without a TTY
+sed -i 's/^Defaults    requiretty$/Defaults    !requiretty/' /etc/sudoers
+
 # Add a build user
 adduser ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
