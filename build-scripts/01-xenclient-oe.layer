@@ -5,17 +5,15 @@ openxt_layer_xenclient_oe_repository="https://github.com/OpenXT/xenclient-oe.git
 # If not revision is specified, $BRANCH will be used
 #openxt_layer_xenclient_oe_revision="master"
 
-openxt_layer_xenclient_oe_images=(                                          \
-#Machine                Step                                Format          \
-"xenclient-dom0         xenclient-initramfs                 cpio.gz"        \
-"xenclient-stubdomain   xenclient-stubdomain-initramfs      cpio.gz"        \
-"xenclient-dom0         xenclient-dom0                      xc.ext3.gz"     \
-"xenclient-uivm         xenclient-uivm                      xc.ext3.vhd.gz" \
-"xenclient-ndvm         xenclient-ndvm                      xc.ext3.vhd.gz" \
-"xenclient-dom0         xenclient-installer                 cpio.gz"        \
-"xenclient-dom0         xenclient-installer-part2           tar.bz2"        \
+openxt_layer_xenclient_oe_images=(                                             \
+#Machine                Step                                   Format          \
+"xenclient-dom0         xenclient-initramfs-image              cpio.gz"        \
+"xenclient-stubdomain   xenclient-stubdomain-initramfs-image   cpio.gz"        \
+"xenclient-dom0         xenclient-dom0-image                   xc.ext3.gz"     \
+"xenclient-uivm         xenclient-uivm-image                   xc.ext3.vhd.gz" \
+"xenclient-ndvm         xenclient-ndvm-image                   xc.ext3.vhd.gz" \
+"xenclient-dom0         xenclient-installer-image              cpio.gz"        \
+"xenclient-dom0         xenclient-installer-part2-image        tar.bz2"        \
 )
 
-# We *prepend* to openxt_layers, so the list will be sorted
-#   in priority order (01 is the highest priority)
-openxt_layers="xenclient_oe ${openxt_layers}"
+openxt_layers+=" xenclient_oe "

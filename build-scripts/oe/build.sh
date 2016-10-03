@@ -80,10 +80,12 @@ build_image() {
     IMAGE_NAME=$2
     EXTENSION=$3
 
-    REAL_NAME=`echo $IMAGE_NAME | sed 's/^[^-]\+-//'`
+    # Removes the prefix and the "image" suffix
+    #   Example: xenclient-dom0-image -> dom0
+    REAL_NAME=`echo $IMAGE_NAME | sed -e 's/^[^-]\+-//' -e 's/-image$//'`
 
     # Build the step
-    MACHINE=$MACHINE ./bb ${IMAGE_NAME}-image | tee -a build.log
+    MACHINE=$MACHINE ./bb ${IMAGE_NAME} | tee -a build.log
 
     # The return value of `./bb` got hidden by `tee`. Bring it back.
     # Get the return value
@@ -91,15 +93,16 @@ build_image() {
     # Surface the value, the "-e" bash flag will pick up on any error
     ( exit $ret )
 
-    SOURCE_BASE=tmp-glibc/deploy/images/${MACHINE}/${IMAGE_NAME}-image
+    SOURCE_BASE=tmp-glibc/deploy/images/${MACHINE}/${IMAGE_NAME}
     SOURCE_IMAGE=${SOURCE_BASE}-${MACHINE}.${EXTENSION}
     SOURCE_LICENSES=${SOURCE_BASE}-licences.csv
     SOURCE_EXTRAS=${SOURCE_BASE}-${MACHINE}
     TARGET=${BUILD_USER}@${HOST_IP}:${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/
 
     # Transfer image and give it the expected name
+    # All cases but the last one are quirks for weird images...
     if [ -f ${SOURCE_IMAGE} ]; then
-        if [ "$IMAGE_NAME" = "xenclient-installer-part2" ]; then
+        if [ "$IMAGE_NAME" = "xenclient-installer-part2-image" ]; then
             $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/control.${EXTENSION}
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/*.acm \
                    tmp-glibc/deploy/images/${MACHINE}/tboot.gz \
@@ -111,6 +114,8 @@ build_image() {
             fi
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-xenclient-dom0.bin \
                    ${TARGET}/netboot/vmlinuz
+        elif [ "$IMAGE_NAME" = "sync-wui" ]; then
+            $RSYNC tmp-glibc/deploy/tar/sync-wui-* ${TARGET}/raw/
         else
             $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.i686.${EXTENSION}
         fi
@@ -193,13 +198,13 @@ cd build
 for layer in $openxt_layers; do
     echo "Building layer ${layer}..."
     images_var="openxt_layer_${layer}_images[@]"
+    [ -z "${!images_var}" ] && continue
     for image in "${!images_var}"; do
-	echo $image
-	machine=`echo $image | awk '{print $1}'`
-	step=`echo $image | awk '{print $2}'`
-	format=`echo $image | awk '{print $3}'`
-	echo "Building $step for $machine in $format"
-	build_image $machine $step $format
+        machine=`echo $image | awk '{print $1}'`
+        step=`echo $image | awk '{print $2}'`
+        format=`echo $image | awk '{print $3}'`
+        echo "Building $step for $machine in $format"
+        build_image $machine $step $format
     done
 done
 
