@@ -27,6 +27,7 @@ BUILD_DIR=%BUILD_DIR%
 IP_C=%IP_C%
 BUILD_ID=%BUILD_ID%
 BRANCH=%BRANCH%
+THREADS=%THREADS%
 SUBNET_PREFIX=%SUBNET_PREFIX%
 ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
@@ -73,6 +74,13 @@ XCT_DEB_PKGS_DIR := "${BUILD_PATH}/xct_deb_packages"
 REPO_PROD_CACERT="/home/${LOCAL_USER}/certs/prod-cacert.pem"
 REPO_DEV_CACERT="/home/${LOCAL_USER}/certs/dev-cacert.pem"
 EOF
+}
+
+configure_threads() {
+    if [ ! -z ${THREADS} ] ; then
+        sed -i 's/^BB_NUMBER_THREADS .*$/BB_NUMBER_THREADS ?= "'"${THREADS}"'"/' build/conf/local.conf
+        sed -i 's/^PARALLEL_MAKE .*$/PARALLEL_MAKE ?= "'"-j ${THREADS}"'"/' build/conf/local.conf
+    fi
 }
 
 build_image() {
@@ -186,6 +194,8 @@ if [ ! -d openxt ] ; then
 else
     cd openxt
 fi
+
+configure_threads
 
 # Build
 mkdir -p build
