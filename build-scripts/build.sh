@@ -45,13 +45,16 @@ NO_DEBIAN=
 NO_CENTOS=
 NO_WINDOWS=
 
+THREADS=
+
 # -- End of script configuration settings.
 
 usage() {
     cat >&2 <<EOF
-usage: $0 [-h] [-i ID] [-b branch] [-n build] [-O] [-D] [-C] [-W]
+usage: $0 [-h] [-i ID] [-j threads] [-b branch] [-n build] [-O] [-D] [-C] [-W]
   -h: Help
   -i: Build ID (overrides -n)
+  -j: Number of concurrent threads
   -b: Branch to build
   -n: Continue the specified build instead of creating a new one
   -O: Do not build OpenEmbedded (OpenXT core), not recommended
@@ -65,13 +68,16 @@ EOF
     exit $1
 }
 
-while getopts "hi:b:n:ODCW" opt; do
+while getopts "hi:j:b:n:ODCW" opt; do
     case $opt in
         h)
             usage 0
             ;;
         i)
             BUILD_ID=${OPTARG}
+            ;;
+        j)
+            THREADS=${OPTARG}
             ;;
         b)
             BRANCH="${OPTARG}"
@@ -174,6 +180,7 @@ build_container() {
             -e "s|\%IP_C\%|${IP_C}|" \
             -e "s|\%BUILD_ID\%|${BUILD_ID}|" \
             -e "s|\%BRANCH\%|${BRANCH}|" \
+            -e "s|\%THREADS\%|${THREADS}|" \
             -e "s|\%ALL_BUILDS_SUBDIR_NAME\%|${ALL_BUILDS_SUBDIR_NAME}|" |\
         ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
             -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
