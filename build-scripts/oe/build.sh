@@ -32,7 +32,7 @@ ALL_BUILDS_SUBDIR_NAME=%ALL_BUILDS_SUBDIR_NAME%
 
 HOST_IP=${SUBNET_PREFIX}.${IP_C}.1
 LOCAL_USER=`whoami`
-BUILD_PATH=`pwd`/openxt/build
+BUILD_PATH=`pwd`/${BUILD_DIR}/openxt/build
 RSYNC="rsync -a --copy-links"
 
 cd ~/certs
