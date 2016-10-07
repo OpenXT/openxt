@@ -182,7 +182,7 @@ build_container() {
             -e "s|\%BRANCH\%|${BRANCH}|" \
             -e "s|\%THREADS\%|${THREADS}|" \
             -e "s|\%ALL_BUILDS_SUBDIR_NAME\%|${ALL_BUILDS_SUBDIR_NAME}|" |\
-        ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
+        ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt \
             -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
 }
 
