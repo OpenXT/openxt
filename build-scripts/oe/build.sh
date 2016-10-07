@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (c) 2016 Assured Information Security, Inc.
 # Copyright (c) 2016 BAE Systems
 #
