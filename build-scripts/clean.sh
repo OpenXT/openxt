@@ -45,11 +45,16 @@ if [ "$IN_CONTAINER" = "y" ]; then
         exit 0
     fi
 
+    if [ -z "$C_CLEAN_ALL" ]; then
+        exit 0
+    fi
+
     BDLIST=`ls | grep -e "^[0-9]\{6\}-[0-9]\+$"`
-    for i in ${BDLIST[@]}; do
+    for i in $BDLIST; do
         echo "Cleaning up: $i"
         rm -rf $i
     done
+
     exit 0
 fi
 
@@ -60,7 +65,7 @@ CLEAN_ALL=""
 
 usage() {
     cat >&2 <<EOF
-usage: $0 [-h] [-n build]
+usage: $0 [-h] [-n build] [-A]
   -h: Help
   -n: Remove specified build
   -A: Clean all builds
@@ -118,7 +123,7 @@ clean_container() {
         sed -e "s|\%IN_CONTAINER\%|y|" \
             -e "s|\%C_BUILD_DIR%|${BUILD_DIR}|" \
             -e "s|\%C_CLEAN_ALL\%|${CLEAN_ALL}|" |\
-        ssh -t -t -i "${BUILD_USER_HOME}"/ssh-key/openxt \
+        ssh -i "${BUILD_USER_HOME}"/ssh-key/openxt \
             -oStrictHostKeyChecking=no ${CONTAINER_USER}@${CONTAINER_IP}
 }
 
@@ -134,7 +139,7 @@ if [ -n "$BUILD_DIR" ]; then
 fi
 
 BDLIST=`ls xt-builds | grep -e "^[0-9]\{6\}-[0-9]\+$"`
-for i in ${BDLIST[@]}; do
+for i in $BDLIST; do
     echo "Cleaning up: xt-builds/$i"
     rm -rf xt-builds/$i
 done
