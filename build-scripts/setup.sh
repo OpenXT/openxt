@@ -279,11 +279,14 @@ fi
 
 # Copy the main build scripts to the home directory of the user
 cp -f build.sh "${BUILD_USER_HOME}/"
+cp -f clean.sh "${BUILD_USER_HOME}/"
 cp -f fetch.sh "${BUILD_USER_HOME}/"
 cp -f ../version "${BUILD_USER_HOME}/"
 cp -f *.layer "${BUILD_USER_HOME}/"
 sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
 sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
+sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/clean.sh
+sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/clean.sh
 sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/fetch.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/fetch.sh
