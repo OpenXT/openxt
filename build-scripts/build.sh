@@ -105,6 +105,7 @@ done
 
 CONTAINER_USER=%CONTAINER_USER%
 SUBNET_PREFIX=%SUBNET_PREFIX%
+GIT_ROOT_PATH=%GIT_ROOT_PATH%
 BUILD_USER="$(whoami)"
 BUILD_USER_ID="$(id -u ${BUILD_USER})"
 BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
@@ -116,26 +117,56 @@ source version
 
 mkdir -p $ALL_BUILDS_DIRECTORY
 
-# If no ID was speficied, use the date. A new build directory will be created.
-# If an ID was specified, use it also for the build directory name.
-if [ -z $BUILD_ID ]; then
-    BUILD_ID=$(date +%y%m%d)
-else
-    BUILD_DIR=$BUILD_ID
-fi
+get_new_build_id() {
+    # * Aim for six-digit integer to suit format expectations of existing code.
+    # * There must not be an existing build directory with that number.
+    # * Incrementing the build number by one for each build is desirable.
+    # * Build systems sharing a git mirror should not duplicate build ids.
+    # * Bonus: a quick way to see which branch was used for a given build.
 
-# If no build number was specified, create a new one
-if [ -z $BUILD_DIR ] ; then
-    BUILD_DATE=$(date +%y%m%d)
-
-    cd ${ALL_BUILDS_DIRECTORY}
-    LAST_BUILD=0
-    if [[ -d "${BUILD_DATE}-1" ]]; then
-        LAST_BUILD=`ls -dvr ${BUILD_DATE}-* | head -1 | cut -d '-' -f 2`
-    fi
+    # Query for a build-specific branch in the local git mirror
+    cd "${GIT_ROOT_PATH}/${BUILD_USER}/openxt.git"
+    BUILD_ID=
+    until [ ! -e "${ALL_BUILDS_DIRECTORY}/${BUILD_ID}" ] ; do
+        PREV_BUILD_ID=$(git branch --all 2>/dev/null | \
+                        sed -ne 's/^\s*oxt-build--[^--]*--//p' | \
+                        sort -rn | head -1)
+        if [ ! -z "${PREV_BUILD_ID}" ] ; then
+            BUILD_ID=$((PREV_BUILD_ID + 1 ))
+        else
+            BUILD_ID=$(date +%y%m%d)
+        fi
+        git update-ref "refs/heads/oxt-build--${BRANCH:-master}--${BUILD_ID}" \
+                       "${BRANCH:-master}" "" 2>/dev/null || BUILD_ID=
+    done
     cd - >/dev/null
-    NEW_BUILD=$((LAST_BUILD + 1))
-    BUILD_DIR="${BUILD_DATE}-${NEW_BUILD}"
+}
+
+if [ -z "${BUILD_ID}" ] ; then
+    if [ -z "${BUILD_DIR}" ] ; then
+        get_new_build_id
+        BUILD_DIR="${BUILD_ID}"
+    else
+        if [ ! -z "$(echo "${BUILD_DIR}" | sed -ne '/^[0-9]\{6\}$/p')" ] ; then
+            BUILD_ID="${BUILD_DIR}"
+        else
+            get_new_build_id
+        fi
+    fi
+else
+    if [ -z "${BUILD_DIR}" ] ; then
+        if [ ! -d "${ALL_BUILDS_DIRECTORY}/$BUILD_ID" ] ; then
+            BUILD_DIR=$BUILD_ID
+        else
+            cd "${ALL_BUILDS_DIRECTORY}"
+            LAST_BUILD=0
+            if [[ -d "${BUILD_ID}-1" ]]; then
+                LAST_BUILD="$(ls -dvr "${BUILD_ID}"-* | head -1 | cut -d '-' -f 2)"
+            fi
+            cd - >/dev/null
+            BUILD_DIR="${BUILD_ID}-$((LAST_BUILD + 1))"
+        fi
+    fi
 fi
 
 BUILD_DIR_PATH="${ALL_BUILDS_DIRECTORY}/${BUILD_DIR}"
