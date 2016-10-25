@@ -49,7 +49,7 @@ if [ "$IN_CONTAINER" = "y" ]; then
         exit 0
     fi
 
-    BDLIST=`ls | grep -e "^[0-9]\{6\}-[0-9]\+$"`
+    BDLIST=`ls | grep -e "^[0-9]\{6\}\(-[0-9]\+\)\?$"`
     for i in $BDLIST; do
         echo "Cleaning up: $i"
         rm -rf $i
@@ -138,7 +138,7 @@ if [ -n "$BUILD_DIR" ]; then
     exit 0
 fi
 
-BDLIST=`ls xt-builds | grep -e "^[0-9]\{6\}-[0-9]\+$"`
+BDLIST=`ls xt-builds | grep -e "^[0-9]\{6\}\(-[0-9]\+\)\?$"`
 for i in $BDLIST; do
     echo "Cleaning up: xt-builds/$i"
     rm -rf xt-builds/$i
