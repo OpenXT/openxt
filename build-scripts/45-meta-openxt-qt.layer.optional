@@ -1,0 +1,20 @@
+# This is the metadata file for an optional OpenXT layer.
+# To enable this layer:
+# * Rename this file to remove the '.optional' suffix
+# * and rerun the setup.sh build script to install it in the build environment.
+
+openxt_layer_meta_openxt_qt_name="meta-openxt-qt"
+
+openxt_layer_meta_openxt_qt_repository="https://github.com/OpenXT/meta-openxt-qt.git"
+# Specify a revision here to freeze the repository
+# If not revision is specified, $BRANCH will be used
+#openxt_layer_meta_openxt_qt_revision="master"
+
+openxt_layer_meta_openxt_qt_images=(                                          \
+#Machine                Step                                Format          \
+# None: meta-openxt-qt inherits the existing images
+)
+
+# We *prepend* to openxt_layers, so the list will be sorted
+#   in priority order (01 is the highest priority)
+openxt_layers="meta_openxt_qt ${openxt_layers}"
