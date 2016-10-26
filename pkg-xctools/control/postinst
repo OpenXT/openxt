@@ -82,7 +82,7 @@ do
             # if [ "${UPDATERD}" == yes ]; then ...
 
             echo "${PACKAGE}-${VERSION} headers installing ..."
-            make install
+            make headers_install
             echo "${PACKAGE}-${VERSION} headers installed."
 
             modprobe openxt-v4v
