@@ -112,6 +112,8 @@ do_populate_sysroot_setscene[dirs] = "${WORKDIR}"
 do_make_scripts[dirs] = "${WORKDIR}"
 #do_repo_clean[dirs] = "${WORKDIR}"
 
+# overwrite kernel.org mirror to use cdn.kernel.org
+KERNELORG_MIRROR = "https://cdn.kernel.org/pub"
 
 # overwrite debian mirror for screen, as the debian version it's based on (lenny) is in oldstable now
 DEBIAN_MIRROR_pn-screen = "http://archive.debian.org/debian/pool"
