@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 usage() {
-    echo "usage: pr_merger.sh <token> <repo> <PR1> <PR2> [PR3 [PR4 [...]]]" >&2
+    echo "usage: pr_merger.sh <token> <repo> <PR1> [<PR2> [PR3 [PR4 [...]]]]" >&2
     echo "  where PRX is the pull request number" >&2
     exit $1
 }
 
-[ $# -lt 4 ] && usage 1
+[ $# -lt 3 ] && usage 1
 
 # Generate a token there: https://github.com/settings/tokens
 TOKEN="$1"
@@ -52,5 +52,5 @@ echo "BuildBot: github.com/${login}:${final}"
 
 cd - >/dev/null
 chmod -R +w ${TEMPDIR}
-rm -rfI ${TEMPDIR}
+rm -rf ${TEMPDIR}
 rm ${TEMPFILE}
