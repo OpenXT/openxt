@@ -23,8 +23,8 @@ META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
 
 # Use the lines below out to override checking out the branch matching the OE release
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
-OE_CORE_TAG=1f4bfa33073584c25396d74f3929f263f3df188b
-META_OE_TAG=8ab04afbffb4bc5184cfe0655049de6f44269990
+OE_CORE_TAG=d39e7ca717b67ad9f2f78b83d90d91e410e52965
+META_OE_TAG=2ea8d7f54a061e902657c4f8ea1f7f7c25c6c4e1
 META_JAVA_TAG=a73939323984fca1e919d3408d3301ccdbceac9c
 META_SELINUX_TAG=4c75d9cbcf1d75043c7c5ab315aa383d9b227510
 
