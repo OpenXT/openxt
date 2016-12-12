@@ -41,12 +41,11 @@ CERTS_PATH=`pwd`
 cd ..
 
 setupoe() {
-    source version
     cp build/conf/local.conf-dist build/conf/local.conf
-    cat common-config >> build/conf/local.conf
-    cat >> build/conf/local.conf <<EOF
-# Distribution feed
-XENCLIENT_PACKAGE_FEED_URI="file:///storage/ipk"
+    cat >> build/conf/site.conf <<EOF
+#
+# Build site specific configuration
+#
 
 SSTATE_DIR ?= "$BUILD_PATH/sstate-cache/$BRANCH"
 
@@ -60,12 +59,9 @@ OPENXT_GIT_PROTOCOL="git"
 OPENXT_BRANCH="$BRANCH"
 OPENXT_TAG="$BRANCH"
 
+# These two are the only vars that are build specific
 XENCLIENT_BUILD = "${BUILD_ID}"
-XENCLIENT_BUILD_DATE = "`date +'%T %D'`"
 XENCLIENT_BUILD_BRANCH = "${BRANCH}"
-XENCLIENT_VERSION = "$VERSION"
-XENCLIENT_RELEASE = "$RELEASE"
-XENCLIENT_TOOLS = "${XC_TOOLS_MAJOR}.${XC_TOOLS_MINOR}.${XC_TOOLS_MICRO}.${BUILD_ID}"
 
 # dir for generated deb packages
 XCT_DEB_PKGS_DIR := "${BUILD_PATH}/xct_deb_packages"
