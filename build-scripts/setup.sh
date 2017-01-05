@@ -304,7 +304,7 @@ setup_container() {
     local TEMPLATE_OPTIONS=$5 # --arch i386 --release squeeze
 
     # Skip setup if the container already exists
-    if [ `lxc-ls | grep ${BUILD_USER}-${NAME}` ]; then
+    if [ `lxc-ls | grep -w ${BUILD_USER}-${NAME}` ]; then
         echo "Container ${BUILD_USER}-${NAME} already exists, skipping."
         return
     fi
