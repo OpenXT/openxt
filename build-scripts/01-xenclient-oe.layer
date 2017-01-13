@@ -1,6 +1,7 @@
 openxt_layer_xenclient_oe_name="xenclient-oe"
 
-openxt_layer_xenclient_oe_repository="https://github.com/OpenXT/xenclient-oe.git"
+# Specify a URL here to avoid using the mirror
+#openxt_layer_xenclient_oe_repository="https://github.com/OpenXT/xenclient-oe.git"
 # Specify a revision here to freeze the repository
 # If not revision is specified, $BRANCH will be used
 #openxt_layer_xenclient_oe_revision="master"
