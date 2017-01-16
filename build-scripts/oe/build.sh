@@ -178,7 +178,11 @@ if [ ! -d openxt ] ; then
         name_var="openxt_layer_${layer}_name"
         repo_var="openxt_layer_${layer}_repository"
         rev_var="openxt_layer_${layer}_revision"
-        git clone ${!repo_var} build/repos/${!name_var}
+        if [ -z ${!repo_var} ]; then
+            git clone git://${HOST_IP}/${BUILD_USER}/${!name_var}.git build/repos/${!name_var}
+        else
+            git clone ${!repo_var} build/repos/${!name_var}
+        fi
         cd build/repos/${!name_var}
         if [ -z ${!rev_var} ]; then
             git checkout $BRANCH
