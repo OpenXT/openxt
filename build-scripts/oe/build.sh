@@ -138,6 +138,7 @@ build_image() {
 collect_packages() {
     # Build the extra packages
     MACHINE=xenclient-dom0 ./bb packagegroup-xenclient-extra | tee -a build.log
+    MACHINE=xenclient-dom0 ./bb package-index | tee -a build.log
 
     $RSYNC tmp-glibc/deploy/ipk ${TARGET}/packages
 }
