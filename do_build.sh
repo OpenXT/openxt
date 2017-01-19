@@ -107,10 +107,13 @@ EOF
 PREMIRRORS = "(ftp|https?)$://.*/.*/ ${OE_TARBALL_MIRROR}"
 EOF
                 fi
+                if [ -z "${XENCLIENT_PACKAGE_FEED_URI}" ]; then
+                    XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${BRANCH}/${NAME}/packages/ipk"
+                fi
                 cat >> conf/local.conf <<EOF
 
 # Distribution feed
-XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${BRANCH}/${NAME}/packages/ipk"
+XENCLIENT_PACKAGE_FEED_URI = "$XENCLIENT_PACKAGE_FEED_URI"
 
 # Local generated configuration for build $ID
 INHERIT += "$EXTRA_CLASSES"
