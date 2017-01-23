@@ -372,6 +372,11 @@ EOF
     mkdir -p "update"
     tar -C "repository" -cf "update/update.tar" packages.main
 
+    # Copy all the netboot files to the netboot directory and tar it up
+    cp installer/netboot/* netboot/
+    cp raw/installer-rootfs.i686.cpio.gz netboot/rootfs.gz
+    tar -C netboot -czf netboot.tar.gz .
+    mv netboot.tar.gz netboot/
 }
 
 [ -z $NO_OE ]      && build_container "01" "oe"
