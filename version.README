@@ -1,5 +1,0 @@
-You don't need to read this.
-
-Prior to XT 4.0.0, updates to the 'version' file in this repository required
-similar changes to be made in other repositories. This is no longer necessary,
-as everything now uses the information from the 'version' file.
