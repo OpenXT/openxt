@@ -47,10 +47,13 @@ cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
 cd all
 for tool in ../pv-linux-drivers/openxt-*; do
-    $SBUILD --dist=wheezy --arch-all $tool
+    # Debian wants all directories to include a version number
+    mv ${tool} ${tool}-1.0
+    $SBUILD --dist=wheezy --arch-all ${tool}-1.0
 done
-$SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v
-$SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v
+mv ../v4v/libv4v ../v4v/libv4v-1.0
+$SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v-1.0
+$SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v-1.0
 cd - >/dev/null
 mkdir wheezy
 cd wheezy
