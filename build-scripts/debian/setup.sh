@@ -29,7 +29,8 @@ passwd -d root
 # Install required packages
 PKGS=""
 PKGS="$PKGS openssh-server openssl git"
-PKGS="$PKGS schroot sbuild reprepro dh-make dkms pkg-config" # Debian package building deps
+# Debian package building deps
+PKGS="$PKGS schroot sbuild reprepro dh-make dkms pkg-config libfile-fcntllock-perl"
 apt-get update
 apt-get -y install $PKGS </dev/null
 
