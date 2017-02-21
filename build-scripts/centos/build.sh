@@ -61,7 +61,7 @@ KERNEL_VERSION=`ls /lib/modules | tail -1`
 rm -rf pv-linux-drivers
 git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
 
-# Build the tools
+# Build the dkms tools
 for i in `ls -d pv-linux-drivers/openxt-*`; do
     tool=`basename $i`
 
@@ -79,6 +79,18 @@ for i in `ls -d pv-linux-drivers/openxt-*`; do
     sudo dkms mkrpm -m ${tool} -v 1.0 -k ${KERNEL_VERSION}
     cp /var/lib/dkms/${tool}/1.0/rpm/* repo/RPMS
 done
+
+# Build the binary tools
+# Note: only building for 64 bits target. Building for 32 bits requires a chroot
+rm -rf repo/SOURCES/libv4v* libv4v-1.0
+mkdir -p repo/SOURCES libv4v-1.0
+git clone -b $BRANCH $GIT_MIRROR/v4v.git
+cp -ar v4v/libv4v/* libv4v-1.0
+cp -ar v4v/v4v/linux v4v/v4v/include/xen libv4v-1.0/src
+tar cjf repo/SOURCES/libv4v.tar.gz libv4v-1.0
+rpmbuild --target=x86_64 --noclean --define="_topdir `pwd`/repo" -bb -v v4v/libv4v/libv4v.spec
+# The following succeeds but actually builds 64 bits binaries...
+#setarch i686 rpmbuild --target=i686 --noclean --define="_topdir `pwd`" -bb -v v4v/libv4v/libv4v.spec
 
 # Build syncxt
 rm -rf openxt
