@@ -17,6 +17,6 @@ openxt_layer_xenclient_oe_images=(                                          \
 "xenclient-ndvm         xenclient-ndvm                      xc.ext3.vhd.gz" \
 )
 
-# We *prepend* to openxt_layers, so the list will be sorted
+# We append to openxt_layers, so the list will be sorted
 #   in priority order (01 is the highest priority)
-openxt_layers="xenclient_oe ${openxt_layers}"
+openxt_layers="${openxt_layers} xenclient_oe"

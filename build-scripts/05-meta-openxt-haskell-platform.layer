@@ -1,6 +1,7 @@
 openxt_layer_meta_openxt_haskell_platform_name="meta-openxt-haskell-platform"
 
-openxt_layer_meta_openxt_haskell_platform_repository="https://github.com/OpenXT/meta-openxt-haskell-platform.git"
+# Specify a URL here to avoid using the mirror
+#openxt_layer_meta_openxt_haskell_platform_repository="https://github.com/OpenXT/meta-openxt-haskell-platform.git"
 # Specify a revision here to freeze the repository
 # If not revision is specified, $BRANCH will be used
 #openxt_layer_meta_openxt_haskell_platform_revision="master"
@@ -10,6 +11,6 @@ openxt_layer_meta_openxt_haskell_platform_images=(                              
 #None
 )
 
-# We *prepend* to openxt_layers, so the list will be sorted
+# We append to openxt_layers, so the list will be sorted
 #   in priority order (01 is the highest priority)
-openxt_layers="meta_openxt_haskell_platform ${openxt_layers}"
+openxt_layers="${openxt_layers} meta_openxt_haskell_platform"
