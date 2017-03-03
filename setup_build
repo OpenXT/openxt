@@ -63,6 +63,11 @@ META_JAVA_TAG=5d528acac0eab6cfaa4ed3c290c7db3acd5047bf
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
 META_SELINUX_TAG=8e952c7da126d30f4aecb33abd3ef9252785cb40
 
+META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
+META_OPENXT_OCAML_PLATFORM_TAG=master
+
+META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell--platform.git
+META_OPENXT_HASKELL_PLATFORM_TAG=master
 # End of configuration
 
 die() {
@@ -113,6 +118,8 @@ if [ "$1" != "env" ]; then
   getgit $REPOS/meta-openembedded $META_OE_REPO $META_OE_TAG
   getgit $REPOS/meta-java $META_JAVA_REPO $META_JAVA_TAG
   getgit $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
+  getgit $REPOS/meta-openxt-ocaml-platform $META_OPENXT_OCAML_PLATFORM_REPO $META_OPENXT_OCAML_PLATFORM_TAG
+  getgit $REPOS/meta-openxt-haskell-platform $META_OPENXT_HASKELL_PLATFORM_REPO $META_OPENXT_HASKELL_PLATFORM_TAG
 fi
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then

@@ -21,6 +21,8 @@ META_OE_REPO=git://git.openembedded.org/meta-openembedded
 META_JAVA_REPO=git://git.yoctoproject.org/meta-java
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
 META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
+META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
+META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-platform.git
 
 # Use the lines below out to override checking out the branch matching the OE release
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
