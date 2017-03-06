@@ -66,11 +66,12 @@ do
             fi
         fi
 
-        do_dkms_stage add ${PACKAGE} ${VERSION}
-        do_dkms_stage build ${PACKAGE} ${VERSION}
-        do_dkms_stage install ${PACKAGE} ${VERSION}
-
-        echo "${PACKAGE}-${VERSION} installed."
+        dkms_status="$(do_dkms_stage status ${PACKAGE} ${VERSION})"
+        dkms_state="${dkms_status##*: }"
+        if [ "${dkms_state}" != "installed" ]; then
+            do_dkms_stage install ${PACKAGE} ${VERSION}
+            echo "${PACKAGE}-${VERSION} installed."
+        fi
 
         # Update initramfs/initrd and install header for v4v
         if [ "${PVD}" == v4v ]; then
