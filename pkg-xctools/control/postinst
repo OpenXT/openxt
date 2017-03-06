@@ -82,7 +82,7 @@ do
             # if [ "${UPDATERD}" == yes ]; then ...
 
             echo "${PACKAGE}-${VERSION} headers installing ..."
-            make install
+            make headers_install
             echo "${PACKAGE}-${VERSION} headers installed."
 
             modprobe openxt-v4v
@@ -102,6 +102,7 @@ PACKAGE=${NAME}
 SRCS=/usr/src/${PACKAGE}-xc
 pushd ${SRCS}
     echo "xenstore-tools building ..."
+    touch config/Tools.mk
     DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore libxenstore.so
     DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore clients
     ( cd tools/xenstore && cp -a libxenstore.so* "${LIBDIR}" )
@@ -132,7 +133,7 @@ if [ -n "$HAS_V4V" ]; then
         make install
 
         if [ "${DISTRO}" = rhel ] ; then
-            /sbin/ldconfig
+            ldconfig
         fi
 
         echo "${PACKAGE}-${VERSION} installed."
@@ -155,7 +156,7 @@ pushd ${SRCS}
     if [ "${DISTRO}" = rhel ] ; then
         # FIXME: Check priority on RHEL/CentOS. Needs to be after
         # xenstore-agent?
-        /sbin/chkconfig --add xblanker
+        chkconfig --add xblanker
     else
         update-rc.d xblanker start 76 S .
     fi
@@ -178,7 +179,7 @@ pushd ${SRCS}
     echo "${PACKAGE}-${VERSION} installed."
     if [ "${DISTRO}" = rhel ] ; then
         # FIXME: Check priority on RHEL/CentOS.
-        /sbin/chkconfig --add xenstore-agent
+        chkconfig --add xenstore-agent
     else
         update-rc.d xenstore-agent start 75 S .
     fi

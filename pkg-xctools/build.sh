@@ -72,7 +72,8 @@ make_bundle_xctools()
         tar xf xen.tar.gz
         cd "${XP}"
         touch config/Tools.mk
-        XEN_TARGET_ARCH=x86_64 make -C tools/include
+        PYTHON=python2 XEN_TARGET_ARCH=x86_64 make -C tools/include
+        rm tools/include/xen-foreign/structs.pyc
     popd
     pushd "${deb_data}/usr/src/"
     mkdir -p "t/tools"
@@ -120,6 +121,9 @@ xc-tools: copyright-without-copyright-notice
 xc-tools: no-copyright-file
 xc-tools: extra-license-file
 xc-tools: unknown-section
+xc-tools: debian-changelog-file-missing
+xc-tools: postinst-has-useless-call-to-ldconfig
+xc-tools: maintainer-script-ignores-errors
 !
         find ${deb_data} \( -name '*.a' -o -name '*.o' -o -name '*.so' -o -name '.*' -o -name '*~' \) -a -exec rm -rf {} \;
         pushd ${deb_data}
@@ -139,7 +143,6 @@ xc-tools: unknown-section
 
     if which lintian 2>/dev/null && ! lintian ${deb}; then
         echo Xenclient Linux tools package fails sanity check
-        rm ${deb}
     fi
     rm -rf ${deb_tmp}
 
