@@ -39,6 +39,9 @@ xc-switcher: copyright-without-copyright-notice
 xc-switcher: no-copyright-file
 xc-switcher: extra-license-file
 xc-switcher: unknown-section
+xc-switcher: debian-changelog-file-missing
+xc-switcher: no-copyright-file
+xc-switcher: maintainer-script-ignores-errors
 !
         find ${deb_data} \( -name '*.a' -o -name '*.o' -o -name '*.so' -o -name '.*' -o -name '*~' \) -a -exec rm -rf {} \;
         pushd ${deb_data}
@@ -59,7 +62,6 @@ xc-switcher: unknown-section
 
     if which lintian 2>/dev/null && ! lintian ${deb}; then
         echo Xenclient Linux switcher package fails sanity check
-        rm ${deb}
     fi
     rm -rf ${deb_tmp}
 

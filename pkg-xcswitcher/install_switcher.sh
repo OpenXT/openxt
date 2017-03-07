@@ -3,14 +3,11 @@
 
 INSTALLER_PATH=`dirname $0`
 
-if [ -r /etc/redhat-release ] ; then
-    DISTRO=rhel
-else
-    DISTRO=debian
-fi
-
 # Include utils
 . "${INSTALLER_PATH}/utilities.sh"
+
+# Detect distribution.
+detect_distro
 
 # Check for prerequisites
 prerequisite_check

@@ -69,7 +69,7 @@ Please install them using:
         # FIXME: dkms? (but not for switcher?)
 }
 
-# Install a package
+# Install a .deb.
 install_deb()
 {
 	local package="${1}"
@@ -77,8 +77,9 @@ install_deb()
 
 	set -e
         
+        # dpkg does no cascade removal on dependent packages, so force removal.
 	echo "removing previous ${package}"
-        dpkg --purge "${package}"
+	dpkg -l ${package} > /dev/null 2>&1 && dpkg --purge --force-depends ${package}
 
         echo "installing ${package}"
         gdebi --non-interactive $deb_path
