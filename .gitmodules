@@ -22,3 +22,7 @@
 	path = build/repos/meta-intel
 	url = git://git.yoctoproject.org/meta-intel
 	branch = jethro
+[submodule "build/repos/meta-virtualization"]
+	path = build/repos/meta-virtualization
+	url = git://git.yoctoproject.org/meta-virtualization
+	branch = jethro
