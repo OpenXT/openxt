@@ -37,55 +37,97 @@ warning()
         exit "${2:-1}"
 }
 
-# Detect Linux distro: rhel (for RHEL, CentOS) or debian (for Debian, Ubuntu)
+# Use /etc/os-release to fetch distribution information.
+# Rely on ID and VERSION_ID.
+# Some distributions do not define VERISON_ID (Arch).
 detect_distro()
 {
-        if [ -r /etc/redhat-release ] ; then
-                DISTRO=rhel
-        else
-                DISTRO=debian
+        if [ -e /etc/os-release ]; then
+                . /etc/os-release
+        elif [ ! -e /usr/lib/os-release ]; then
+                . /usr/lib/os-release
         fi
+
+        if [ -z "$ID" -o -z "$VERSION_ID" ]; then
+                warning "zould not detect distribution using /etc/os-release or /usr/lib/os-release."
+        fi
+        # Legacy env variable for this script.
+        DISTRO="$ID"
+        DISTRO_VERSION="$VERSION_ID"
 }
 
 # Check for prerequisites
 prerequisite_check()
 {
         # Check for root user
-        if [ "x$(id -u)" != "x0" ]; then
+        if [ "$(id -u)" != "0" ]; then
                 warning "This script must be run as root."
         fi
 
         # On Debian/Ubuntu, check if we have gdebi
-        if [ "$DISTRO" = debian ] ; then
-                if ! command -v gdebi >/dev/null 2>&1; then
-                        warning "\
+        case "${DISTRO}" in
+                "ubuntu"|"debian")
+                        if ! command -v gdebi >/dev/null 2>&1; then
+                                warning "\
 gdebi tools are required for this installation.
 Please install them using:
 
  $ sudo apt-get install gdebi-core"
-                fi
-        fi
-
-        # FIXME: dkms? (but not for switcher?)
+                        fi
+                        ;;
+                "centos")
+                        # CentOS does not package dkms by default.  dkms is in
+                        # EPEL repo which can be added through the epel-release
+                        # package. Make sure this is done.
+                        if [ -z "`rpm -qa dkms`" -a -z "`rpm -qa epel-release`" ]; then 
+                                if ! yum -y install epel-release; then
+                                        warning "\
+OpenXT tools require dkms which should be in EPEL repositories.
+Installing epel-release failed, please see:
+https://fedoraproject.org/wiki/EPEL
+to add EPEL repository and install dkms.
+"
+                                fi
+                        fi
+                        ;;
+                *) ;;
+        esac
 }
 
-# Install a .deb.
-install_deb()
+# Install a .deb with gdebi.
+gdebi_install()
 {
-	local package="${1}"
-	local deb_path="${2}"
+        local pkg="$1"
+        local pkg_name="$2"
 
-	set -e
-        
-        # dpkg does no cascade removal on dependent packages, so force removal.
-	echo "removing previous ${package}"
-	dpkg -l ${package} > /dev/null 2>&1 && dpkg --purge --force-depends ${package}
+        set -e
+        # Remove existing.
+	if dpkg -l "${pkg_name}" > /dev/null 2>&1; then
+                dpkg --purge --force-depends "${pkg_name}"
+        fi
+        gdebi --non-interactive "${pkg}"
+        if ! dpkg -s "${pkg_name}"; then
+                dpkg --purge ${pkg_name}
+                pretty_print "${pkg_name} installation failed."
+                return 1
+        fi
+}
 
-        echo "installing ${package}"
-        gdebi --non-interactive $deb_path
+# Install an rpm with yum.
+rpm_install()
+{
+        local pkg="$1"
+        local pkg_name="$2"
 
-        # check install succeeded, gdebi can exit 0 on failure
-        if ! dpkg -s "${package}" > /dev/null 2>&1; then
-                exit 1
+        set -e
+        # Remove existing.
+        if [ -n "`rpm -qa "${pkg_name}"`" ]; then 
+                yum -y erase "${pkg_name}"
+        fi
+        # Install xc-tools.
+        if ! yum -y install "${pkg}"; then
+                yum -y erase "${pkg_name}"
+                pretty_print "${pkg_name} installation failed."
+                return 1
         fi
 }

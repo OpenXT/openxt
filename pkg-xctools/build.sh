@@ -43,7 +43,7 @@ make_bundle_xctools()
 
     # libv4v
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/v4v.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://github.com/eric-ch/v4v.git" "stable-6-missing-fixes" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/libv4v ${deb_data}/usr/src/libv4v-1.0
     mkdir -p ${deb_data}/usr/src/libv4v-1.0/src/linux/ && cp git-tmp/v4v/linux/v4v_dev.h ${deb_data}/usr/src/libv4v-1.0/src/linux/
     rm -rf git-tmp
@@ -52,7 +52,7 @@ make_bundle_xctools()
     local PTMP_DIR="pv-linux-drivers"
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
-    git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://github.com/eric-ch/pv-linux-drivers.git" "stable-6-missing-fixes" "$ALLOW_SWITCH_BRANCH_FAIL"
     for pvd in "v4v" "xenmou" "vusb"
     do
         make_bundle_pv_drivers $pvd $PTMP_DIR $deb_data 

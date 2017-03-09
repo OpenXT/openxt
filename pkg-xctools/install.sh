@@ -15,21 +15,25 @@ prerequisite_check
 # Installer
 (
 	set -e
-
-        if [ "$DISTRO" = rhel ] ; then
-                [ -n "`rpm -qa xc-switcher`" ] && yum -y erase xc-switcher
-                [ -n "`rpm -qa xc-tools`" ] && yum -y erase xc-tools
-
-                # Install xc-tools.
-                yum -y install "${INSTALLER_PATH}"/xc-tools-*.rpm
-        else
-	        dpkg -l xc-switcher > /dev/null 2>&1 && dpkg --purge xc-switcher
-	        dpkg -l xc-tools > /dev/null 2>&1 && dpkg --purge xc-tools
-
-                # Install tools
-                install_deb "xc-tools" "${INSTALLER_PATH}/xenclient-linuxtools.deb"
-        fi
-        $INSTALLER_PATH/install_switcher.sh
+	# Install xc-tools
+	case "${DISTRO}" in
+		"ubuntu"|"debian")
+                        # Avoid "Failed to satisfy all dependencies (broken
+                        # cache)" by removing xc-switcher first in any case.
+	                if dpkg -l xc-switcher > /dev/null 2>&1; then
+                                dpkg --purge xc-switcher
+                        fi
+			gdebi_install "${INSTALLER_PATH}/xenclient-linuxtools.deb" xc-tools
+			;;
+		"centos"|"fedora")
+			rpm_install "${INSTALLER_PATH}"/xc-tools-*.rpm xc-tools
+			;;
+		*)
+			warning "Unsupported distribution: \`${DISTRO} ${DISTRO_VERSION}\'"
+			;;
+	esac
+	# Install xc-switcher from its standalone script.
+        ${INSTALLER_PATH}/install_switcher.sh
 )
 exit_code=$?
 
