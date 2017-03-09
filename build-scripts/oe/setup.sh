@@ -41,14 +41,24 @@ apt-get -y install $PKGS </dev/null || apt-get -y install $PKGS </dev/null
 # Download the GHC prerequisites from squeeze
 mkdir -p /tmp/ghc-prereq
 cd /tmp/ghc-prereq
+cat >sums <<EOF
+2da6978f6a86d2292b58080314f93f5f5fea3de0f5fcae7083105c8f2cf4f27fbb6521db230c66b3e51eb289d99f575b  libgmp3c2_4.3.2+dfsg-1_i386.deb
+8a4e137826251e97a39347b6dcf75ae817ac608a79c29a3984ec5d4f0facf0d999c4411f85beb288f813dc3ad756a020  libgmp3-dev_4.3.2+dfsg-1_i386.deb
+ed14f5864e26fe66aa683ade021d8d993168acd9561b70f06a87ff5e70668eab49efd9919892fa8e7dcc8df704eda811  libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb
+EOF
 wget http://archive.debian.org/debian/pool/main/g/gmp/libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb
 wget http://archive.debian.org/debian/pool/main/g/gmp/libgmp3c2_4.3.2+dfsg-1_i386.deb
 wget http://archive.debian.org/debian/pool/main/g/gmp/libgmp3-dev_4.3.2+dfsg-1_i386.deb
+sha384sum -c sums --quiet || exit 1
 dpkg -i libgmpxx4ldbl_4.3.2+dfsg-1_i386.deb libgmp3c2_4.3.2+dfsg-1_i386.deb libgmp3-dev_4.3.2+dfsg-1_i386.deb
 
 # Install the required version of GHC
 cd /tmp
+cat >sums <<EOF
+1cfdc92a0173b7d0aeea9e178a1990f37b9ef47d22cc463eb3d7f18c41595a0bcae9dfd26a55234291a9ae5cb4bef99a  ghc-6.12.3-i386-unknown-linux-n.tar.bz2
+EOF
 wget http://www.haskell.org/ghc/dist/6.12.3/ghc-6.12.3-i386-unknown-linux-n.tar.bz2
+sha384sum -c sums --quiet || exit 1
 tar jxf ghc-6.12.3-i386-unknown-linux-n.tar.bz2
 cd ghc-6.12.3
 ./configure --prefix=/usr
