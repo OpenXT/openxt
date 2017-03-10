@@ -112,8 +112,6 @@ IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 ALL_BUILDS_SUBDIR_NAME="xt-builds"
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
 
-source version
-
 mkdir -p $ALL_BUILDS_DIRECTORY
 
 # If no ID was speficied, use the date. A new build directory will be created.
@@ -160,6 +158,8 @@ if [ ! -e "${BUILD_DIR_PATH}/build-openxt" ] ; then
         "git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}/openxt.git" \
         "${BUILD_DIR_PATH}/build-openxt"
 fi
+
+source "${BUILD_DIR_PATH}/build-openxt/version"
 
 build_container() {
     NUMBER=$1           # 01
