@@ -104,7 +104,7 @@ EOF
             mkdir -p conf
         fi
 
-        if [ ! -f "conf/local.conf" ]; then
+        if [ ! -f "conf/local.conf" -o "conf/local.conf" -ot "conf/local.conf-dist" ]; then
                 cp conf/local.conf-dist conf/local.conf
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
