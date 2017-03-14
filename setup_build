@@ -68,6 +68,9 @@ META_OPENXT_OCAML_PLATFORM_TAG=master
 
 META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell--platform.git
 META_OPENXT_HASKELL_PLATFORM_TAG=master
+
+META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
+META_VIRTUALIZATION_TAG=jethro
 # End of configuration
 
 die() {
@@ -120,6 +123,7 @@ if [ "$1" != "env" ]; then
   getgit $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
   getgit $REPOS/meta-openxt-ocaml-platform $META_OPENXT_OCAML_PLATFORM_REPO $META_OPENXT_OCAML_PLATFORM_TAG
   getgit $REPOS/meta-openxt-haskell-platform $META_OPENXT_HASKELL_PLATFORM_REPO $META_OPENXT_HASKELL_PLATFORM_TAG
+  getgit $REPOS/meta-virtualization $META_VIRTUALIZATION_REPO $META_VIRTUALIZATION_TAG
 fi
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then

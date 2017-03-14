@@ -53,7 +53,7 @@ do_oe_setup()
 
         echo "*:$BRANCH" > "manifest"
 
-        for layer in meta-openxt-ocaml-platform meta-openxt-haskell-platform xenclient-oe; do
+        for layer in meta-openxt-ocaml-platform meta-openxt-haskell-platform meta-virtualization xenclient-oe; do
             if ! grep $layer conf/bblayers.conf >/dev/null; then
                 echo "BBLAYERS =+ \"\${TOPDIR}/repos/${layer}\"" >> conf/bblayers.conf
             fi
