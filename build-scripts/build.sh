@@ -112,8 +112,6 @@ IP_C=$(( 150 + ${BUILD_USER_ID} % 100 ))
 ALL_BUILDS_SUBDIR_NAME="xt-builds"
 ALL_BUILDS_DIRECTORY="${BUILD_USER_HOME}/${ALL_BUILDS_SUBDIR_NAME}"
 
-source version
-
 mkdir -p $ALL_BUILDS_DIRECTORY
 
 # If no ID was speficied, use the date. A new build directory will be created.
@@ -154,18 +152,22 @@ echo "Done"
 echo "Running build: ${BUILD_DIR}"
 mkdir -p "${BUILD_DIR_PATH}/raw"
 
+if [ ! -e "${BUILD_DIR_PATH}/build-openxt" ] ; then
+    echo "Retrieving the branch-specific build data and scripts"
+    git clone -b "${BRANCH}" \
+        "git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}/openxt.git" \
+        "${BUILD_DIR_PATH}/build-openxt"
+fi
+
+source "${BUILD_DIR_PATH}/build-openxt/version"
+
 build_container() {
     NUMBER=$1           # 01
     NAME=$2             # oe
 
     CONTAINER_IP="${SUBNET_PREFIX}.${IP_C}.1${NUMBER}"
 
-    if [ -d $NAME ]; then
-        echo "Building container $NUMBER : $NAME"
-    else
-        echo "Not building $NUMBER : $NAME"
-        return
-    fi
+    echo "Building container $NUMBER : $NAME"
 
     # Build
     # Note: we cat all the layers and the build script to the ssh command
@@ -173,7 +175,10 @@ build_container() {
     #   container using the ssh option "SendEnv".
     #   The way we do it here, the shell will for example turn tabulations into
     #   completion requests, which is not ideal...
-    cat *.layer $NAME/build.sh | \
+    # Note: the build script and layer data is obtained from the branch being built
+
+    cat "${BUILD_DIR_PATH}/build-openxt/build-scripts/"*.layer \
+        "${BUILD_DIR_PATH}/build-openxt/build-scripts/$NAME/build.sh" | \
         sed -e "s|\%BUILD_USER\%|${BUILD_USER}|" \
             -e "s|\%BUILD_DIR\%|${BUILD_DIR}|" \
             -e "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" \
@@ -191,17 +196,12 @@ build_windows() {
 
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
 
-    if [ -d windows ]; then
-        echo "Building the Windows tools"
-    else
-        echo "Not building the Windows tools"
-        return
-    fi
+    echo "Building the Windows tools"
 
     mkdir -p $DEST
 
     # Build
-    cd windows
+    cd "${BUILD_DIR_PATH}/build-openxt/build-scripts/windows"
     ./build.sh "$NUMBER" \
                "$BUILD_ID" \
                "$BRANCH" \
@@ -377,6 +377,9 @@ EOF
     cp raw/installer-rootfs.i686.cpio.gz netboot/rootfs.gz
     tar -C netboot -czf netboot.tar.gz .
     mv netboot.tar.gz netboot/
+
+    # Remove the branch build scripts
+    rm -rf build-openxt
 }
 
 [ -z $NO_OE ]      && build_container "01" "oe"

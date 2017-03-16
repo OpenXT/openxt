@@ -281,8 +281,6 @@ fi
 cp -f build.sh "${BUILD_USER_HOME}/"
 cp -f clean.sh "${BUILD_USER_HOME}/"
 cp -f fetch.sh "${BUILD_USER_HOME}/"
-cp -f ../version "${BUILD_USER_HOME}/"
-cp -f *.layer "${BUILD_USER_HOME}/"
 sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/build.sh
 sed -i "s|\%SUBNET_PREFIX\%|${SUBNET_PREFIX}|" ${BUILD_USER_HOME}/build.sh
 sed -i "s|\%CONTAINER_USER\%|${CONTAINER_USER}|" ${BUILD_USER_HOME}/clean.sh
@@ -291,8 +289,6 @@ sed -i "s|\%GIT_ROOT_PATH\%|${GIT_ROOT_PATH}|" ${BUILD_USER_HOME}/fetch.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/build.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/clean.sh
 chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/fetch.sh
-chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/version
-chown ${BUILD_USER}:${BUILD_USER} ${BUILD_USER_HOME}/*.layer
 
 LXC_PATH=`lxc-config lxc.lxcpath`
 
@@ -383,11 +379,6 @@ EOF
        ${ROOTFS}/home/${CONTAINER_USER}/certs
     chown -R ${cuid}:${cgid} ${ROOTFS}/home/${CONTAINER_USER}/certs
 
-    # Copy the build script for that container to the user home directory
-    mkdir -p "${BUILD_USER_HOME}"/${NAME}
-    cp ${NAME}/build.sh "${BUILD_USER_HOME}"/${NAME}/
-    chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/${NAME}
-
     # Copy resolv.conf over for networking, shouldn't be needed
     #cp /etc/resolv.conf ${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs/etc/resolv.conf
 
@@ -414,11 +405,6 @@ if [ -z $NO_WINDOWS ] && [ "x${WINDOWS_ISO_URL}" != "x" ]; then
                "${MAC_PREFIX}" "${MAC_E}" "${WINDOWS_ISO_URL}" \
                "${SUBNET_PREFIX}.${IP_C}"
     cd - > /dev/null
-    mkdir -p "${BUILD_USER_HOME}"/windows
-    cp windows/build.sh "${BUILD_USER_HOME}"/windows/
-    mkdir -p "${BUILD_USER_HOME}"/windows/xmls
-    cp windows/xmls/xmlbuild "${BUILD_USER_HOME}"/windows/xmls
-    chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/windows
 fi
 
 echo "Done! Now login as ${BUILD_USER} and run ~/build.sh to start a build."
