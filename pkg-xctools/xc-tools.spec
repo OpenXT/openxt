@@ -33,8 +33,9 @@ Source1: %{name}-centos.tar.gz
 BuildArch: noarch
 # TODO: Add BuildRequires when switching to building on CentOS
 Requires: autoconf automake dkms gcc libtool libpciaccess libpciaccess-devel
-Requires: libX11 libX11-devel make perl pm-utils
+Requires: libX11 libX11-devel make perl
 Requires: xorg-x11-server-devel
+Requires: kernel-devel
 
 %define desc RHEL/CentOS in-guest tools for Citrix XenClient XT.
 

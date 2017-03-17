@@ -3,24 +3,32 @@
 
 INSTALLER_PATH=`dirname $0`
 
-if [ -r /etc/redhat-release ] ; then
-    DISTRO=rhel
-else
-    DISTRO=debian
-fi
-
 # Include utils
 . "${INSTALLER_PATH}/utilities.sh"
+
+# Detect distribution.
+detect_distro
 
 # Check for prerequisites
 prerequisite_check
 
-# Install switcher
-if [ "${DISTRO}" = debian ] ; then
-    install_deb "xc-switcher" "${INSTALLER_PATH}/xenclient-switcher.deb"
-else
-    yum -y install "${INSTALLER_PATH}"/xc-switcher-*.rpm
-fi
+# Installer
+(
+	set -e
+
+	# Install xc-switcher
+	case "${DISTRO}" in
+		"ubuntu"|"debian")
+			gdebi_install "${INSTALLER_PATH}/xenclient-switcher.deb" xc-switcher
+			;;
+		"centos"|"fedora")
+			rpm_install "${INSTALLER_PATH}"/xc-switcher-*.rpm xc-switcher
+			;;
+		*)
+			warning "Unsupported distribution: \`${DISTRO} ${DISTRO_VERSION}\'"
+			;;
+	esac
+)
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then

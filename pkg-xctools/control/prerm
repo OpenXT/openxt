@@ -8,10 +8,12 @@ else
     DISTRO=debian
 fi
 
-xenstore-exists attr || xenstore-write "attr"
-xenstore-exists "attr/PVAddons" || xenstore-write "attr/PVAddons" ""
-xenstore-write "attr/PVAddons/Installed"  "0"
-xenstore-write "attr/PVAddonsUninstalled" "1"
+if [ -e "`which xenstore-write`" -a -e "`which xenstore-exists`" ]; then
+    xenstore-exists attr || xenstore-write "attr"
+    xenstore-exists "attr/PVAddons" || xenstore-write "attr/PVAddons" ""
+    xenstore-write "attr/PVAddons/Installed"  "0"
+    xenstore-write "attr/PVAddonsUninstalled" "1"
+fi
 
 RUN_ONCE_SH="/usr/src/xenstore-agent-1.0/run-one-time.sh"
 [ -f "${RUN_ONCE_SH}" ] && rm -f ${RUN_ONCE_SH}
@@ -29,12 +31,11 @@ do
     VERSION=1.0
     SRCS=/usr/src/${PACKAGE}-${VERSION}
 
-    if [ ! -d "$SRCS" ]; then
-        continue
+    dkms_status="$(dkms status -m openxt-$mod)"
+    dkms_state="${dkms_status##*: }"
+    if [ -n "${dkms_state}" ]; then
+        dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
     fi
-
-    dkms remove -m ${PACKAGE} -v ${VERSION} --all ${DKMS_RPM_SAFE}
-
 done
 
 
@@ -44,4 +45,3 @@ if [ "${DISTRO}" = rhel ] ; then
 fi
 
 exit 0
-

@@ -23,6 +23,7 @@ make_bundle_pv_drivers()
 # 2011-07-14: TODO: This should be considered as a temporary solution.
 # 2012-11-27: it definitely should have.
 # 2015-06-24: I would like to echo that last sentiment also.
+# 2017-03-06: ...
 make_bundle_xctools()
 {
     local path=`cd "$1"; pwd`
@@ -42,7 +43,7 @@ make_bundle_xctools()
 
     # libv4v
     mkdir -p git-tmp
-    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/v4v.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://github.com/eric-ch/v4v.git" "stable-6-missing-fixes" "$ALLOW_SWITCH_BRANCH_FAIL"
     cp -rT git-tmp/libv4v ${deb_data}/usr/src/libv4v-1.0
     mkdir -p ${deb_data}/usr/src/libv4v-1.0/src/linux/ && cp git-tmp/v4v/linux/v4v_dev.h ${deb_data}/usr/src/libv4v-1.0/src/linux/
     rm -rf git-tmp
@@ -51,7 +52,7 @@ make_bundle_xctools()
     local PTMP_DIR="pv-linux-drivers"
     rm -rf $PTMP_DIR
     mkdir -p $PTMP_DIR
-    git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/pv-linux-drivers.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
+    git_clone $PTMP_DIR "${OPENXT_GIT_PROTOCOL}://github.com/eric-ch/pv-linux-drivers.git" "stable-6-missing-fixes" "$ALLOW_SWITCH_BRANCH_FAIL"
     for pvd in "v4v" "xenmou" "vusb"
     do
         make_bundle_pv_drivers $pvd $PTMP_DIR $deb_data 
@@ -72,7 +73,8 @@ make_bundle_xctools()
         tar xf xen.tar.gz
         cd "${XP}"
         touch config/Tools.mk
-        XEN_TARGET_ARCH=x86_64 make -C tools/include
+        PYTHON=python2 XEN_TARGET_ARCH=x86_64 make -C tools/include
+        rm tools/include/xen-foreign/structs.pyc
     popd
     pushd "${deb_data}/usr/src/"
     mkdir -p "t/tools"
@@ -120,6 +122,9 @@ xc-tools: copyright-without-copyright-notice
 xc-tools: no-copyright-file
 xc-tools: extra-license-file
 xc-tools: unknown-section
+xc-tools: debian-changelog-file-missing
+xc-tools: postinst-has-useless-call-to-ldconfig
+xc-tools: maintainer-script-ignores-errors
 !
         find ${deb_data} \( -name '*.a' -o -name '*.o' -o -name '*.so' -o -name '.*' -o -name '*~' \) -a -exec rm -rf {} \;
         pushd ${deb_data}
@@ -139,7 +144,6 @@ xc-tools: unknown-section
 
     if which lintian 2>/dev/null && ! lintian ${deb}; then
         echo Xenclient Linux tools package fails sanity check
-        rm ${deb}
     fi
     rm -rf ${deb_tmp}
 
