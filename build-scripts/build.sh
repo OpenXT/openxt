@@ -39,6 +39,7 @@ BRANCH="master"
 BUILD_ID=
 
 BUILD_DIR=""
+CONTINUE=
 
 NO_OE=
 NO_DEBIAN=
@@ -84,6 +85,7 @@ while getopts "hi:j:b:n:ODCW" opt; do
             ;;
         n)
             BUILD_DIR="${OPTARG}"
+            CONTINUE=1
             ;;
         O)
             NO_OE=1
@@ -145,9 +147,11 @@ if ! mkdir -p "${BUILD_DIR_PATH}" ; then
     exit 1
 fi
 
-echo "Fetching git mirrors..."
-./fetch.sh > "${BUILD_DIR_PATH}/git_heads"
-echo "Done"
+if [ -z $CONTINUE ] ; then
+    echo "Fetching git mirrors..."
+    ./fetch.sh > "${BUILD_DIR_PATH}/git_heads"
+    echo "Done"
+fi
 
 echo "Running build: ${BUILD_DIR}"
 mkdir -p "${BUILD_DIR_PATH}/raw"
