@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+cd `dirname $0`
+
 DKMS_PACKAGES="openxt-v4v openxt-vusb openxt-xenmou"
 OTHER_PACKAGES="libv4v"
 

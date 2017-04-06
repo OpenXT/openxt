@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+cd `dirname $0`
+
 DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version`
 DEBIAN_NAME=
 DKMS_PACKAGES="openxt-v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
