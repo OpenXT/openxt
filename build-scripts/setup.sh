@@ -273,7 +273,17 @@ if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
         git clone --quiet --mirror https://github.com/OpenXT/${repo}.git
     done
     echo "Done"
+    echo "Mirroring the upstream layer repositories..."
+    TMP_CLONE_DIR=$(mktemp -d /tmp/setup-openxt.XXXXX)
+    ( cd ${TMP_CLONE_DIR} ;
+      git clone --quiet file://${GIT_ROOT_PATH}/${BUILD_USER}/openxt.git )
+    for repo_url in $(sed -ne 's/^\W*url = //p' <${TMP_CLONE_DIR}/openxt/.gitmodules)
+    do
+        git clone --quiet --mirror ${repo_url}
+    done
     cd - > /dev/null
+    rm -rf ${TMP_CLONE_DIR}
+    echo "Done"
     chown -R ${BUILD_USER}:${BUILD_USER} ${GIT_ROOT_PATH}/${BUILD_USER}
 fi
 
