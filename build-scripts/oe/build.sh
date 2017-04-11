@@ -142,16 +142,16 @@ build_extra_packages() {
 
 stash_core2_packages() {
     collection=$1
-    $RSYNC -rt tmp-glibc/deploy/ipk/core2-32/ \
+    $RSYNC -rt --link-dest=`pwd`/tmp-glibc/deploy/ipk/core2-32 \
+               tmp-glibc/deploy/ipk/core2-32/ \
                tmp-glibc/deploy/ipk/core2-32.$collection/
 }
 
 dedupe_core2_packages() {
     for pkgdir in tmp-glibc/deploy/ipk/core2-32.* ; do
+        [ "$(ls ${pkgdir} | wc -l)" != "0" ] || continue
         for pkg in ${pkgdir}/* ; do
-            if diff -q $pkg tmp-glibc/deploy/ipk/core2-32/ ; then
-                rm $pkg
-            fi
+            [ "$(stat -c '%h' $pkg)" == "1" ] || rm $pkg
         done
     done
 }
