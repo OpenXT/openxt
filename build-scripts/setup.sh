@@ -274,10 +274,12 @@ if [ ! -d ${GIT_ROOT_PATH}/${BUILD_USER} ]; then
     done
     echo "Done"
     echo "Mirroring the upstream layer repositories..."
+    # Obtain the URLs of the submodule repositories from a temporary clone of openxt.git
     TMP_CLONE_DIR=$(mktemp -d /tmp/setup-openxt.XXXXX)
-    ( cd ${TMP_CLONE_DIR} ;
-      git clone --quiet file://${GIT_ROOT_PATH}/${BUILD_USER}/openxt.git )
-    for repo_url in $(sed -ne 's/^\W*url = //p' <${TMP_CLONE_DIR}/openxt/.gitmodules)
+    git clone --depth 1 --quiet file://${GIT_ROOT_PATH}/${BUILD_USER}/openxt.git \
+        "${TMP_CLONE_DIR}/openxt"
+    for repo_url in \
+        $(git config -f "${TMP_CLONE_DIR}/openxt/.gitmodules" --get-regexp url | cut -f2 -d' ')
     do
         git clone --quiet --mirror ${repo_url}
     done

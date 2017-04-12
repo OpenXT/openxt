@@ -172,15 +172,14 @@ if [ ! -d openxt ] ; then
 
     # Initialise the submodules from the local git mirror by updating .git/config
     # If there is a copy of the submodule in the local git mirror, use it.
-    for SUBMODULE in $(git submodule status | cut -f2 -d' ')
+    for SUBMODULE in $(git config -f .gitmodules --get-regexp path | cut -f2 -d' ')
     do
-        REPONAME=$(echo $SUBMODULE | sed 's/.*\///')
-        # Detect presence in the mirror with git's ls-remote command:
-        if git ls-remote git://${HOST_IP}/${BUILD_USER}/${REPONAME} \
-            >/dev/null 2>/dev/null ;
+        REPONAME=${SUBMODULE##*/}
+        MIRROR_URL="git://${HOST_IP}/${BUILD_USER}/${REPONAME}"
+        # Detect presence of a mirror repo by using git's ls-remote command:
+        if git ls-remote "${MIRROR_URL}" >/dev/null 2>/dev/null
         then
-            sed -e 's/\(^\W*url\W\?=\W\?git:\/\/\).*\(\/'"${REPONAME}"'\(.git\)\?\)$/\1'"${HOST_IP}"'\/'"${BUILD_USER}"'\2/' \
-                -i .git/config
+            git config -f .git/config --replace-all submodule."${SUBMODULE}".url "${MIRROR_URL}"
         fi
     done
 
