@@ -30,7 +30,7 @@ passwd -d root
 PKGS=""
 PKGS="$PKGS openssh-server openssl git"
 # Debian package building deps
-PKGS="$PKGS schroot sbuild reprepro dh-make dkms pkg-config libfile-fcntllock-perl"
+PKGS="$PKGS schroot sbuild reprepro dh-make dkms pkg-config libfile-fcntllock-perl dh-autoreconf"
 apt-get update
 apt-get -y install $PKGS </dev/null
 
@@ -41,7 +41,7 @@ ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-debian -f /home/${CONTAINER_
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 
 # Setup sbuild
-INCLUDE="build-essential,dh-make,dkms" # Packages needed by chroots to build stuffs
+INCLUDE="build-essential,dh-make,dkms,dh-autoreconf" # Packages needed by chroots to build stuffs
 mkdir /root/.gnupg
 sbuild-createchroot wheezy /home/chroots/wheezy-i386  $MIRROR --arch=i386  --include=$INCLUDE
 sbuild-createchroot wheezy /home/chroots/wheezy-amd64 $MIRROR --arch=amd64 --include=$INCLUDE
