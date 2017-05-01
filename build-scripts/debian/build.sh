@@ -33,6 +33,10 @@ GIT_MIRROR=git://${SUBNET_PREFIX}.${IP_C}.1/${BUILD_USER}
 SBUILD="sbuild --purge-deps=never"
 
 # Build
+# Note: sbuild doesn't like to build something that's already built.
+#   If the build directory already exist, we don't know what its state is.
+#   Remove and re-create it, to rebuild everything, it doesn't take that long...
+rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 cd $BUILD_DIR
 git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
@@ -43,12 +47,13 @@ cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
 cd all
 for tool in ../pv-linux-drivers/openxt-*; do
-    $SBUILD --dist=wheezy --arch-all $tool
+    # Debian wants all directories to include a version number
+    mv ${tool} ${tool}-1.0
+    $SBUILD --dist=wheezy --arch-all ${tool}-1.0
 done
-$SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v
-$SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v
-$SBUILD --dist=wheezy --arch=i386  ../xctools/xc-switcher
-$SBUILD --dist=wheezy --arch=amd64 ../xctools/xc-switcher
+mv ../v4v/libv4v ../v4v/libv4v-1.0
+$SBUILD --dist=wheezy --arch=i386  ../v4v/libv4v-1.0
+$SBUILD --dist=wheezy --arch=amd64 ../v4v/libv4v-1.0
 cd - >/dev/null
 mkdir wheezy
 cd wheezy
