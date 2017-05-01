@@ -1,8 +1,8 @@
 # Identifier for this version of OpenXT
-RELEASE="7.0.0"
+RELEASE="8.0.0"
 
 # Marketing-friendly name for this version of OpenXT
-VERSION="7.0.0"
+VERSION="8.0.0"
 
 ##########
 # NOTE: IMPORTANT - XenClient tools versioning
@@ -12,9 +12,9 @@ VERSION="7.0.0"
 ##########
 
  # Seriously now, the bit above was very important...
-XC_TOOLS_MAJOR="17"
+XC_TOOLS_MAJOR="18"
 XC_TOOLS_MINOR="0"
 XC_TOOLS_MICRO="0"
 
 # Space-separated list of previous releases that can be upgraded from
-UPGRADEABLE_RELEASES="6.0.0 6.0.*"
+UPGRADEABLE_RELEASES="7.0.*"
