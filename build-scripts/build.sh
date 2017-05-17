@@ -217,6 +217,7 @@ build_windows() {
 
 build_tools_iso() {
     WORKDIR="${ALL_BUILDS_DIRECTORY}/${BUILD_DIR}"
+    BUILD_SCRIPTS="${BUILD_DIR_PATH}/build-openxt/build-scripts"
 
     cd $WORKDIR
     mkdir -p raw
@@ -227,9 +228,15 @@ build_tools_iso() {
     fi
     if [ -d debian ]; then
 	ln -s ../../debian iso_tmp/linux/debian
+	if [ -f ${BUILD_SCRIPTS}/debian/install.sh ]; then
+	    cp ${BUILD_SCRIPTS}/debian/install.sh iso_tmp/linux/debian_install.sh
+	fi
     fi
     if [ -d rpms ]; then
 	ln -s ../../rpms iso_tmp/linux/rpms
+	if [ -f ${BUILD_SCRIPTS}/centos/install.sh ]; then
+	    cp ${BUILD_SCRIPTS}/centos/install.sh iso_tmp/linux/centos_install.sh
+	fi
     fi
     echo "Creating xc-tools.iso..."
     genisoimage -o "raw/xc-tools.iso" \
