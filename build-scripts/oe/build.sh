@@ -135,11 +135,28 @@ build_image() {
     fi
 }
 
-collect_packages() {
-    # Build the extra packages
+build_extra_packages() {
     MACHINE=xenclient-dom0 ./bb packagegroup-xenclient-extra | tee -a build.log
     MACHINE=xenclient-dom0 ./bb package-index | tee -a build.log
+}
 
+stash_core2_packages() {
+    collection=$1
+    $RSYNC -rt --link-dest=`pwd`/tmp-glibc/deploy/ipk/core2-32 \
+               tmp-glibc/deploy/ipk/core2-32/ \
+               tmp-glibc/deploy/ipk/core2-32.$collection/
+}
+
+dedupe_core2_packages() {
+    for pkgdir in tmp-glibc/deploy/ipk/core2-32.* ; do
+        [ "$(ls ${pkgdir} | wc -l)" != "0" ] || continue
+        for pkg in ${pkgdir}/* ; do
+            [ "$(stat -c '%h' $pkg)" == "1" ] || rm $pkg
+        done
+    done
+}
+
+collect_packages() {
     $RSYNC tmp-glibc/deploy/ipk ${TARGET}/packages
 }
 
@@ -215,9 +232,12 @@ for layer in $openxt_layers; do
         format=`echo $image | awk '{print $3}'`
         echo "Building $step for $machine in $format"
         build_image $machine $step $format
+        stash_core2_packages $machine
     done
 done
 
+build_extra_packages
+dedupe_core2_packages
 collect_packages
 collect_logs
 
