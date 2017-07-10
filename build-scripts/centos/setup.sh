@@ -52,7 +52,7 @@ sed -i 's/^Defaults    requiretty$/Defaults    !requiretty/' /etc/sudoers
 # Add a build user
 adduser ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
-ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-centos -f /home/${CONTAINER_USER}/.ssh/id_dsa
+ssh-keygen -N "" -t rsa -C ${CONTAINER_USER}@openxt-centos -f /home/${CONTAINER_USER}/.ssh/id_rsa
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 
 # Make the user a passwordless sudoer, as dkms unfortunately needs to run as root
