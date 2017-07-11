@@ -78,7 +78,7 @@ chmod +x /bin/uname
 # Add a build user
 adduser --disabled-password --gecos "" ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
-ssh-keygen -N "" -t dsa -C ${CONTAINER_USER}@openxt-oe -f /home/${CONTAINER_USER}/.ssh/id_dsa
+ssh-keygen -N "" -t rsa -C ${CONTAINER_USER}@openxt-oe -f /home/${CONTAINER_USER}/.ssh/id_rsa
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 echo "export MACHINE=xenclient-dom0" >> /home/${CONTAINER_USER}/.bashrc
 chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bashrc

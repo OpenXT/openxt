@@ -152,20 +152,32 @@ if [ "x${UID}" != "x0" ] ; then
     exit 2
 fi
 
+if [ ! -f /etc/debian_version ]; then
+    echo "Sorry, this script only works on Debian for now.">&2
+    exit 4
+fi
+
 # Ensure that all required packages are installed on this host.
 # When installing packages, do all at once to be faster.
-PKGS="lxc"
-PKGS="$PKGS bridge-utils libvirt-bin curl jq git genisoimage syslinux-utils"
-PKGS="$PKGS openssl unzip rsync ebtables dnsmasq"
-PKGS="$PKGS haveged" # seeds entropy
-PKGS="$PKGS debootstrap" # Debian container
-PKGS="$PKGS librpm3 librpmbuild3 librpmio3 librpmsign1 libsqlite0 python-rpm \
-python-sqlite python-sqlitecachec python-support python-urlgrabber rpm \
+DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoimage git"
+DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq"
+DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
+DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
+DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 librpmsign3 libsqlite0 python-rpm \
+python-sqlite python-sqlitecachec python-urlgrabber rpm \
 rpm-common rpm2cpio yum" # Centos container
+
+# Version-specific Debian packages
+DEB_VERS=`cut -d '.' -f 1 /etc/debian_version`
+if [ $DEB_VERS -ge 9 ]; then   # Debian Stretch and later
+    DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3"
+else                           # Debian Jessie and earlier
+    DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support"
+fi
 
 apt-get update
 # That's a lot of packages, a fetching failure can happen, try twice.
-apt-get install $PKGS || apt-get install $PKGS
+apt-get install $DEB_PKGS || apt-get install $DEB_PKGS
 
 # Ensure that the build user exists on the host
 if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then
@@ -205,7 +217,7 @@ fi
 # Create an SSH key for the user, to communicate with the containers
 if [ ! -d "${BUILD_USER_HOME}"/ssh-key ]; then
     mkdir "${BUILD_USER_HOME}"/ssh-key
-    ssh-keygen -N "" -t dsa -f "${BUILD_USER_HOME}"/ssh-key/openxt
+    ssh-keygen -N "" -t rsa -f "${BUILD_USER_HOME}"/ssh-key/openxt
     chown -R ${BUILD_USER}:${BUILD_USER} "${BUILD_USER_HOME}"/ssh-key
 fi
 
@@ -234,6 +246,7 @@ fi
 
 # Setup LXC networking on the host, to give known IPs to the containers
 if [ ! -f /etc/libvirt/qemu/networks/${BUILD_USER}.xml ]; then
+    mkdir -p /etc/libvirt/qemu/networks
     cat > /etc/libvirt/qemu/networks/${BUILD_USER}.xml <<EOF
 <network>
   <name>${BUILD_USER}</name>
@@ -358,7 +371,7 @@ EOF
     chown ${cuid}:${cgid} ${ROOTFS}/home/${CONTAINER_USER}/.ssh/authorized_keys
 
     # Allow the container to SSH to the host
-    cat ${ROOTFS}/home/${CONTAINER_USER}/.ssh/id_dsa.pub \
+    cat ${ROOTFS}/home/${CONTAINER_USER}/.ssh/id_rsa.pub \
         >> "${BUILD_USER_HOME}"/.ssh/authorized_keys
 
     ssh-keyscan -H ${SUBNET_PREFIX}.${IP_C}.1 \
