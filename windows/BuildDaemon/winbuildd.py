@@ -111,7 +111,7 @@ class RPCInterface(object):
             runCommand(command)
 
             logging.info("Building Windows bits...")
-            command = 'powershell .\winbuild-prepare.ps1 config=' + config + ' build=' + build + ' branch=' + branch + ' certname=' + certname + ' developer=' + developer
+            command = 'powershell .\winbuild-prepare.ps1 config=' + config + ' build=' + build + ' giturl=' + giturl + ' branch=' + branch + ' certname=' + certname + ' developer=' + developer
             runCommand(command)
             command = 'powershell .\winbuild-all.ps1'
             runCommand(command)
