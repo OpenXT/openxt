@@ -22,6 +22,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+BRANCH=master
+[ $# -gt 1 ] && exit 1
+[ $# -eq 1 ] && BRANCH=$1
+
 GIT_ROOT_PATH=%GIT_ROOT_PATH%
 BUILD_USER="$(whoami)"
 
@@ -30,7 +34,7 @@ for i in ${GIT_ROOT_PATH}/${BUILD_USER}/*.git; do
     echo -n "Fetching `basename $i`: "
     cd $i
     git fetch --all > /dev/null 2>&1
-    git log -1 --pretty='tformat:%H'
+    git show-ref -s $BRANCH
     cd - > /dev/null
 done | tee /tmp/git_heads_$BUILD_USER
 
