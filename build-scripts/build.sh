@@ -149,7 +149,7 @@ fi
 
 if [ -z $CONTINUE ] ; then
     echo "Fetching git mirrors..."
-    ./fetch.sh > "${BUILD_DIR_PATH}/git_heads"
+    ./fetch.sh $BRANCH > "${BUILD_DIR_PATH}/git_heads"
     echo "Done"
 fi
 
