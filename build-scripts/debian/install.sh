@@ -1,32 +1,18 @@
 #!/bin/sh
+# This script installs the Debian tools into Debian-based guests.
+# Tested on Debian Wheezy, Debian Jessie and Ubuntu 16.04.
 
 set -e
 
 cd `dirname $0`
 
 VERSION=%VERSION%
-DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version`
-DEBIAN_NAME=
 DKMS_PACKAGES="openxt-v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
 OTHER_PACKAGES="libv4v"
 
-case $DEBIAN_VERSION in
-    7 )
-        DEBIAN_NAME=wheezy
-        ;;
-    8 )
-        DEBIAN_NAME=jessie
-        ;;
-    9 )
-        DEBIAN_NAME=stretch
-        echo "Debian Stretch not supported yet, exiting."
-        exit 1
-        ;;
-    * )
-        echo "Unable to figure out the Debian version, exiting."
-        exit 1
-        ;;
-esac
+DEBIAN_NAME=jessie
+DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null`
+[ "x$DEBIAN_VERSION" = "x7" ] && DEBIAN_NAME=wheezy
 
 echo "Removing old tools..."
 # Kernel modules
