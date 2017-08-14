@@ -69,12 +69,6 @@ echo "dash dash/sh boolean false" > /tmp/preseed.txt
 debconf-set-selections /tmp/preseed.txt
 dpkg-reconfigure -f noninteractive dash
 
-# Hack: Make uname report a 32bits kernel
-mv /bin/uname /bin/uname.real
-echo '#!/bin/bash' > /bin/uname
-echo '/bin/uname.real $@ | sed "s/amd64/i686/g" | sed "s/x86_64/i686/g"' >> /bin/uname
-chmod +x /bin/uname
-
 # Add a build user
 adduser --disabled-password --gecos "" ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
