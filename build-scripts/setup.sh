@@ -163,7 +163,7 @@ DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoi
 DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq"
 DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
 DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
-DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 librpmsign3 libsqlite0 python-rpm \
+DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-urlgrabber rpm \
 rpm-common rpm2cpio yum" # Centos container
 
