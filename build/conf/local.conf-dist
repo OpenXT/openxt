@@ -31,7 +31,7 @@ OCAML_FINDLIB_CONF = "${STAGING_DIR_HOST}${sysconfdir}/findlib.conf"
 # 100M - safe default, overwrite in the recipe
 VHD_MAX_SIZE = "100"
 IMAGE_CMD_ext3.vhd = "install -d ${DEPLOY_DIR_IMAGE}/tmp.vhd ; genext2fs -b ${ROOTFS_SIZE} -d ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${EXTRA_IMAGECMD}; tune2fs -j ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; vhd convert ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${VHD_MAX_SIZE}; rm -f ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; mv ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext3.vhd"
-IMAGE_DEPENDS_ext3.vhd = "hs-vhd-native genext2fs-native e2fsprogs-native"
+IMAGE_DEPENDS_ext3.vhd = "hkg-vhd-native genext2fs-native e2fsprogs-native"
 
 # raw image - simply copy rootfs tree to deploy directory
 IMAGE_CMD_raw = "cp -a ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.raw"
@@ -62,7 +62,7 @@ IMAGE_CMD_xc.ext3.vhd = "( set -x; \
 	e2fsck -f -y $I0 || true ; \
 	vhd convert $I0 $I ${TGT_VHD_SIZE} ; \
 	rm -f $I0  )"
-IMAGE_DEPENDS_xc.ext3.vhd = "hs-vhd-native e2fsprogs-native"
+IMAGE_DEPENDS_xc.ext3.vhd = "hkg-vhd-native e2fsprogs-native"
 
 # Build source packages if XENCLIENT_BUILD_SRC_PACKAGES is set to 1.
 INHERIT += "xenclient-src-package"
