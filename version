@@ -17,4 +17,4 @@ XC_TOOLS_MINOR="0"
 XC_TOOLS_MICRO="0"
 
 # Space-separated list of previous releases that can be upgraded from
-UPGRADEABLE_RELEASES="6.0.1"
+UPGRADEABLE_RELEASES="6.0.1 6.1.0"
