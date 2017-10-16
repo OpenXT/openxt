@@ -72,8 +72,11 @@ make_bundle_xctools()
     pushd $PDST_DIR
         tar xf xen.tar.gz
         cd "${XP}"
+        # Should be
+        #   ./configure --disable-docs --disable-tools --disable-stubdom
+        # to populate the Tools.mk from configuration.
         touch config/Tools.mk
-        PYTHON=python2 XEN_TARGET_ARCH=x86_64 make -C tools/include
+        PYTHON=python2 AWK=awk XEN_TARGET_ARCH=x86_64 make -C tools/include
         rm tools/include/xen-foreign/structs.pyc
     popd
     pushd "${deb_data}/usr/src/"
