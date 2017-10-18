@@ -180,7 +180,7 @@ apt-get update
 apt-get install $DEB_PKGS || apt-get install $DEB_PKGS
 
 # Ensure that the build user exists on the host
-if [ ! `cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$"` ]; then
+if ! cut -d ":" -f 1 /etc/passwd | grep "^${BUILD_USER}$" > /dev/null; then
     echo "Creating ${BUILD_USER} user for building, please choose a password."
     adduser --gecos "" ${BUILD_USER}
     BUILD_USER_HOME="$(eval echo ~${BUILD_USER})"
@@ -313,7 +313,7 @@ setup_container() {
     local TEMPLATE_OPTIONS=$5 # --arch i386 --release squeeze
 
     # Skip setup if the container already exists
-    if [ `lxc-ls | grep -w ${BUILD_USER}-${NAME}` ]; then
+    if lxc-ls | grep -w ${BUILD_USER}-${NAME} > /dev/null; then
         echo "Container ${BUILD_USER}-${NAME} already exists, skipping."
         return
     fi
