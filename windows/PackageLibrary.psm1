@@ -61,6 +61,7 @@ $wixUrl      = "http://wix.codeplex.com/downloads/get/762937"
 $capicomUrl  = "http://download.microsoft.com/download/7/7/0/7708ec16-a770-4777-8b85-0fcd05f5ba60/capicom_dc_sdk.msi"
 $vs2012u4Url = "http://download.microsoft.com/download/D/4/8/D48D1AC2-A297-4C9E-A9D0-A218E6609F06/VSU4/VS2012.4.exe"
 $pythonUrl   = "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi"
+$python64Url = "https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
 
 # Temp folder. For convenience only, do not change this value.
 $tmp = $env:temp + "\"
@@ -445,6 +446,11 @@ function Test-Python {
 
 function Install-Python {
   $python = $tmp + $pythonInstaller
-  PerformDownload "$pythonUrl" $pythonInstaller
+  $arch = ([System.Environment]::GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"))
+  if ($arch -eq "AMD64") {
+    PerformDownload "$python64Url" $pythonInstaller
+  } else {
+    PerformDownload "$pythonUrl" $pythonInstaller
+  }
   Invoke-CommandChecked msiexec.exe /i $python /qn
 }
