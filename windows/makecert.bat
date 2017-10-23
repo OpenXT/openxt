@@ -1,9 +1,10 @@
 @ECHO OFF
 if [%1]==[] goto usage
 
+if exist %1.pfx goto exists
+
 if exist %1.pvk del %1.pvk
 if exist %1.cer del %1.cer
-if exist %1.pfx del %1.pfx
 
 if defined ProgramFiles(x86) (
     set PROGRAMPATH="%ProgramFiles(x86)%"
@@ -26,3 +27,6 @@ certutil -f -user -importpfx %1.pfx
 goto :eof
 :usage
 echo Must set certificate name
+goto :eof
+:exists
+echo %1.pfx already exists

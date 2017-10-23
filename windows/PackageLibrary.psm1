@@ -416,10 +416,6 @@ function Install-CAPICOM {
 }
 
 function Test-VS2012U4 {
-  $reg = ((Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue) | where {$_.DisplayName -like '*Visual Studio 2012 update 4*'})
-  if ($reg.Installed -ne 1) {
-    return $false
-  }
   if ($arch -eq "AMD64") {
     $regPath = "HKLM:\Software\Wow6432Node\Microsoft\DevDiv\vc\Servicing\11.0\CompilerCore"
   } else {
