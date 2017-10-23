@@ -72,7 +72,7 @@ if [ -e ${disk_pool}/disk ]; then
     exit
 fi
 
-[ -e win.iso ]   || wget -O win.iso $ISO_URL
+[ -e win.iso ]   || wget -O win.iso $ISO_URL || rm -f win.iso
 [ -e tools.iso ] || wget -O tools.iso 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso'
 
 apt-get install qemu-kvm virtinst
@@ -125,7 +125,7 @@ cat <<EOF
 - Install all the critical upgrades from Windows update
 
 - Follow the wiki instructions to install the packages needed for building the OpenXT tools:
-  https://openxt.atlassian.net/wiki/display/OD/How+to+build+OpenXT#HowtobuildOpenXT-Windowsbuildmachinesetup
+  https://openxt.atlassian.net/wiki/spaces/OD/pages/21397507/Building+-+Version+6+and+Later#Building-Version6andLater-SettinguptheWindowsVMwinsetup
   and install the guest RPC tool
 OR
 - Disable UAC, Set-ExecutionPolicy Unrestricted, install git, open Administrator cmd and run:
