@@ -119,6 +119,10 @@ while getopts "hODCWu:d:c:s:m:r:g:w:" opt; do
             ;;
         u)
             BUILD_USER="${OPTARG}"
+            if [ ${#BUILD_USER} -ge 13 ]; then
+                echo Error: build user too long, please pick a name shorter than 13 characters >&2
+                exit 5
+            fi
             ;;
         d)
             DEBIAN_MIRROR="${OPTARG}"
