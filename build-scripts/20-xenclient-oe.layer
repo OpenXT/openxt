@@ -11,8 +11,8 @@ openxt_layer_xenclient_oe_images=(                                          \
 "xenclient-stubdomain   xenclient-stubdomain-initramfs      cpio.gz"        \
 "xenclient-dom0         xenclient-initramfs                 cpio.gz"        \
 "xenclient-dom0         xenclient-dom0                      xc.ext3.gz"     \
-"xenclient-dom0         xenclient-installer                 cpio.gz"        \
-"xenclient-dom0         xenclient-installer-part2           tar.bz2"        \
+"openxt-installer       xenclient-installer                 cpio.gz"        \
+"openxt-installer       xenclient-installer-part2           tar.bz2"        \
 "xenclient-uivm         xenclient-uivm                      xc.ext3.vhd.gz" \
 "xenclient-ndvm         xenclient-ndvm                      xc.ext3.vhd.gz" \
 )

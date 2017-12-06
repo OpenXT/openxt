@@ -163,13 +163,14 @@ fi
 
 # Ensure that all required packages are installed on this host.
 # When installing packages, do all at once to be faster.
-DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoimage git"
+DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoimage xorriso git"
 DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq"
 DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
 DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
 DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-urlgrabber rpm \
 rpm-common rpm2cpio yum" # Centos container
+DEB_PKGS="$DEB_PKGS dosfstools fuse fusefat" # efiboot.img
 
 # Version-specific Debian packages
 DEB_VERS=`cut -d '.' -f 1 /etc/debian_version`
