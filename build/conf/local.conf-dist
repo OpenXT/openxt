@@ -19,14 +19,6 @@ STAGING_IDLDIR = "${STAGING_DATADIR}/idl"
 ENABLE_BINARY_LOCALE_GENERATION = "1"
 LOCALE_UTF8_ONLY = "1"
 
-# ocaml
-SYSROOT_OCAML_PATH = "${STAGING_DIR_NATIVE}${libdir_native}/${TRANSLATED_TARGET_ARCH}${TARGET_VENDOR}-${TARGET_OS}/ocaml"
-export OCAML_STDLIBDIR = "${SYSROOT_OCAML_PATH}/site-lib"
-OCAML_HEADERS = "${SYSROOT_OCAML_PATH}"
-export ocamllibdir = "${libdir}/ocaml"
-export STAGING_LIBDIR_OCAML = "${STAGING_LIBDIR}/ocaml"
-OCAML_FINDLIB_CONF = "${STAGING_DIR_HOST}${sysconfdir}/findlib.conf"
-
 # vhd image format support 
 # 100M - safe default, overwrite in the recipe
 VHD_MAX_SIZE = "100"
