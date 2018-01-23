@@ -1,77 +1,29 @@
-# 1) Basic config
-DISTRO = "openxt-main"
-DISTRO_FEATURES = "alsa ext2 largefile usbhost wifi xattr pci x11 ipv4 ipv6 ${DISTRO_FEATURES_LIBC} multiarch pam"
-BB_NUMBER_THREADS ?= "4"
-PARALLEL_MAKE ?= "-j 4"
-PACKAGE_CLASSES ?= "package_ipk"
-EXTRA_IMAGE_FEATURES = "debug-tweaks"
-#USER_CLASSES ?= "buildstats image-mklibs image-prelink"
-# disable prelink and mklibs as it does not play nicely with part 2 installer image
-# TODO: enable it for selected images
-USER_CLASSES = "buildstats"
-
-PATCHRESOLVE = "noop"
 CONF_VERSION = "1"
+
+# 1) Basic config
+#
+## TODO: DISTRO should be in auto.conf
+DISTRO ?= "openxt-main"
+
+BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
+PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
+
+## TODO: TMPDIR should be defined in site.conf
 TMPDIR ?= "${TOPDIR}/build"
 
 ENABLE_BINARY_LOCALE_GENERATION = "1"
-LOCALE_UTF8_ONLY = "1"
-
-# vhd image format support 
-# 100M - safe default, overwrite in the recipe
-VHD_MAX_SIZE = "100"
-IMAGE_CMD_ext3.vhd = "install -d ${DEPLOY_DIR_IMAGE}/tmp.vhd ; genext2fs -b ${ROOTFS_SIZE} -d ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${EXTRA_IMAGECMD}; tune2fs -j ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; vhd convert ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3 ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${VHD_MAX_SIZE}; rm -f ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3; mv ${DEPLOY_DIR_IMAGE}/tmp.vhd/${IMAGE_NAME}.rootfs.ext3.vhd ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext3.vhd"
-IMAGE_DEPENDS_ext3.vhd = "hkg-vhd-native genext2fs-native e2fsprogs-native"
-
-# raw image - simply copy rootfs tree to deploy directory
-IMAGE_CMD_raw = "cp -a ${IMAGE_ROOTFS} ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.raw"
-
-IMAGE_CMD_xc.ext3 = "( set -x; \
-	${IMAGE_CMD_ext3}; \
-	I0=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext3; \
-	I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3; \
-	mv $I0 $I; \
-	tune2fs -c -1 -i 0 $I; \
-	e2fsck -f -y $I || true)"
-IMAGE_DEPENDS_xc.ext3 = "e2fsprogs-native"
-
-# sadly the vhd stack in XC doesn't seem to [yet] understand libbudgetvhd's vhds
-# take rootfs size in KB, convert to bytes for truncate size, convert to MB
-# and deal with bash rounding. If odd after rounding, add 1, if even, add 2 since we lost
-# some precision; vhd size must also be a multiple of 2 MB.
-IMAGE_CMD_xc.ext3.vhd = "( set -x; \
-	${IMAGE_CMD_ext3}; \
-	I0=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext3; \
-	I=${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.xc.ext3.vhd; \
-	TGT_VHD_SIZE=`expr ${ROOTFS_SIZE} / 1024`; \
-	if [ `expr ${TGT_VHD_SIZE} % 2` -eq 1 ]; \
-		then TGT_VHD_SIZE=`expr ${TGT_VHD_SIZE} + 1`; \
-	else TGT_VHD_SIZE=`expr ${TGT_VHD_SIZE} + 2`; \
-	fi; \
-	tune2fs -c -1 -i 0 $I0; \
-	e2fsck -f -y $I0 || true ; \
-	vhd convert $I0 $I ${TGT_VHD_SIZE} ; \
-	rm -f $I0  )"
-IMAGE_DEPENDS_xc.ext3.vhd = "hkg-vhd-native e2fsprogs-native"
-
-# Build source packages if XENCLIENT_BUILD_SRC_PACKAGES is set to 1.
-INHERIT += "xenclient-src-package"
-
-# Collect info about sources used in build if XENCLIENT_COLLECT_SRC_INFO is
-# set to 1.
-INHERIT += "xenclient-src-info"
+GLIBC_GENERATE_LOCALES += " \
+    de_DE.UTF-8 \
+    en_US.UTF-8 \
+    en_GB.UTF-8 \
+    es_ES.UTF-8 \
+    fr_FR.UTF-8 \
+    ja_JP.UTF-8 \
+    zh_CN.UTF-8 \
+"
 
 # OpenXT specific OE tasks
 INHERIT += "xenclient-customtask"
-
-# Prefer openssl over libressl
-PREFERRED_PROVIDER_openssl = "openssl"
-PREFERRED_PROVIDER_openssl-native = "openssl-native"
-PREFERRED_PROVIDER_libcrypto = "libcrypto"
-PREFERRED_PROVIDER_libssl = "libssl"
-PREFERRED_PROVIDER_openssl-conf = "openssl-conf"
-PREFERRED_PROVIDER_nativesdk-openssl = "nativesdk-openssl"
-PREFERRED_PROVIDER_nativesdk-openssl-conf = "nativesdk-openssl-conf"
 
 IMAGE_FEATURES[validitems] += "web-certificates"
 # Un-comment the following line to enable https
@@ -79,39 +31,9 @@ IMAGE_FEATURES[validitems] += "web-certificates"
 #EXTRA_IMAGE_FEATURES += "web-certificates"
 
 # 2) Build tweaks/hacks
-
-PREFERRED_PROVIDER_console-tools = "console-tools"
-PREFERRED_PROVIDER_virtual/libx11 = "libx11"
+#
 
 VIRTUAL-RUNTIME_keymaps = "xenclient-console-keymaps"
 
-FILESYSTEM_PERMS_TABLES = "files/xc-fs-perms.txt"
-POLKITAUTH = ""
-
-# prevent tasks from creating empty "${S}" dir
-do_clean[dirs] = "${WORKDIR}"
-do_cleansstate[dirs] = "${WORKDIR}"
-do_cleanall[dirs] = "${WORKDIR}"
-do_fetch[dirs] = "${WORKDIR}"
-#do_unpack[dirs] = "${WORKDIR}"
-sstate_cleanall[dirs] = "${WORKDIR}"
-sstate_unpack_package[dirs] = "${WORKDIR}"
-do_populate_lic_setscene[dirs] = "${WORKDIR}"
-do_populate_sysroot_setscene[dirs] = "${WORKDIR}"
-do_make_scripts[dirs] = "${WORKDIR}"
-#do_repo_clean[dirs] = "${WORKDIR}"
-
-
 # overwrite debian mirror for screen, as the debian version it's based on (lenny) is in oldstable now
 DEBIAN_MIRROR_pn-screen = "http://archive.debian.org/debian/pool"
-
-# make hacks
-PARALLEL_MAKE_pn-gnumail = "-j 1"
-PARALLEL_MAKE_pn-gnumail-native = "-j 1"
-PARALLEL_MAKE_pn-shared-mime-info = "-j 1"
-PARALLEL_MAKE_pn-shared-mime-info-native = "-j 1"
-
-
-# 3) Proprietary licenses we can ship
-LICENSE_FLAGS_WHITELIST = "commercial_broadcom-wifi"
-LICENSE_FLAGS_WHITELIST += "commercial_microcode-ctl"
