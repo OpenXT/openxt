@@ -158,8 +158,6 @@ collect_logs() {
     ls tmp-glibc/work/*/*/*/temp/log.do_* | tar -cjf logs/build_logs.tar.bz2 --files-from=-
     echo "Collecting sigdata..."
     find tmp-glibc/stamps -name "*.sigdata.*" | tar -cjf logs/sigdata.tar.bz2 --files-from=-
-    echo "Collecting buildstats..."
-    tar -cjf logs/buildstats.tar.bz2 tmp-glibc/buildstats
 
     $RSYNC logs ${TARGET}/logs
 }
