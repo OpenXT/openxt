@@ -64,8 +64,6 @@ OE_PARENT_DIR=$(dirname $OE_XENCLIENT_DIR)
 # Load our config
 [ -f "$OE_PARENT_DIR/.config" ] && . "$OE_PARENT_DIR/.config"
 
-[ -f "$OE_XENCLIENT_DIR/local.settings" ] && . "$OE_XENCLIENT_DIR/local.settings"
-
 mkdir -p $REPOS || die "Could not create local build dir"
 
 # Pull down the OpenXT repos
