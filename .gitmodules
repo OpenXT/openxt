@@ -1,28 +1,28 @@
 [submodule "build/repos/openembedded-core"]
 	path = build/repos/openembedded-core
 	url = git://git.openembedded.org/openembedded-core
-	branch = jethro
+	branch = pyro
 [submodule "build/repos/bitbake"]
 	path = build/repos/bitbake
 	url = git://git.openembedded.org/bitbake.git
-	branch = 1.28
+	branch = 1.34
 [submodule "build/repos/meta-java"]
 	path = build/repos/meta-java
 	url = git://git.yoctoproject.org/meta-java
-	update = none
+        branch = pyro
 [submodule "build/repos/meta-openembedded"]
 	path = build/repos/meta-openembedded
 	url = git://git.openembedded.org/meta-openembedded
-	branch = jethro
+	branch = pyro
 [submodule "build/repos/meta-selinux"]
 	path = build/repos/meta-selinux
 	url = git://git.yoctoproject.org/meta-selinux
-	branch = jethro
+	branch = master
 [submodule "build/repos/meta-intel"]
 	path = build/repos/meta-intel
 	url = git://git.yoctoproject.org/meta-intel
-	branch = jethro
+	branch = pyro
 [submodule "build/repos/meta-virtualization"]
 	path = build/repos/meta-virtualization
 	url = git://git.yoctoproject.org/meta-virtualization
-	branch = jethro
+	branch = pyro
