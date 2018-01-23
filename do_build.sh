@@ -1280,9 +1280,6 @@ do_logs()
         echo "Collecting sigdata..." | do_oe_log
         find "$path/tmp-glibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata.tar.bz2" --files-from=- | do_oe_log
         echo "Done" | do_oe_log
-        echo "Collecting buildstats..." | do_oe_log
-        tar -cjf "${log_path}/buildstats.tar.bz2" "$path/tmp-glibc/buildstats" | do_oe_log
-        echo "Done" | do_oe_log
     fi
 }
 
