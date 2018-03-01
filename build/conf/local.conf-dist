@@ -77,6 +77,7 @@ IMAGE_FEATURES[validitems] += "web-certificates"
 # Un-comment the following line to enable https
 #   certificates in dom0 and the installer
 #EXTRA_IMAGE_FEATURES += "web-certificates"
+PREFERRED_VERSION_linux-openxt ?= "4.14%"
 
 # 2) Build tweaks/hacks
 
