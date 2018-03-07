@@ -54,7 +54,7 @@ DL_DIR ?= "$BUILD_PATH/downloads"
 export CCACHE_DIR = "$BUILD_PATH/cache"
 CCACHE_TARGET_DIR="$CACHE_DIR"
 
-OPENXT_MIRROR="http://mirror.openxt.org"
+OPENXT_MIRROR="https://openxt.ainfosec.com/mirror"
 OPENXT_GIT_MIRROR="$HOST_IP/$BUILD_USER"
 OPENXT_GIT_PROTOCOL="git"
 OPENXT_BRANCH="$BRANCH"
