@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 usage() {
-    echo "usage: pr_merger.sh <token> <repo> <PR1> [<PR2> [PR3 [PR4 [...]]]]" >&2
+    echo "usage: pr_merger.sh <token> <repo> <PR1> [PR2 [PR3 [PR4 [...]]]]" >&2
     echo "  where PRX is the pull request number" >&2
     exit $1
 }
