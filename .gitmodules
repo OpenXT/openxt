@@ -2,6 +2,7 @@
 	path = build/repos/openembedded-core
 	url = git://git.openembedded.org/openembedded-core
 	branch = pyro
+	update = none
 [submodule "build/repos/bitbake"]
 	path = build/repos/bitbake
 	url = git://git.openembedded.org/bitbake.git
