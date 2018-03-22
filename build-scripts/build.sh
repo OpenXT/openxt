@@ -347,23 +347,39 @@ build_iso() {
     sed -i -re "s|[$]OPENXT_VERSION|$VERSION|g" iso_tmp/isolinux/bootmsg.txt
     sed -i -re "s|[$]OPENXT_BUILD_ID|$BUILD_ID|g" iso_tmp/isolinux/bootmsg.txt
 
+    EFIBOOTIMG="iso_tmp/isolinux/efiboot.img"
+    dd if=/dev/zero bs=1M count=5 of=${EFIBOOTIMG}
+    /sbin/mkfs.fat ${EFIBOOTIMG}
+    mkdir -p efi_tmp
+    fusefat -o rw+ ${EFIBOOTIMG} efi_tmp
+    mkdir -p efi_tmp/EFI/BOOT
+    cp -f raw/grubx64.efi efi_tmp/EFI/BOOT/BOOTX64.EFI
+    sync
+    fusermount -u efi_tmp
+    rm -rf efi_tmp
+
     echo "Creating installer.iso..."
-    genisoimage -o "iso/installer.iso" \
-                -b "isolinux/isolinux.bin" \
+    xorriso -as mkisofs \
+                -o "iso/installer.iso" \
+                -isohybrid-mbr "raw/isohdpfx.bin" \
                 -c "isolinux/boot.cat" \
+                -b "isolinux/isolinux.bin" \
                 -no-emul-boot \
                 -boot-load-size 4 \
                 -boot-info-table \
+                -eltorito-alt-boot \
+                -e "isolinux/efiboot.img" \
+                -no-emul-boot \
+                -isohybrid-gpt-basdat \
                 -r \
                 -J \
                 -l \
                 -V "OpenXT-${VERSION}" \
-		-f \
-		-quiet \
+                -f \
+                -quiet \
                 "iso_tmp"
     echo "Done"
     rm -rf iso_tmp
-    isohybrid iso/installer.iso
     cd - > /dev/null
 }
 

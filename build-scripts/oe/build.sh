@@ -117,7 +117,7 @@ build_image() {
                 $RSYNC tmp-glibc/deploy/images/${MACHINE}/microcode_intel.bin \
                        ${TARGET}/netboot/
             fi
-            $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-xenclient-dom0.bin \
+            $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-${MACHINE}.bin \
                    ${TARGET}/netboot/vmlinuz
         else
             $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.i686.${EXTENSION}
@@ -132,6 +132,12 @@ build_image() {
     # Transfer additionnal files
     if [ -d ${SOURCE_EXTRAS} ]; then
         $RSYNC ${SOURCE_EXTRAS}/ ${TARGET}/${REAL_NAME}
+    fi
+
+    # Transfer installer EFI files
+    if [ -f tmp-glibc/deploy/images/${MACHINE}/grubx64.efi ]; then
+        $RSYNC tmp-glibc/deploy/images/${MACHINE}/grubx64.efi ${TARGET}/raw/
+        $RSYNC tmp-glibc/deploy/images/${MACHINE}/isohdpfx.bin ${TARGET}/raw/
     fi
 }
 
