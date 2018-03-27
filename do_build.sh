@@ -59,23 +59,6 @@ do_oe_setup()
             fi
         done
 
-        if [ ! -f "local.settings" ]; then
-                cat > local.settings <<EOF
-META_SELINUX_REPO=$META_SELINUX_REPO
-XENCLIENT_REPO=$OPENXT_GIT_PROTOCOL://$OPENXT_GIT_MIRROR/xenclient-oe.git
-XENCLIENT_TAG="$BRANCH"
-EOF
-
-                if [ "$OE_GIT_MIRROR" ] ; then
-                        cat >> local.settings <<EOF
-BITBAKE_REPO=$OE_GIT_MIRROR/bitbake.git
-OE_CORE_REPO=$OE_GIT_MIRROR/openembedded-core.git
-META_OE_REPO=$OE_GIT_MIRROR/meta-openembedded.git
-META_JAVA_REPO=$OE_GIT_MIRROR/meta-java.git
-EOF
-                fi
-        fi
-
         if [ -z "$REPO_PROD_CACERT" ] ; then
                 echo "Error: REPO_PROD_CACERT must be set in .config." >&2
                 exit 1
@@ -1296,9 +1279,6 @@ do_logs()
         echo "Done" | do_oe_log
         echo "Collecting sigdata..." | do_oe_log
         find "$path/tmp-glibc/stamps" -name "*.sigdata.*" | tar -cjf "${log_path}/sigdata.tar.bz2" --files-from=- | do_oe_log
-        echo "Done" | do_oe_log
-        echo "Collecting buildstats..." | do_oe_log
-        tar -cjf "${log_path}/buildstats.tar.bz2" "$path/tmp-glibc/buildstats" | do_oe_log
         echo "Done" | do_oe_log
     fi
 }

@@ -12,7 +12,7 @@ OPENXT_GIT_PROTOCOL="git"
 OE_GIT_MIRROR=
 
 # Bitbake version to checkout
-BB_BRANCH="1.28"
+BB_BRANCH="1.34"
 
 # These are best set via this or local.settings instead of being set in the script itself.
 BITBAKE_REPO=git://git.openembedded.org/bitbake.git
@@ -20,14 +20,20 @@ OE_CORE_REPO=git://git.openembedded.org/openembedded-core
 META_OE_REPO=git://git.openembedded.org/meta-openembedded
 META_JAVA_REPO=git://git.yoctoproject.org/meta-java
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
+META_SELINUX_TAG=master
 META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
 META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
-META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-platform.git
+META_OPENXT_OCAML_PLATFORM_TAG=master
+META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/eric-ch/meta-openxt-haskell-platform.git
+META_OPENXT_HASKELL_PLATFORM_TAG=oe-upgrade-pyro
 META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
+
+XENCLIENT_REPO=git://github.com/eric-ch/xenclient-oe.git
+XENCLIENT_TAG=oe-upgrade-pyro
 
 # Use the lines below out to override checking out the branch matching the OE release
 # The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
-META_JAVA_TAG=a73939323984fca1e919d3408d3301ccdbceac9c
+META_JAVA_TAG=pyro
 
 # Default to the same branch of meta-selinux as OE_BRANCH (e.g. jethro).
 # Uncomment and edit if you need a specific commit from meta-selinux.

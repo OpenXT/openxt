@@ -49,19 +49,19 @@ done
 
 BITBAKE_REPO=git://github.com/openembedded/bitbake.git
 # maybe use something more "release-like"
-BITBAKE_TAG=f8bf4499549f978ce7c93bc088a66f74cd751e2c
+BITBAKE_TAG=1.34
 
 OE_CORE_REPO=git://github.com/openembedded/openembedded-core
-OE_CORE_TAG=5433da972f2994f7176597d89499ccb65f876f88
+OE_CORE_TAG=pyro
 
 META_OE_REPO=git://github.com/openembedded/meta-openembedded
-META_OE_TAG=24e1ebc21da20240a41984b7f5c90aa9bd65a7e8
+META_OE_TAG=pyro
 
 META_JAVA_REPO=https://github.com/woglinde/meta-java.git
 META_JAVA_TAG=5d528acac0eab6cfaa4ed3c290c7db3acd5047bf
 
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
-META_SELINUX_TAG=8e952c7da126d30f4aecb33abd3ef9252785cb40
+META_SELINUX_TAG=master
 
 META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
 META_OPENXT_OCAML_PLATFORM_TAG=master
@@ -70,7 +70,7 @@ META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-
 META_OPENXT_HASKELL_PLATFORM_TAG=master
 
 META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
-META_VIRTUALIZATION_TAG=jethro
+META_VIRTUALIZATION_TAG=pyro
 # End of configuration
 
 die() {
