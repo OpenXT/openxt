@@ -40,7 +40,7 @@ META_JAVA_TAG=pyro
 #META_SELINUX_TAG=jethro
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
-OPENXT_MIRROR="http://mirror.openxt.org"
+OPENXT_MIRROR="https://openxt.ainfosec.com/mirror"
 
 # Used to construct build name.
 NAME_SITE="openxt"
