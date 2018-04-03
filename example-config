@@ -1,8 +1,8 @@
 # OpenXT branch to build.
 BRANCH="master"
 
-# OpenXT branch to build.
-OE_BRANCH="jethro"
+# OpenEmbedded branch to build.
+OE_BRANCH="pyro"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
 OPENXT_GIT_MIRROR="github.com/OpenXT"
@@ -20,24 +20,19 @@ OE_CORE_REPO=git://git.openembedded.org/openembedded-core
 META_OE_REPO=git://git.openembedded.org/meta-openembedded
 META_JAVA_REPO=git://git.yoctoproject.org/meta-java
 META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
-META_SELINUX_TAG=master
 META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
 META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
-META_OPENXT_OCAML_PLATFORM_TAG=master
-META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/eric-ch/meta-openxt-haskell-platform.git
-META_OPENXT_HASKELL_PLATFORM_TAG=oe-upgrade-pyro
+META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-platform.git
 META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
 
-XENCLIENT_REPO=git://github.com/eric-ch/xenclient-oe.git
-XENCLIENT_TAG=oe-upgrade-pyro
+XENCLIENT_REPO=git://github.com/OpenXT/xenclient-oe.git
+XENCLIENT_TAG=${BRANCH}
 
-# Use the lines below out to override checking out the branch matching the OE release
-# The commit hash for meta-java is the last commit that had openjdk6 and idedtea6
-META_JAVA_TAG=pyro
-
-# Default to the same branch of meta-selinux as OE_BRANCH (e.g. jethro).
-# Uncomment and edit if you need a specific commit from meta-selinux.
-#META_SELINUX_TAG=jethro
+# Ideally this would be the same branch of meta-selinux as OE_BRANCH (e.g.
+# pyro), but meta-selinux doesn't have a pyro branch.  So we set it to master
+# for now.
+# Edit if you need a specific commit from meta-selinux.
+META_SELINUX_TAG=master
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
 OPENXT_MIRROR="http://mirror.openxt.org"
