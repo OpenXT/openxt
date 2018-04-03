@@ -5,9 +5,6 @@ CONF_VERSION = "1"
 ## TODO: DISTRO should be in auto.conf
 DISTRO ?= "openxt-main"
 
-BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
-PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
-
 ## TODO: TMPDIR should be defined in site.conf
 TMPDIR ?= "${TOPDIR}/build"
 
