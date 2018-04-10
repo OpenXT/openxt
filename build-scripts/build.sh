@@ -343,7 +343,11 @@ build_iso() {
     cp -rf netboot/* iso_tmp/isolinux/
     cp -rf installer/iso/* iso_tmp/isolinux/
     ln -s ../repository/packages.main iso_tmp/packages.main
-    ln -s ../../raw/installer-rootfs.i686.cpio.gz iso_tmp/isolinux/rootfs.gz
+    # If we already ran build_finalize(), netboot has a copy of rootfs.gz.
+    # Since netboot/* was just copied into iso_tmp/isolinux, we'd now have it.
+    if [ ! -e iso_tmp/isolinux/rootfs.gz ]; then
+	ln -s ../../raw/installer-rootfs.i686.cpio.gz iso_tmp/isolinux/rootfs.gz
+    fi
     sed -i -re "s|[$]OPENXT_VERSION|$VERSION|g" iso_tmp/isolinux/bootmsg.txt
     sed -i -re "s|[$]OPENXT_BUILD_ID|$BUILD_ID|g" iso_tmp/isolinux/bootmsg.txt
 
@@ -400,6 +404,7 @@ EOF
     # Copy all the netboot files to the netboot directory and tar it up
     cp installer/netboot/* netboot/
     cp raw/installer-rootfs.i686.cpio.gz netboot/rootfs.gz
+    rm -f netboot/netboot.tar.gz
     tar -C netboot -czf netboot.tar.gz .
     mv netboot.tar.gz netboot/
 
