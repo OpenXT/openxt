@@ -350,13 +350,10 @@ build_iso() {
     EFIBOOTIMG="iso_tmp/isolinux/efiboot.img"
     dd if=/dev/zero bs=1M count=5 of=${EFIBOOTIMG}
     /sbin/mkfs.fat ${EFIBOOTIMG}
-    mkdir -p efi_tmp
-    fusefat -o rw+ ${EFIBOOTIMG} efi_tmp
-    mkdir -p efi_tmp/EFI/BOOT
-    cp -f raw/grubx64.efi efi_tmp/EFI/BOOT/BOOTX64.EFI
+    mmd -i ${EFIBOOTIMG} EFI
+    mmd -i ${EFIBOOTIMG} EFI/BOOT
+    mcopy -i ${EFIBOOTIMG} raw/grubx64.efi ::EFI/BOOT/BOOTX64.EFI
     sync
-    fusermount -u efi_tmp
-    rm -rf efi_tmp
 
     echo "Creating installer.iso..."
     xorriso -as mkisofs \
