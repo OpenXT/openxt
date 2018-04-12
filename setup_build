@@ -57,6 +57,32 @@ process_git_repo() {
 	fi
 }
 
+setup_git_repo() {
+    local repo="$1"
+    local default_tag="$2"
+
+    local repo_var=`echo $repo | sed -e 's/openembedded/oe/' -e 's/-/_/g' | tr '[a-z]' '[A-Z]'`
+    local git_var="${repo_var}_REPO"
+    local git=${!git_var}
+    local tag_var="${repo_var}_TAG"
+    local tag=${!tag_var}
+
+    if [ -n "${git}" ]; then
+        [ -z ${tag} ] && tag=$default_tag
+        process_git_repo $REPOS/$repo $git $tag
+    else
+        echo Clone submodule $repo, using saved HEAD
+        git submodule update --checkout $REPOS/$repo
+        if [ -n "$tag" ]; then
+            echo "Checking out $repo at $tag"
+            checkout_git_branch $REPOS/$repo $tag
+        else
+            echo "Update submodule $repo that follow a branch (update != none)"
+            git submodule update --remote $REPOS/$repo
+        fi
+    fi
+}
+
 OE_XENCLIENT_DIR=`pwd`
 REPOS=$OE_XENCLIENT_DIR/repos
 OE_PARENT_DIR=$(dirname $OE_XENCLIENT_DIR)
@@ -68,15 +94,21 @@ mkdir -p $REPOS || die "Could not create local build dir"
 
 # Pull down the OpenXT repos
 process_git_repo $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
-process_git_repo $REPOS/bitbake $BITBAKE_REPO $BB_BRANCH
-for repo in openembedded-core meta-openembedded meta-java meta-selinux meta-intel meta-openxt-ocaml-platform meta-openxt-haskell-platform meta-virtualization; do
-    repo_var=`echo $repo | sed -e 's/openembedded/oe/' -e 's/-/_/g' | tr '[a-z]' '[A-Z]'`
-    git_var="${repo_var}_REPO"
-    git=${!git_var}
-    tag_var="${repo_var}_TAG"
-    tag=${!tag_var}
-    [ -z ${tag} ] && tag=$OE_BRANCH
-    process_git_repo $REPOS/$repo $git $tag
+process_git_repo $REPOS/meta-openxt-ocaml-platform \
+        $META_OPENXT_OCAML_PLATFORM_REPO $META_OPENXT_OCAML_PLATFORM_TAG
+process_git_repo $REPOS/meta-openxt-haskell-platform \
+        $META_OPENXT_HASKELL_PLATFORM_REPO $META_OPENXT_HASKELL_PLATFORM_TAG
+
+# Initialise the submodules using .gitmodules
+git submodule init
+
+# Pull down Bitbake
+setup_git_repo bitbake $BB_BRANCH
+
+# Pull down OE repos
+for repo in openembedded-core meta-openembedded meta-java meta-selinux \
+            meta-intel meta-virtualization; do
+    setup_git_repo $repo $OE_BRANCH
 done
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
@@ -89,7 +121,7 @@ if [ ! -z "$EXTRA_DIR" ]; then
   BBPATH=$REPOS/$EXTRA_DIR:$BBPATH
 fi
 
-cat > oeenv <<EOF 
+cat > oeenv <<EOF
 OE_XENCLIENT_DIR=$OE_XENCLIENT_DIR
 PATH=$OE_XENCLIENT_DIR/repos/bitbake/bin:\$PATH
 BBPATH=$BBPATH
