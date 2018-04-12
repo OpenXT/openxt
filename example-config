@@ -11,8 +11,10 @@ OPENXT_GIT_PROTOCOL="git"
 # Optional mirror of upstream OpenEmbedded git repositories.
 OE_GIT_MIRROR=
 
-# Bitbake version to checkout
+# Bitbake default version to checkout
 BB_BRANCH="1.34"
+# Bitbake tag to override checkout
+#BITBAKE_TAG="1.34"
 
 # OpenXT repos and tags REPO and TAG must be set
 XENCLIENT_REPO=git://github.com/OpenXT/xenclient-oe.git
