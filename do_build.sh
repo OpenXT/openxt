@@ -916,13 +916,10 @@ generic_do_installer_iso()
         echo "  - create efiboot.img"
         dd if=/dev/zero bs=1M count=5 of=${EFIBOOTIMG}
         /sbin/mkfs.fat ${EFIBOOTIMG}
-        mkdir -p efi_tmp
-        fusefat -o rw+ ${EFIBOOTIMG} efi_tmp
-        mkdir -p efi_tmp/EFI/BOOT
-        cp -f "$path/grubx64.efi" efi_tmp/EFI/BOOT/BOOTX64.EFI
+        mmd -i ${EFIBOOTIMG} EFI
+        mmd -i ${EFIBOOTIMG} EFI/BOOT
+        mcopy -i ${EFIBOOTIMG} "$path/grubx64.efi" ::EFI/BOOT/BOOTX64.EFI
         sync
-        fusermount -u efi_tmp
-        rm -rf efi_tmp
 
         echo "  - create iso"
         "${CMD_DIR}/do_installer_iso.sh" "$iso_path" "$iso_path.iso" "$OPENXT_ISO_LABEL" "$path/isohdpfx.bin"
