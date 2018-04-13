@@ -25,19 +25,19 @@ META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-
 META_OPENXT_HASKELL_PLATFORM_TAG=${BRANCH}
 
 # OpenEmbedded repos (TAG defaults to ${OE_BRANCH} if not set)
-BITBAKE_REPO=git://git.openembedded.org/bitbake.git
-OE_CORE_REPO=git://git.openembedded.org/openembedded-core
-META_OE_REPO=git://git.openembedded.org/meta-openembedded
-META_JAVA_REPO=git://git.yoctoproject.org/meta-java
-META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
-META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
-META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
+#BITBAKE_REPO=git://git.openembedded.org/bitbake.git
+#OE_CORE_REPO=git://git.openembedded.org/openembedded-core
+#META_OE_REPO=git://git.openembedded.org/meta-openembedded
+#META_JAVA_REPO=git://git.yoctoproject.org/meta-java
+#META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
+#META_INTEL_REPO=git://git.yoctoproject.org/meta-intel
+#META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
 
 # Ideally this would be the same branch of meta-selinux as OE_BRANCH (e.g.
 # pyro), but meta-selinux doesn't have a pyro branch.  So we set it to master
 # for now.
 # Edit if you need a specific commit from meta-selinux.
-META_SELINUX_TAG=master
+#META_SELINUX_TAG=master
 
 # Downloads needed for OpenXT build. Optionally replace with a local mirror.
 OPENXT_MIRROR="http://mirror.openxt.org"
