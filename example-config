@@ -11,8 +11,8 @@ OPENXT_GIT_PROTOCOL="git"
 # Optional mirror of upstream OpenEmbedded git repositories.
 OE_GIT_MIRROR=
 
-# Bitbake default version to checkout
-BB_BRANCH="1.34"
+# Bitbake default version to checkout - specific tag from 1.34 branch
+BB_BRANCH="eddab52a4e7c49bfcdc2c26004d0bc777a1e5c25"
 # Bitbake tag to override checkout
 #BITBAKE_TAG="1.34"
 
