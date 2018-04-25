@@ -1,130 +1,115 @@
-#!/bin/bash
-#
-# Copyright (c) 2014 Citrix Systems, Inc.
-# 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-
-set -e
-
-# This script sets up a build environment for building
-# XenClient using OpenEmbedded.
-
-# Usage: ./setup_build
-
-# See README file for details.
-# See COPYING file for license.
-
-# Default configuration section
-# Do not edit this, override in local.settings instead e.g.
-# if you have local copies of the repositories
-
-usage()
-{
-        echo "$0: [-v]"
-}
-
-
-while [ "$#" -ne 0 ]; do
-        case "$1" in
-                -v) set -x; shift 1;;
-                --) shift ; break ;;
-                -*) usage ; exit 1;;
-	        *) break ;;
-        esac
-done
-
-
-BITBAKE_REPO=git://github.com/openembedded/bitbake.git
-# maybe use something more "release-like"
-BITBAKE_TAG=1.34
-
-OE_CORE_REPO=git://github.com/openembedded/openembedded-core
-OE_CORE_TAG=pyro
-
-META_OE_REPO=git://github.com/openembedded/meta-openembedded
-META_OE_TAG=pyro
-
-META_JAVA_REPO=https://github.com/woglinde/meta-java.git
-META_JAVA_TAG=5d528acac0eab6cfaa4ed3c290c7db3acd5047bf
-
-META_SELINUX_REPO=git://git.yoctoproject.org/meta-selinux
-META_SELINUX_TAG=master
-
-META_OPENXT_OCAML_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-ocaml-platform.git
-META_OPENXT_OCAML_PLATFORM_TAG=master
-
-META_OPENXT_HASKELL_PLATFORM_REPO=https://github.com/OpenXT/meta-openxt-haskell-platform.git
-META_OPENXT_HASKELL_PLATFORM_TAG=master
-
-META_VIRTUALIZATION_REPO=git://git.yoctoproject.org/meta-virtualization.git
-META_VIRTUALIZATION_TAG=pyro
-# End of configuration
+#!/bin/sh
+# OpenXT git repo setup file.
 
 die() {
-    echo "FATAL: $*"
-    exit 1
+	echo "$1" 1>&2
+	exit 1
 }
 
-# Usage: getgit LOCALDIR REPO TAG
-getgit() {
-    rm -rf "$1.tmp"
-    [ -d "$1" ] && return
-    git clone -n $2 "$1.tmp" || die "Clone repo failed: $2"
+#######################################################################
+# checkout_git_branch                                                 #
+# param1: Path to the git repo                                        #
+# param2: Preferred branch to checkout.  Fallback will be to master.  #
+#                                                                     #
+# Checks out the branch specified in param2 for the repo located at   #
+# the file path in param1.  If the branch is not part of the git repo #
+# the master branch is checked out instead.                           #
+#######################################################################
+checkout_git_branch() {
+	local path="$1"
+	local branch="$2"
 
-    pushd "$1.tmp"
-    set +e
-    git checkout $3 2> /dev/null || git checkout -b $3 origin/$3
+	cd $path
+	git checkout "$branch" 2>/dev/null|| git checkout -b "$branch" origin/$branch 2>/dev/null || { echo "The value $branch does not exist as a branch or HEAD position. Falling back to the master branch."; git checkout master 2>/dev/null; }
+	cd $OLDPWD
+}
 
-    current_branch=`git branch | grep -e ^* | cut -d ' ' -f2-`
-    if [ "$current_branch" != "$3" ]; then
-        git checkout -b $3
+#######################################################################
+# fetch_git_repo                                                      #
+# param1: Path (absolute) to place the repo                           #
+# param2: Git url to fetch                                            #
+#                                                                     #
+# Fetches the repo specified by param2 into the directory specified   #
+# by param1.                                                          #
+#######################################################################
+fetch_git_repo() {
+	local path="$1"
+	local repo="$2"
+
+	echo "Fetching $repo..."
+	set +e
+	git clone -q -n $repo "$path" || die "Clone of git repo failed: $repo"
+	set -e
+}
+
+process_git_repo() {
+	local path="$1"
+	local repo="$2"
+	local branch="$3"
+
+	# Remove the directory if it's empty
+	[ -d $path ] && [ -z "`ls -A1 $path | head -1`" ] && rmdir $path
+
+	if [ ! -d $path ]; then
+		# The path does not exist.  Proceed.
+		fetch_git_repo $path $repo $branch
+		checkout_git_branch $path $branch
+	fi
+}
+
+setup_git_repo() {
+    local repo="$1"
+    local default_tag="$2"
+
+    local repo_var=`echo $repo | sed -e 's/openembedded/oe/' -e 's/-/_/g' | tr '[a-z]' '[A-Z]'`
+    local git_var="${repo_var}_REPO"
+    local git=${!git_var}
+    local tag_var="${repo_var}_TAG"
+    local tag=${!tag_var}
+
+    if [ -n "${git}" ]; then
+        [ -z ${tag} ] && tag=$default_tag
+        process_git_repo $REPOS/$repo $git $tag
+    else
+        echo Clone submodule $repo, using saved HEAD
+        git submodule update --checkout $REPOS/$repo
+        if [ -n "$tag" ]; then
+            echo "Checking out $repo at $tag"
+            checkout_git_branch $REPOS/$repo $tag
+        else
+            echo "Update submodule $repo that follow a branch (update != none)"
+            git submodule update --remote $REPOS/$repo
+        fi
     fi
-    set -e
-    popd
-    mv "$1.tmp" "$1"
 }
 
 OE_XENCLIENT_DIR=`pwd`
-export OE_XENCLIENT_DIR
-
-[ -f "$OE_XENCLIENT_DIR/local.settings" ] && . "$OE_XENCLIENT_DIR/local.settings"
-
 REPOS=$OE_XENCLIENT_DIR/repos
-if [ "$1" != "env" ]; then
-  mkdir -p $REPOS || die "Could not create local build dir"
+OE_PARENT_DIR=$(dirname $OE_XENCLIENT_DIR)
 
-  getgit $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
-  getgit $REPOS/bitbake $BITBAKE_REPO $BITBAKE_TAG
-  for p in `pwd`/repos/xenclient-oe/patches/bitbake/*.patch; do
-      if [ ! -f "$p.APPLIED" ]; then
-        echo "Applying BitBake patch: $p"
-	pushd $REPOS/bitbake
-        git apply $p || true
-	popd
-	touch "$p.APPLIED"
-      fi
-  done
-  getgit $REPOS/openembedded-core $OE_CORE_REPO $OE_CORE_TAG
-  getgit $REPOS/meta-openembedded $META_OE_REPO $META_OE_TAG
-  getgit $REPOS/meta-java $META_JAVA_REPO $META_JAVA_TAG
-  getgit $REPOS/meta-selinux $META_SELINUX_REPO $META_SELINUX_TAG
-  getgit $REPOS/meta-openxt-ocaml-platform $META_OPENXT_OCAML_PLATFORM_REPO $META_OPENXT_OCAML_PLATFORM_TAG
-  getgit $REPOS/meta-openxt-haskell-platform $META_OPENXT_HASKELL_PLATFORM_REPO $META_OPENXT_HASKELL_PLATFORM_TAG
-  getgit $REPOS/meta-virtualization $META_VIRTUALIZATION_REPO $META_VIRTUALIZATION_TAG
-fi
+# Load our config
+[ -f "$OE_PARENT_DIR/.config" ] && . "$OE_PARENT_DIR/.config"
+
+mkdir -p $REPOS || die "Could not create local build dir"
+
+# Pull down the OpenXT repos
+process_git_repo $REPOS/xenclient-oe $XENCLIENT_REPO $XENCLIENT_TAG
+process_git_repo $REPOS/meta-openxt-ocaml-platform \
+        $META_OPENXT_OCAML_PLATFORM_REPO $META_OPENXT_OCAML_PLATFORM_TAG
+process_git_repo $REPOS/meta-openxt-haskell-platform \
+        $META_OPENXT_HASKELL_PLATFORM_REPO $META_OPENXT_HASKELL_PLATFORM_TAG
+
+# Initialise the submodules using .gitmodules
+git submodule init
+
+# Pull down Bitbake
+setup_git_repo bitbake $BB_BRANCH
+
+# Pull down OE repos
+for repo in openembedded-core meta-openembedded meta-java meta-selinux \
+            meta-intel meta-virtualization; do
+    setup_git_repo $repo $OE_BRANCH
+done
 
 if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
   ln -s $OE_XENCLIENT_DIR/conf/local.conf-dist \
@@ -132,8 +117,11 @@ if [ ! -e $OE_XENCLIENT_DIR/conf/local.conf ]; then
 fi
 
 BBPATH=$OE_XENCLIENT_DIR/oe/xenclient:$REPOS/openembedded:$OE_XENCLIENT_DIR/oe-addons
+if [ ! -z "$EXTRA_DIR" ]; then
+  BBPATH=$REPOS/$EXTRA_DIR:$BBPATH
+fi
 
-cat > oeenv <<EOF 
+cat > oeenv <<EOF
 OE_XENCLIENT_DIR=$OE_XENCLIENT_DIR
 PATH=$OE_XENCLIENT_DIR/repos/bitbake/bin:\$PATH
 BBPATH=$BBPATH
