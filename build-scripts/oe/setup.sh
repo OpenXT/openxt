@@ -83,3 +83,27 @@ ssh-keygen -N "" -t rsa -C ${CONTAINER_USER}@openxt-oe -f /home/${CONTAINER_USER
 chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 echo "export MACHINE=xenclient-dom0" >> /home/${CONTAINER_USER}/.bashrc
 chown ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.bashrc
+
+cat >/home/${CONTAINER_USER}/.quiltrc <<EOF
+# Options passed to GNU diff when generating patches
+QUILT_DIFF_OPTS="--show-c-function"
+
+# Options passed to GNU patch when applying patches.
+QUILT_PATCH_OPTS="--unified"
+
+# Do not include index lines
+QUILT_NO_DIFF_INDEX=1
+# Do not include timestamps
+QUILT_NO_DIFF_TIMESTAMPS=1
+
+# Options to pass to commands (QUILT_${COMMAND}_ARGS)
+# Generate a/ b/ patches to cut down on churn
+#QUILT_DIFF_ARGS="--no-timestamps --color=auto -p ab"
+#QUILT_REFRESH_ARGS="--no-timestamps --backup -p ab"
+QUILT_DIFF_ARGS="--color=auto -p ab"
+QUILT_REFRESH_ARGS="--backup -p ab"
+QUILT_PUSH_ARGS="--color=auto"
+QUILT_SERIES_ARGS="--color=auto"
+QUILT_PATCHES_ARGS="--color=auto"
+QUILT_NEW_ARGS="-p ab"
+EOF
