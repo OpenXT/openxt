@@ -200,7 +200,12 @@ build_windows() {
 
     DEST="${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/windows"
 
-    echo "Building the Windows tools"
+    if [ -d windows ]; then
+        echo "Building the Windows tools"
+    else
+        echo "Skipping the Windows tools"
+        return
+    fi
 
     mkdir -p $DEST
 
