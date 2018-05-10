@@ -59,10 +59,12 @@ cd $BUILD_DIR
 KERNEL_VERSION=`ls /lib/modules | tail -1`
 
 rm -rf pv-linux-drivers
+rm -rf v4v
 git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
+git clone -b $BRANCH $GIT_MIRROR/v4v.git
 
 # Build the dkms tools
-for i in `ls -d pv-linux-drivers/openxt-*`; do
+for i in pv-linux-drivers/openxt-{vusb,xenmou} v4v/v4v; do
     tool=`basename $i`
 
     # Remove package
@@ -71,11 +73,11 @@ for i in `ls -d pv-linux-drivers/openxt-*`; do
     sudo rm -rf /usr/src/${tool}-1.0
 
     # Fetch package
-    sudo cp -r pv-linux-drivers/${tool} /usr/src/${tool}-1.0
+    sudo cp -r ${i} /usr/src/${tool}-1.0
 
     # Build package
     sudo dkms add -m ${tool} -v 1.0
-    sudo dkms build -m ${tool} -v 1.0 -k ${KERNEL_VERSION} --kernelsourcedir=/usr/src/kernels/${KERNEL_VERSION}
+    sudo dkms build -m ${tool} -v 1.0 -k ${KERNEL_VERSION}
     sudo dkms mkrpm -m ${tool} -v 1.0 -k ${KERNEL_VERSION}
     cp /var/lib/dkms/${tool}/1.0/rpm/* repo/RPMS
 done
@@ -84,7 +86,6 @@ done
 # Note: only building for 64 bits target. Building for 32 bits requires a chroot
 rm -rf repo/SOURCES/libv4v* libv4v-1.0
 mkdir -p repo/SOURCES libv4v-1.0
-git clone -b $BRANCH $GIT_MIRROR/v4v.git
 cp -ar v4v/libv4v/* libv4v-1.0
 cp -ar v4v/v4v/linux v4v/v4v/include/xen libv4v-1.0/src
 tar cjf repo/SOURCES/libv4v.tar.gz libv4v-1.0
