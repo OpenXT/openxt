@@ -87,7 +87,7 @@ done
 rm -rf repo/SOURCES/libv4v* libv4v-1.0
 mkdir -p repo/SOURCES libv4v-1.0
 cp -ar v4v/libv4v/* libv4v-1.0
-cp -ar v4v/v4v/linux v4v/v4v/include/xen libv4v-1.0/src
+cp -ar v4v/v4v/include/linux v4v/v4v/include/xen libv4v-1.0/src
 tar cjf repo/SOURCES/libv4v.tar.gz libv4v-1.0
 rpmbuild --target=x86_64 --noclean --define="_topdir `pwd`/repo" -bb -v v4v/libv4v/libv4v.spec
 # The following succeeds but actually builds 64 bits binaries...
