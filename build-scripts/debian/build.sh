@@ -42,11 +42,11 @@ cd $BUILD_DIR
 git clone -b $BRANCH $GIT_MIRROR/pv-linux-drivers.git
 git clone -b $BRANCH $GIT_MIRROR/v4v.git
 git clone -b $BRANCH $GIT_MIRROR/xctools.git
-cp -r v4v/v4v/linux v4v/libv4v/src/
+cp -r v4v/v4v/include/linux v4v/libv4v/src/
 cp -r v4v/v4v/include/xen v4v/libv4v/src/
 mkdir all
 cd all
-for tool in ../pv-linux-drivers/openxt-*; do
+for tool in ../pv-linux-drivers/openxt-{vusb,xenmou} ../v4v/v4v; do
     # Debian wants all directories to include a version number
     mv ${tool} ${tool}-1.0
     $SBUILD --dist=wheezy --arch-all ${tool}-1.0
