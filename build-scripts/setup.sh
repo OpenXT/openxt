@@ -164,7 +164,7 @@ fi
 # Ensure that all required packages are installed on this host.
 # When installing packages, do all at once to be faster.
 DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoimage xorriso git"
-DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq"
+DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq mtools"
 DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
 DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
 DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 libsqlite0 python-rpm \
