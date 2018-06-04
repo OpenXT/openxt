@@ -7,7 +7,7 @@ set -e
 cd `dirname $0`
 
 VERSION=%VERSION%
-DKMS_PACKAGES="openxt-v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
+DKMS_PACKAGES="v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
 OTHER_PACKAGES="libv4v"
 
 DEBIAN_NAME=jessie
