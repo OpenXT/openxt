@@ -32,7 +32,9 @@ export BUILD_UID
 
 # TODO: move some of the above definitions into common-config
 
-source ${CMD_DIR}/common-config
+if [ -f ${CMD_DIR}/common-config ]
+    source ${CMD_DIR}/common-config
+fi
 source ${CMD_DIR}/build_helpers.sh
 
 do_oe_log()
@@ -132,7 +134,10 @@ XENCLIENT_TOOLS = "$XENCLIENT_TOOLS"
 
 # dir for generated deb packages
 XCT_DEB_PKGS_DIR := "${OE_BUILD_CACHE}/xct_deb_packages"
+EOF
 
+                if [ -f ${CMD_DIR}/common-config ]; then
+                    cat >> conf/local.conf <<EOF
 # xen version and source
 XEN_VERSION="${XEN_VERSION}"
 XEN_SRC_URI="${XEN_SRC_URI}"
@@ -140,6 +145,7 @@ XEN_SRC_MD5SUM="${XEN_SRC_MD5SUM}"
 XEN_SRC_SHA256SUM="${XEN_SRC_SHA256SUM}"
 
 EOF
+                fi
 
                 cat >> conf/local.conf <<EOF
 # Production and development repository-signing CA certificates
