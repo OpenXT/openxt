@@ -62,33 +62,6 @@ make_bundle_xctools()
     mkdir -p ${deb_data}/lib/udev/rules.d
     ( cd ${BUILD_SCRIPTS}/pkg-xctools/udev-rules/ && cp *.rules ${deb_data}/lib/udev/rules.d/ )
 
-    # xenstore-tools
-    # TODO: That could be done much better.
-    local XST="xenstore-tools-xc"
-    local PDST_DIR="${deb_data}/usr/src/${XST}"
-    local XP="xen-${XEN_VERSION}"
-    rm -rf $PDST_DIR
-    mkdir -p $PDST_DIR
-    wget "${XEN_SRC_URI}" -O "${PDST_DIR}/xen.tar.gz"
-    pushd $PDST_DIR
-        tar xf xen.tar.gz
-        cd "${XP}"
-        touch config/Tools.mk
-        XEN_TARGET_ARCH=x86_64 make -C tools/include
-    popd
-    pushd "${deb_data}/usr/src/"
-    mkdir -p "t/tools"
-        cp -Lr "${XST}/${XP}/tools/include" "t/tools"
-        cp -Lr "${XST}/${XP}/tools/xenstore" "t/tools"
-        cp -Lr "${XST}/${XP}/config" "t"
-        cp -Lr "${XST}/${XP}/tools/Rules.mk" "t/tools"
-        cp -Lr "${XST}/${XP}/Config.mk" "t"
-        mv "${XST}" "${XST}.old"
-        mv "t" "${XST}"
-        rm -rf "${XST}.old"
-        find "${XST}" \( -name "*.py" -o -name "checker" \) -delete
-    popd
-
     # xenstore-agent
     mkdir -p git-tmp
     git_clone "git-tmp" "${OPENXT_GIT_PROTOCOL}://${OPENXT_GIT_MIRROR}/manager.git" "${BRANCH}" "$ALLOW_SWITCH_BRANCH_FAIL"
