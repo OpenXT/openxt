@@ -35,7 +35,7 @@ cp -r debian /var/opt/openxt/
 
 echo "Writing /etc/apt/sources.list.d/openxt.list"
 cat > /etc/apt/sources.list.d/openxt.list <<EOF
-deb file:///var/opt/openxt/debian $DEBIAN_NAME main
+deb [trusted=yes] file:///var/opt/openxt/debian $DEBIAN_NAME main
 EOF
 
 echo "Installing the tools..."
