@@ -14,7 +14,7 @@ openxt_layer_xenclient_oe_images=(                                          \
 "openxt-installer       xenclient-installer                 cpio.gz"     \
 "openxt-installer       xenclient-installer-part2           tar.bz2"     \
 "xenclient-uivm         xenclient-uivm                      ext3.vhd.gz" \
-"xenclient-ndvm         xenclient-ndvm                      ext3.vhd.gz" \
+"xenclient-ndvm         xenclient-ndvm                      ext3.disk.vhd.gz" \
 )
 
 # We append to openxt_layers, so the list will be sorted

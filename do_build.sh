@@ -241,6 +241,7 @@ do_oe_copy()
             tar tar.gz tar.bz2 \
             ext3 ext3.gz ext3.bz2 \
             ext3.vhd ext3.vhd.gz ext3.vhd.bz2 \
+            ext3.disk.vhd ext3.disk.vhd.gz ext3.disk.vhd.bz2 \
             xc.ext3 xc.ext3.gz xc.ext3.bz2 \
             xc.ext3.vhd xc.ext3.vhd.gz xc.ext3.vhd.bz2 \
             xc.ext3.bvhd xc.ext3.bvhd.gz xc.ext3.bvhd.bz2
