@@ -155,7 +155,7 @@ collect_logs() {
     mkdir -p logs
 
     echo "Collecting build logs..."
-    ls tmp-glibc/work/*/*/*/temp/log.do_* | tar -cjf logs/build_logs.tar.bz2 --files-from=-
+    find tmp-glibc/work -mindepth 5 -maxdepth 5 -type f -path "*/*/*/temp/log.do_*" | tar -cjf logs/build_logs.tar.bz2 --files-from=-
     echo "Collecting sigdata..."
     find tmp-glibc/stamps -name "*.sigdata.*" | tar -cjf logs/sigdata.tar.bz2 --files-from=-
 
