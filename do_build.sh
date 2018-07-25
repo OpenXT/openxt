@@ -32,7 +32,7 @@ export BUILD_UID
 
 # TODO: move some of the above definitions into common-config
 
-if [ -f ${CMD_DIR}/common-config ]
+if [ -f ${CMD_DIR}/common-config ]; then
     source ${CMD_DIR}/common-config
 fi
 source ${CMD_DIR}/build_helpers.sh
