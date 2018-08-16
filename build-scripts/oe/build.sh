@@ -43,7 +43,9 @@ cd ..
 setupoe() {
     source version
     cp build/conf/local.conf-dist build/conf/local.conf
-    cat common-config >> build/conf/local.conf
+    if [ -f common-config ]; then
+        cat common-config >> build/conf/local.conf
+    fi
     cat >> build/conf/local.conf <<EOF
 # Distribution feed
 XENCLIENT_PACKAGE_FEED_URI="file:///storage/ipk"

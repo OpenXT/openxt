@@ -95,28 +95,6 @@ done
 modprobe xenfs
 
 #
-# Deals with xenstore-tools
-#
-NAME=xenstore-tools
-PACKAGE=${NAME}
-SRCS=/usr/src/${PACKAGE}-xc
-pushd ${SRCS}
-    echo "xenstore-tools building ..."
-    DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore libxenstore.so
-    DESTDIR=/ CFLAGS='' LDFLAGS='' make -C tools/xenstore clients
-    ( cd tools/xenstore && cp -a libxenstore.so* "${LIBDIR}" )
-    ( cd tools/xenstore && cp xenstore.h xenstore_lib.h /usr/include )
-    ( cd tools/xenstore && cp -a xenstore xenstore-chmod xenstore-control xenstore-exists \
-       xenstore-list xenstore-ls xenstore-read xenstore-rm xenstore-watch xenstore-write /usr/bin/ )
-    tmp=`mktemp -d`
-    cp -r "/usr/include/xen" "${tmp}"
-    ( cd tools/include && cp -r xen /usr/include )
-    cp -r "${tmp}/xen/"* "/usr/include/xen"
-    rm -rf "${tmp}"
-    echo "xenstore-tools installed."
-popd
-
-#
 # Deals with libv4v
 #
 if [ -n "$HAS_V4V" ]; then
