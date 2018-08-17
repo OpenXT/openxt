@@ -157,7 +157,7 @@ if [ "x${UID}" != "x0" ] ; then
 fi
 
 if [ ! -f /etc/debian_version ]; then
-    echo "Sorry, this script only works on Debian for now.">&2
+    echo "Sorry, this script only works on Debian and Ubuntu for now.">&2
     exit 4
 fi
 
@@ -167,17 +167,31 @@ DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoi
 DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq mtools"
 DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
 DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
-DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 libsqlite0 python-rpm \
+DEB_PKGS="$DEB_PKGS libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-urlgrabber rpm \
 rpm-common rpm2cpio yum" # Centos container
 DEB_PKGS="$DEB_PKGS dosfstools fuse fusefat" # efiboot.img
 
 # Version-specific Debian packages
-DEB_VERS=`cut -d '.' -f 1 /etc/debian_version`
-if [ $DEB_VERS -ge 9 ]; then   # Debian Stretch and later
-    DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3"
-else                           # Debian Jessie and earlier
-    DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support"
+HOST_DIST=$(lsb_release -i | cut -f 2)
+HOST_VER=$(lsb_release -r | cut -f 2)
+HOST_VER_MAJOR=$(lsb_release -r | cut -f 2 | cut -d '.' -f 1)
+
+echo "Host build environment detected: $HOST_DIST $HOST_VER"
+
+if [ "$HOST_DIST" == "Debian" ]; then
+    if [ $HOST_VER_MAJOR -ge 9 ]; then    # Debian Stretch and later
+        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuil3 librpmio3"
+    else                                  # Debian Jessie and earlier
+        DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support librpm3 librpmbuild3 librpmio3"
+    fi
+elif [ "$HOST_DIST" == "Ubuntu" ]; then
+    if [ $HOST_VER_MAJOR -ge 18 ]; then   # Ubuntu 18.04 and later
+        DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign8 librpm8 librpmbuild8 librpmio8"
+    fi
+else
+  echo "Unsupported/unhandled build distro \"$HOST_DIST\". Unable to confidently stage build environment."
+  exit 1
 fi
 
 apt-get update
