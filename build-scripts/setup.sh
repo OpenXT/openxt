@@ -353,6 +353,12 @@ lxc.network.hwaddr = ${MAC_PREFIX}:${MAC_E}:${NUMBER}
 lxc.network.ipv4 = 0.0.0.0/24
 EOF
 
+    # Attempt a forward-port of the LXC container config
+    if [ ! -z $(which lxc-update-config) ] ; then
+      echo "Updating the ${NAME} container configuration file..."
+      lxc-update-config -c ${LXC_PATH}/${BUILD_USER}-${NAME}/config
+    fi
+
     local ROOTFS=${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs
 
     echo "Configuring the ${NAME} container..."
