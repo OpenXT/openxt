@@ -6,9 +6,11 @@
 #
 # Copyright (c) 2016 Assured Information Security, Inc.
 # Copyright (c) 2016 BAE Systems
+# Copyright (c) 2018 Ortman Consulting
 #
 # Contributions by Jean-Edouard Lejosne
 # Contributions by Christopher Clark
+# Contributions by Kevin Pearson
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +26,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+
+# -- Script return codes manifest
+#
+# 0   - Success.
+# 1   - A necessary binary or command is missing.
+# 2   - Insufficient privileges, must be run as UID 0 (root).
+# 3   - Failed to set up a build container. Container will be cited in output.
+# 4   - Unsupported build host distribution and/or version
+# 5   - Given username for the builder is too long. Must be 13 characters or less.
 
 # -- Script default configuration settings.
 
@@ -95,6 +106,9 @@ usage: $0 [-h] [-O] [-D] [-C] [-W] [-u build_user] [-d debian_mirror]
    Make sure there's enough room there, or change that location by:
      - Installing lxc: apt-get install lxc
      - Runing: echo "lxc.lxcpath = <path>" >> /etc/lxc/lxc.conf
+
+  For a list of return code definitions, please see the comments in the
+    source file immediately after the copyright/license header.
 EOF
     exit $1
 }
@@ -156,28 +170,45 @@ if [ "x${UID}" != "x0" ] ; then
     exit 2
 fi
 
-if [ ! -f /etc/debian_version ]; then
-    echo "Sorry, this script only works on Debian for now.">&2
-    exit 4
-fi
-
 # Ensure that all required packages are installed on this host.
 # When installing packages, do all at once to be faster.
 DEB_PKGS="lxc bridge-utils libvirt-daemon-system libvirt-clients curl jq genisoimage xorriso git"
 DEB_PKGS="$DEB_PKGS syslinux-utils openssl unzip rsync ebtables dnsmasq mtools"
 DEB_PKGS="$DEB_PKGS haveged" # seeds entropy
 DEB_PKGS="$DEB_PKGS debootstrap" # Debian container
-DEB_PKGS="$DEB_PKGS librpm3 librpmbuild3 librpmio3 libsqlite0 python-rpm \
+DEB_PKGS="$DEB_PKGS libsqlite0 python-rpm \
 python-sqlite python-sqlitecachec python-urlgrabber rpm \
 rpm-common rpm2cpio yum" # Centos container
 DEB_PKGS="$DEB_PKGS dosfstools fuse fusefat" # efiboot.img
 
 # Version-specific Debian packages
-DEB_VERS=`cut -d '.' -f 1 /etc/debian_version`
-if [ $DEB_VERS -ge 9 ]; then   # Debian Stretch and later
-    DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3"
-else                           # Debian Jessie and earlier
-    DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support"
+if [ -z "$(which lsb_release)" ]; then
+    echo "Please install the 'lsb-release' package necessary to determine the host environment"
+    exit 1
+fi
+
+HOST_DIST=$(lsb_release -is)
+HOST_VER=$(lsb_release -rs)
+HOST_VER_MAJOR=$(lsb_release -rs | cut -d '.' -f 1)
+
+echo "Host build environment detected: $HOST_DIST $HOST_VER"
+
+if [ "$HOST_DIST" == "Debian" ]; then
+    if [ $HOST_VER_MAJOR -ge 9 ]; then    # Debian Stretch and later
+        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuil3 librpmio3"
+    else                                  # Debian Jessie and earlier
+        DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support librpm3 librpmbuild3 librpmio3"
+    fi
+elif [ "$HOST_DIST" == "Ubuntu" ]; then
+    if [ $HOST_VER_MAJOR -ge 18 ]; then   # Ubuntu 18.04 and later
+        DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign8 librpm8 librpmbuild8 librpmio8"
+    else
+        echo "Unsupported Ubuntu release. 18.04 and newer are supported build hosts"
+        exit 4
+    fi
+else
+  echo "Unsupported/unhandled build distro \"$HOST_DIST\". Unable to confidently stage build environment."
+  exit 4
 fi
 
 apt-get update
@@ -338,6 +369,12 @@ lxc.network.link = ${BUILD_USER}br0
 lxc.network.hwaddr = ${MAC_PREFIX}:${MAC_E}:${NUMBER}
 lxc.network.ipv4 = 0.0.0.0/24
 EOF
+
+    # Attempt a forward-port of the LXC container config
+    if [ -n "$(which lxc-update-config)" ] ; then
+      echo "Updating the ${NAME} container configuration file..."
+      lxc-update-config -c ${LXC_PATH}/${BUILD_USER}-${NAME}/config
+    fi
 
     local ROOTFS=${LXC_PATH}/${BUILD_USER}-${NAME}/rootfs
 
