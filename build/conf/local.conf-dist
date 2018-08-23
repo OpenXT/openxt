@@ -39,4 +39,5 @@ DEBIAN_MIRROR_pn-screen = "http://archive.debian.org/debian/pool"
 MIRRORS += " \
     http://code.coreboot.org/p/seabios/downloads/.*     https://www.seabios.org/downloads/ \n \
     http://www.seabios.org/downloads/.*                 https://www.seabios.org/downloads/ \n \
+    git://anonscm.debian.org/collab-maint/ltrace.git    git://github.com/sparkleholic/ltrace.git \n \
 "
