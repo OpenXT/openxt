@@ -40,7 +40,7 @@ EOF
 
 echo "Installing the tools..."
 apt-get update
-apt-get -y --force-yes install $DKMS_PACKAGES $OTHER_PACKAGES
+apt-get -y --force-yes install linux-headers-$(uname -r) $DKMS_PACKAGES $OTHER_PACKAGES
 
 echo "Adding the new kernel modules to /etc/modules-load.d/openxt.conf"
 for package in `echo $DKMS_PACKAGES | sed 's/-dkms//g' | sed 's/openxt-xenmou/xenmou/'`; do
