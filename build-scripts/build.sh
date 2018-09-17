@@ -417,10 +417,10 @@ EOF
     rm -rf build-openxt
 }
 
-[ -z $NO_OE ]      && build_container "01" "oe"
-[ -z $NO_DEBIAN ]  && build_container "02" "debian"
-[ -z $NO_CENTOS ]  && build_container "03" "centos"
 [ -z $NO_WINDOWS ] && build_windows   "04"
+[ -z $NO_CENTOS ]  && build_container "03" "centos"
+[ -z $NO_DEBIAN ]  && build_container "02" "debian"
+[ -z $NO_OE ]      && build_container "01" "oe"
 
 build_tools_iso
 build_repository
