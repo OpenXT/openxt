@@ -195,7 +195,7 @@ echo "Host build environment detected: $HOST_DIST $HOST_VER"
 
 if [ "$HOST_DIST" == "Debian" ]; then
     if [ $HOST_VER_MAJOR -ge 9 ]; then    # Debian Stretch and later
-        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuil3 librpmio3"
+        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuild3 librpmio3"
     else                                  # Debian Jessie and earlier
         DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support librpm3 librpmbuild3 librpmio3"
     fi
