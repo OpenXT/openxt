@@ -11,7 +11,7 @@ DKMS_PACKAGES="v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
 OTHER_PACKAGES="libv4v"
 
 DEBIAN_NAME=jessie
-DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null`
+DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null || true`
 [ "x$DEBIAN_VERSION" = "x7" ] && DEBIAN_NAME=wheezy
 
 echo "Removing old tools..."
