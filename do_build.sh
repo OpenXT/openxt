@@ -408,7 +408,8 @@ do_oe_installer_copy()
                 "$OUTPUT_DIR/$NAME/raw/installer/"
         cp "$binaries/$machine"/microcode_intel.bin \
                 "$OUTPUT_DIR/$NAME/raw/installer"
-        cp "$binaries/$machine/grubx64.efi" "$OUTPUT_DIR/$NAME/raw/"
+        cp "$binaries/$machine/grub-efi-bootx64.efi" \
+                "$OUTPUT_DIR/$NAME/raw/grubx64.efi"
         cp "$binaries/$machine/isohdpfx.bin" "$OUTPUT_DIR/$NAME/raw/"
 
         popd

@@ -137,8 +137,9 @@ build_image() {
     fi
 
     # Transfer installer EFI files
-    if [ -f tmp-glibc/deploy/images/${MACHINE}/grubx64.efi ]; then
-        $RSYNC tmp-glibc/deploy/images/${MACHINE}/grubx64.efi ${TARGET}/raw/
+    if [ -f tmp-glibc/deploy/images/${MACHINE}/grub-efi-bootx64.efi ]; then
+        $RSYNC tmp-glibc/deploy/images/${MACHINE}/grub-efi-bootx64.efi \
+                ${TARGET}/raw/grubx64.efi
         $RSYNC tmp-glibc/deploy/images/${MACHINE}/isohdpfx.bin ${TARGET}/raw/
     fi
 }
