@@ -70,6 +70,9 @@ echo "dash dash/sh boolean false" > /tmp/preseed.txt
 debconf-set-selections /tmp/preseed.txt
 dpkg-reconfigure -f noninteractive dash
 
+# Add a symlink required to build some packages, like hkg-hsyslog
+ln -s /lib64/ld-linux-x86-64.so.2 /lib/
+
 # Add a build user
 adduser --disabled-password --gecos "" ${CONTAINER_USER}
 mkdir -p /home/${CONTAINER_USER}/.ssh
