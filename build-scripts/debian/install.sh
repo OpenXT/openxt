@@ -16,7 +16,7 @@ DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null || true`
 
 echo "Removing old tools..."
 # Kernel modules
-for pkg in `dpkg -l | awk '{print $2}' | grep "^openxt-.*-dkms$"`; do
+for pkg in `dpkg -l | awk '{print $2}' | grep "^openxt-.*-dkms$\|^v4v-dkms$"`; do
     apt-get -y remove --purge $pkg
 done
 # Others
@@ -42,9 +42,15 @@ echo "Installing the tools..."
 apt-get update
 apt-get -y --force-yes install linux-headers-$(uname -r) $DKMS_PACKAGES $OTHER_PACKAGES
 
-echo "Adding the new kernel modules to /etc/modules-load.d/openxt.conf"
+mod_dir=/etc/modules-load.d
+mod_file=$mod_dir/openxt.conf
+
+# Handle the non-systemd case
+[ ! -d $mod_dir ] && mod_file=/etc/modules
+
+echo "Adding the new kernel modules to $mod_file"
 for package in `echo $DKMS_PACKAGES | sed 's/-dkms//g' | sed 's/openxt-xenmou/xenmou/'`; do
-    echo $package >> /etc/modules-load.d/openxt.conf
+    echo $package >> $mod_file
 done
 
 echo "Writing the tools version to xenstore..."
