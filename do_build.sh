@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -363,19 +363,6 @@ do_oe_dom0()
         local path="$1"
         do_oe "$path" "xenclient-dom0" "xenclient-dom0-image"
         do_oe_dom0_copy $path
-}
-
-do_oe_sysroot_copy()
-{
-        local path="$1"
-        do_oe_copy "$path" "sysroot" "xenclient-sysroot" "xenclient-dom0"
-}
-
-do_oe_sysroot()
-{
-        local path="$1"
-        do_oe "$path" "xenclient-dom0" "xenclient-sysroot-image"
-        do_oe_sysroot_copy $path
 }
 
 do_oe_installer_copy()
@@ -1374,10 +1361,6 @@ do_build()
                                 do_oe_dom0 "$path" ;;
                         dom0cp)
                                 do_oe_dom0_copy "$path" ;;
-                        sysroot)
-                                do_oe_sysroot "$path" ;;
-                        sysrootcp)
-                                do_oe_sysroot_copy "$path" ;;
                         initramfs*)
                                 do_oe "$path" "xenclient-dom0" "xenclient-initramfs-image" ;;
                         stubinitramfs)
