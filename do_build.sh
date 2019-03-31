@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,upgrade,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -443,6 +443,18 @@ do_oe_installer_part2()
 
         do_oe "$path" "openxt-installer" "xenclient-installer-part2-image"
         do_oe_installer_part2_copy $path "openxt-installer"
+}
+
+do_oe_upgrade(){
+        local path="$1"
+
+        do_oe "$path" "upgrade-compat" "xenclient-upgrade-compat-image"
+        do_oe_upgrade_copy $path
+}
+
+do_oe_upgrade_copy(){
+        local path="$1"
+        do_oe_copy "$path" "upgrade-compat" "xenclient-upgrade-compat" "upgrade-compat"
 }
 
 do_oe_source_shrink()
@@ -1398,6 +1410,8 @@ do_build()
                                 do_oe_uivm "$path" ;;
                         ndvm)
                                 do_oe_ndvm "$path" ;;
+                        upgrade)
+                                do_oe_upgrade "$path" ;;
                         nilfvm)
                                 do_oe_nilfvm "$path" ;;
                         vpnvm)
