@@ -1450,6 +1450,8 @@ do_build()
                 eval "${name}_pid=$pid"
                 STEPNUM=`expr $STEPNUM + 1`
         done
+
+        echo "Finished $(date)"
 }
 
 
