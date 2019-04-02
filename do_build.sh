@@ -1464,6 +1464,21 @@ sanitize_build_id() {
 
 BUILD_SCRIPTS="`pwd`/`dirname $0`"
 
+if [ -n "$CONFIG" ]; then
+        if [ -r "$CONFIG" ]; then
+                . "$CONFIG"
+        else
+                echo "Config file does not exist or could not be read: ${CONFIG}"
+                exit 1
+        fi
+else
+        if [ ! -f ".config" ]; then
+                echo ".config file is missing"
+                exit 1
+        fi
+        . .config
+fi
+
 while [ "$#" -ne 0 ]; do
         case "$1" in
                 -b) BRANCH="$2" ; shift 2 ;;
@@ -1481,20 +1496,5 @@ while [ "$#" -ne 0 ]; do
 done
 
 [ "x$DEBUG" != "x" ] && env >&2 && set -x
-
-if [ -n "$CONFIG" ]; then
-        if [ -r "$CONFIG" ]; then
-                . "$CONFIG"
-        else
-                echo "Config file does not exist or could not be read: ${CONFIG}"
-                exit 1
-        fi
-else
-        if [ ! -f ".config" ]; then
-                echo ".config file is missing"
-                exit 1
-        fi
-        . .config
-fi
 
 do_build
