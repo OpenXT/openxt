@@ -43,8 +43,8 @@ chown -R ${CONTAINER_USER}:${CONTAINER_USER} /home/${CONTAINER_USER}/.ssh
 # Setup sbuild
 INCLUDE="build-essential,dh-make,dkms,dh-autoreconf" # Packages needed by chroots to build stuffs
 mkdir /root/.gnupg
-sbuild-createchroot wheezy /home/chroots/wheezy-i386  $MIRROR --arch=i386  --include=$INCLUDE
-sbuild-createchroot wheezy /home/chroots/wheezy-amd64 $MIRROR --arch=amd64 --include=$INCLUDE
+sbuild-createchroot wheezy /home/chroots/wheezy-i386  http://archive.debian.org/debian --arch=i386  --include=$INCLUDE
+sbuild-createchroot wheezy /home/chroots/wheezy-amd64 http://archive.debian.org/debian --arch=amd64 --include=$INCLUDE
 sbuild-createchroot jessie /home/chroots/jessie-i386  $MIRROR --arch=i386  --include=$INCLUDE
 sbuild-createchroot jessie /home/chroots/jessie-amd64 $MIRROR --arch=amd64 --include=$INCLUDE
 # The 2 following steps are done before creating the chroot in the documentation
