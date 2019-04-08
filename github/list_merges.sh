@@ -10,7 +10,12 @@ usage()
 
 [ $# -eq 3 ] || usage 1
 
-TOKEN="$1"
+# Generate a token there: https://github.com/settings/tokens
+if [ -e "$1" ]; then
+    TOKEN=$(cat $1)
+else
+    TOKEN="$1"
+fi
 USER="$2"
 DATE="$3"
 

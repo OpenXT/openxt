@@ -10,7 +10,11 @@ usage()
 
 [ $# -eq 3 ] || usage 1
 
-TOKEN="$1"
+if [ -e "$1" ]; then
+    TOKEN=$(cat $1)
+else
+    TOKEN="$1"
+fi
 BRANCH="$2"
 TAG="$3"
 

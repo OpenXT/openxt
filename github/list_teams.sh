@@ -3,7 +3,11 @@
 [ $# -eq 1 ] || exit 1
 
 # Generate a token there: https://github.com/settings/tokens
-TOKEN="$1"
+if [ -e "$1" ]; then
+    TOKEN=$(cat $1)
+else
+    TOKEN="$1"
+fi
 
 # Get the list of OpenXT repos
 teams_list=`curl -H "Authorization: token $TOKEN" -s "https://api.github.com/orgs/OpenXT/teams?per_page=100"`
