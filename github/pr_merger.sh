@@ -9,7 +9,11 @@ usage() {
 [ $# -lt 3 ] && usage 1
 
 # Generate a token there: https://github.com/settings/tokens
-TOKEN="$1"
+if [ -e "$1" ]; then
+    TOKEN=$(cat $1)
+else
+    TOKEN="$1"
+fi
 REPO="$2"
 shift 2
 
