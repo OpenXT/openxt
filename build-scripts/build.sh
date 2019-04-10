@@ -266,6 +266,7 @@ build_repository () {
     cat > manifest <<EOF
 control tarbz2 required control.tar.bz2 /
 dom0 ext3gz required dom0-rootfs.i686.ext3.gz /
+upgrade-compat ext3gz required upgrade-compat-rootfs.i686.ext3.gz /
 uivm vhdgz required uivm-rootfs.i686.ext3.vhd.gz /storage/uivm
 ndvm vhdgz required ndvm-rootfs.i686.ext3.disk.vhd.gz /storage/ndvm
 syncvm vhdgz optional syncvm-rootfs.i686.ext3.vhd.gz /storage/syncvm
