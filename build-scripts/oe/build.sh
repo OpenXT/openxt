@@ -122,7 +122,7 @@ build_image() {
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-${MACHINE}.bin \
                    ${TARGET}/netboot/vmlinuz
         else
-            $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.i686.${EXTENSION}
+            $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.${EXTENSION}
         fi
     fi
 

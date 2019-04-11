@@ -254,7 +254,7 @@ do_oe_copy()
         do
             if [ -f "$binaries/$machine/$image-image-$machine.$t" ]; then
                 echo "$name image type: $t"
-                cp "$binaries/$machine/$image-image-$machine.$t" "$OUTPUT_DIR/$NAME/raw/$name-rootfs.i686.$t"
+                cp "$binaries/$machine/$image-image-$machine.$t" "$OUTPUT_DIR/$NAME/raw/$name-rootfs.$t"
                 unhappy=0
             fi
         done
@@ -374,7 +374,7 @@ do_oe_installer_copy()
 
         mkdir -p "$OUTPUT_DIR/$NAME/raw/installer"
         # Copy installer
-        cp "$binaries/$machine/xenclient-installer-image-$machine.cpio.gz" "$OUTPUT_DIR/$NAME/raw/installer/rootfs.i686.cpio.gz"
+        cp "$binaries/$machine/xenclient-installer-image-$machine.cpio.gz" "$OUTPUT_DIR/$NAME/raw/installer/rootfs.cpio.gz"
 
         # Copy extra installer files
         rm -rf "$OUTPUT_DIR/$NAME/raw/installer/iso"
@@ -799,7 +799,7 @@ generic_do_netboot()
 
         local path="$OUTPUT_DIR/$NAME/raw/installer"
         local netboot="$OUTPUT_DIR/$NAME/netboot$suffix"
-        local tarball="$path/rootfs.i686"
+        local tarball="$path/rootfs"
 
         echo "netboot$suffix:"
 
@@ -832,7 +832,7 @@ generic_do_netboot()
         extract_ucode "$tarball" "$path" "$netboot"
 
         echo "  - copy rootfs"
-        cp "$path/rootfs.i686.cpio.gz" "$netboot/rootfs.gz"
+        cp "$path/rootfs.cpio.gz" "$netboot/rootfs.gz"
 
         echo "  - Create a tarball with netboot file"
         tar cf "$netboot/netboot.tar" -C "$netboot" .
@@ -865,7 +865,7 @@ generic_do_installer_iso()
         local repository="$OUTPUT_DIR/$NAME/repository$suffix"
         local iso="$OUTPUT_DIR/$NAME/iso"
         local iso_path="$iso/installer$suffix"
-        local tarball="$path/installer/rootfs.i686"
+        local tarball="$path/installer/rootfs"
         local OPENXT_VERSION="$VERSION"
         local OPENXT_BUILD_ID="$ID"
         local OPENXT_ISO_LABEL="OpenXT-${VERSION}"
@@ -904,7 +904,7 @@ generic_do_installer_iso()
         extract_ucode "$tarball" "$path/installer/" "$iso_path/isolinux"
 
         echo "  - copy rootfs"
-        cp "$path/installer/rootfs.i686.cpio.gz" "$iso_path/isolinux/rootfs.gz"
+        cp "$path/installer/rootfs.cpio.gz" "$iso_path/isolinux/rootfs.gz"
 
         cp -r "$repository/"* "$iso_path"
 
