@@ -263,14 +263,7 @@ build_repository () {
 
     local repository="$WORKDIR/repository/packages.main"
 
-    cat > manifest <<EOF
-control tarbz2 required control.tar.bz2 /
-dom0 ext3gz required dom0-rootfs.i686.ext3.gz /
-uivm vhdgz required uivm-rootfs.i686.ext3.vhd.gz /storage/uivm
-ndvm vhdgz required ndvm-rootfs.i686.ext3.disk.vhd.gz /storage/ndvm
-syncvm vhdgz optional syncvm-rootfs.i686.ext3.vhd.gz /storage/syncvm
-file iso optional xc-tools.iso /storage/isos/xc-tools.iso
-EOF
+    cp -f "${BUILD_DIR_PATH}/build-openxt/manifest" .
 
     echo "Creating the repository..."
     mkdir -p "$repository"
@@ -351,7 +344,7 @@ build_iso() {
     # If we already ran build_finalize(), netboot has a copy of rootfs.gz.
     # Since netboot/* was just copied into iso_tmp/isolinux, we'd now have it.
     if [ ! -e iso_tmp/isolinux/rootfs.gz ]; then
-	ln -s ../../raw/installer-rootfs.i686.cpio.gz iso_tmp/isolinux/rootfs.gz
+	ln -s ../../raw/installer-rootfs.cpio.gz iso_tmp/isolinux/rootfs.gz
     fi
     sed -i -re "s|[$]OPENXT_VERSION|$VERSION|g" iso_tmp/isolinux/bootmsg.txt
     sed -i -re "s|[$]OPENXT_BUILD_ID|$BUILD_ID|g" iso_tmp/isolinux/bootmsg.txt
@@ -408,7 +401,7 @@ EOF
 
     # Copy all the netboot files to the netboot directory and tar it up
     cp installer/netboot/* netboot/
-    cp raw/installer-rootfs.i686.cpio.gz netboot/rootfs.gz
+    cp raw/installer-rootfs.cpio.gz netboot/rootfs.gz
     rm -f netboot/netboot.tar.gz
     tar -C netboot -czf netboot.tar.gz .
     mv netboot.tar.gz netboot/
