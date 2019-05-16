@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,sysroot,upgrade,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,upgrade,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -363,19 +363,6 @@ do_oe_dom0()
         local path="$1"
         do_oe "$path" "xenclient-dom0" "xenclient-dom0-image"
         do_oe_dom0_copy $path
-}
-
-do_oe_sysroot_copy()
-{
-        local path="$1"
-        do_oe_copy "$path" "sysroot" "xenclient-sysroot" "xenclient-dom0"
-}
-
-do_oe_sysroot()
-{
-        local path="$1"
-        do_oe "$path" "xenclient-dom0" "xenclient-sysroot-image"
-        do_oe_sysroot_copy $path
 }
 
 do_oe_installer_copy()
@@ -1386,10 +1373,6 @@ do_build()
                                 do_oe_dom0 "$path" ;;
                         dom0cp)
                                 do_oe_dom0_copy "$path" ;;
-                        sysroot)
-                                do_oe_sysroot "$path" ;;
-                        sysrootcp)
-                                do_oe_sysroot_copy "$path" ;;
                         initramfs*)
                                 do_oe "$path" "xenclient-dom0" "xenclient-initramfs-image" ;;
                         stubinitramfs)
@@ -1467,6 +1450,8 @@ do_build()
                 eval "${name}_pid=$pid"
                 STEPNUM=`expr $STEPNUM + 1`
         done
+
+        echo "Finished $(date)"
 }
 
 
@@ -1480,6 +1465,21 @@ sanitize_build_id() {
 }
 
 BUILD_SCRIPTS="`pwd`/`dirname $0`"
+
+if [ -n "$CONFIG" ]; then
+        if [ -r "$CONFIG" ]; then
+                . "$CONFIG"
+        else
+                echo "Config file does not exist or could not be read: ${CONFIG}"
+                exit 1
+        fi
+else
+        if [ ! -f ".config" ]; then
+                echo ".config file is missing"
+                exit 1
+        fi
+        . .config
+fi
 
 while [ "$#" -ne 0 ]; do
         case "$1" in
@@ -1498,20 +1498,5 @@ while [ "$#" -ne 0 ]; do
 done
 
 [ "x$DEBUG" != "x" ] && env >&2 && set -x
-
-if [ -n "$CONFIG" ]; then
-        if [ -r "$CONFIG" ]; then
-                . "$CONFIG"
-        else
-                echo "Config file does not exist or could not be read: ${CONFIG}"
-                exit 1
-        fi
-else
-        if [ ! -f ".config" ]; then
-                echo ".config file is missing"
-                exit 1
-        fi
-        . .config
-fi
 
 do_build
