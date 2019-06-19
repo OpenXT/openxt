@@ -5,8 +5,7 @@ set -e
 cd `dirname $0`
 
 VERSION=%VERSION%
-DKMS_PACKAGES="openxt-v4v openxt-vusb openxt-xenmou"
-OTHER_PACKAGES="libv4v"
+DKMS_PACKAGES="openxt-vusb openxt-xenmou"
 
 ARCH=`uname -i`
 
@@ -74,7 +73,7 @@ baseurl=file:///var/opt/openxt/rpms
 EOF
 
 echo "Installing the tools..."
-yum -y -t --nogpgcheck install $DKMS_PACKAGES $OTHER_PACKAGES
+yum -y -t --nogpgcheck install $DKMS_PACKAGES
 
 echo "Adding the new kernel modules to /etc/modules-load.d/openxt.conf"
 for package in `echo $DKMS_PACKAGES | sed 's/openxt-xenmou/xenmou/'`; do
