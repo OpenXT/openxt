@@ -7,8 +7,7 @@ set -e
 cd `dirname $0`
 
 VERSION=%VERSION%
-DKMS_PACKAGES="v4v-dkms openxt-vusb-dkms openxt-xenmou-dkms"
-OTHER_PACKAGES="libv4v"
+DKMS_PACKAGES="openxt-vusb-dkms openxt-xenmou-dkms"
 
 DEBIAN_NAME=jessie
 DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null || true`
@@ -40,7 +39,7 @@ EOF
 
 echo "Installing the tools..."
 apt-get update
-apt-get -y --force-yes install linux-headers-$(uname -r) $DKMS_PACKAGES $OTHER_PACKAGES
+apt-get -y --force-yes install linux-headers-$(uname -r) $DKMS_PACKAGES
 
 mod_dir=/etc/modules-load.d
 mod_file=$mod_dir/openxt.conf
