@@ -7,7 +7,7 @@ set -e
 cd `dirname $0`
 
 VERSION=%VERSION%
-DKMS_PACKAGES="openxt-vusb-dkms openxt-xenmou-dkms"
+DKMS_PACKAGES="openxt-vusb-dkms"
 
 DEBIAN_NAME=jessie
 DEBIAN_VERSION=`cut -d '.' -f 1 /etc/debian_version 2>/dev/null || true`
