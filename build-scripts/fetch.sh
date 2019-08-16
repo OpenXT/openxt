@@ -34,7 +34,7 @@ for i in ${GIT_ROOT_PATH}/${BUILD_USER}/*.git; do
     echo -n "Fetching `basename $i`: "
     cd $i
     git fetch --all > /dev/null 2>&1
-    git show-ref -s $BRANCH
+    git show-ref -s $BRANCH || echo "BRANCH $BRANCH NOT FOUND"
     cd - > /dev/null
 done | tee /tmp/git_heads_$BUILD_USER
 
