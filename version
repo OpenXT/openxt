@@ -1,8 +1,8 @@
 # Identifier for this version of OpenXT
-RELEASE="9.0.1"
+RELEASE="9.0.2"
 
 # Marketing-friendly name for this version of OpenXT
-VERSION="9.0.1"
+VERSION="9.0.2"
 
 ##########
 # NOTE: IMPORTANT - XenClient tools versioning
@@ -14,7 +14,7 @@ VERSION="9.0.1"
  # Seriously now, the bit above was very important...
 XC_TOOLS_MAJOR="19"
 XC_TOOLS_MINOR="0"
-XC_TOOLS_MICRO="1"
+XC_TOOLS_MICRO="2"
 
 # Space-separated list of previous releases that can be upgraded from
-UPGRADEABLE_RELEASES="8.0.0 8.0.1 8.0.2 9.0.0"
+UPGRADEABLE_RELEASES="8.0.0 8.0.1 8.0.2 9.0.0 9.0.1"
