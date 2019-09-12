@@ -194,7 +194,9 @@ HOST_VER_MAJOR=$(lsb_release -rs | cut -d '.' -f 1)
 echo "Host build environment detected: $HOST_DIST $HOST_VER"
 
 if [ "$HOST_DIST" == "Debian" ]; then
-    if [ $HOST_VER_MAJOR -ge 9 ]; then    # Debian Stretch and later
+    if [ $HOST_VER_MAJOR -ge 10 ]; then   # Debian Buster and later
+        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign8 librpm8 librpmbuild8 librpmio8 lxc-templates"
+    elif [ $HOST_VER_MAJOR -eq 9 ]; then  # Debian Stretch
         DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuild3 librpmio3"
     else                                  # Debian Jessie and earlier
         DEB_PKGS="$DEB_PKGS libvirt-bin librpmsign1 python-support librpm3 librpmbuild3 librpmio3"
