@@ -195,7 +195,8 @@ echo "Host build environment detected: $HOST_DIST $HOST_VER"
 
 if [ "$HOST_DIST" == "Debian" ]; then
     if [ $HOST_VER_MAJOR -ge 10 ]; then   # Debian Buster and later
-        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign8 librpm8 librpmbuild8 librpmio8 lxc-templates"
+        DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign8 librpm8 librpmbuild8 librpmio8"
+	DEB_PKGS="$DEB_PKGS lxc-templates libxml2-utils"
     elif [ $HOST_VER_MAJOR -eq 9 ]; then  # Debian Stretch
         DEB_PKGS="$DEB_PKGS libvirt-daemon-system libvirt-clients librpmsign3 librpm3 librpmbuild3 librpmio3"
     else                                  # Debian Jessie and earlier
