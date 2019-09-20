@@ -79,9 +79,10 @@ apt-get install qemu-kvm virtinst
 
 virt-install \
     --virt-type kvm \
+    --boot hd,cdrom \
     --name ${vm_name} \
     --memory 2048 \
-    --disk /home/${BUILD_USER}/windows/${disk_pool}/disk,bus=virtio,size=80 \
+    --disk /home/${BUILD_USER}/windows/${disk_pool}/disk,format=raw,bus=virtio,size=80 \
     --disk /home/${BUILD_USER}/windows/win.iso,device=cdrom,bus=ide \
     --disk /home/${BUILD_USER}/windows/tools.iso,device=cdrom,bus=ide \
     -w bridge=${BUILD_USER}br0,mac=${MAC_ADDR},model=virtio \
