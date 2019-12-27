@@ -446,7 +446,7 @@ EOF
 
 # Create a container for the main part of the OpenXT build
 [ -z $NO_OE ] && setup_container "01" "oe" \
-                "debian" "${DEBIAN_MIRROR}" "--arch amd64  --release jessie"
+                "debian" "${DEBIAN_MIRROR}" "--arch amd64  --release buster"
 
 # Create a container for the Debian tool packages for OpenXT
 [ -z $NO_DEBIAN ] && setup_container "02" "debian" \

@@ -32,7 +32,7 @@ sed -i '/^start)$/a        mkdir -p /dev/shm/network/' /etc/init.d/networking
 PKGS=""
 PKGS="$PKGS openssh-server openssl"
 PKGS="$PKGS sed wget cvs subversion git-core coreutils unzip texi2html texinfo docbook-utils gawk python-pysqlite2 diffstat help2man make gcc build-essential g++ desktop-file-utils chrpath cpio screen bash-completion python3 iputils-ping" # OE main deps
-PKGS="$PKGS guilt iasl quilt bin86 bcc libsdl1.2-dev liburi-perl genisoimage policycoreutils unzip vim sudo rpm curl libncurses5-dev libc6-dev-i386 libelf-dev" # OpenXT-specific deps
+PKGS="$PKGS guilt iasl quilt bin86 bcc libsdl1.2-dev liburi-perl genisoimage policycoreutils unzip vim sudo rpm curl libncurses5-dev libncursesw5 libc6-dev-i386 libelf-dev" # OpenXT-specific deps
 PKGS="$PKGS xorriso mtools dosfstools" # installer & efiboot.img
 
 apt-get update
