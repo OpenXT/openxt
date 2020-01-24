@@ -41,6 +41,15 @@ BRANCH=master
 BUILD_UID=`id -u`
 export BUILD_UID
 
+DEBUG=""
+CONFIG=""
+XC_TOOLS_BUILD=""
+ARGNAME=""
+OE_BUILD_CACHE_DL=""
+OE_TARBALL_MIRROR=""
+NETBOOT_HTTP_URL=""
+FREEZE_URIS=""
+
 CONF_LOCAL="conf/local.conf"
 
 # TODO: move some of the above definitions into common-config
