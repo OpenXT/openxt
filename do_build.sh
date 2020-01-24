@@ -16,6 +16,11 @@ STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer
 # Packages tree can use hardlinks to save disk space, if $SYNC_CACHE_OE/oe-archives is populated
 # Requires a valid NETBOOT_HTTP_URL in .config
 
+# OpenXT build requires system shell to be bash
+SYSTEM_SHELL=$(basename $(readlink -f /bin/sh))
+[[ ${SYSTEM_SHELL} == "bash" ]] || \
+  { echo "OpenXT build requires bash as system shell. Please symlink /bin/sh to bash"; exit 1; }
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
