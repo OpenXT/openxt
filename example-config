@@ -2,7 +2,7 @@
 BRANCH="master"
 
 # OpenEmbedded branch to build.
-OE_BRANCH="pyro"
+OE_BRANCH="zeus"
 
 # OpenXT git repositories. Optionally replace with a local mirror.
 OPENXT_GIT_MIRROR="github.com/OpenXT"
@@ -12,7 +12,7 @@ OPENXT_GIT_PROTOCOL="git"
 OE_GIT_MIRROR=
 
 # Bitbake default version to checkout
-BB_BRANCH="1.34"
+BB_BRANCH="1.44"
 # Bitbake tag to override checkout
 #BITBAKE_TAG="1.34"
 
