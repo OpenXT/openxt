@@ -41,6 +41,8 @@ BRANCH=master
 BUILD_UID=`id -u`
 export BUILD_UID
 
+CONF_LOCAL="conf/local.conf"
+
 # TODO: move some of the above definitions into common-config
 
 if [ -f ${CMD_DIR}/common-config ]; then
@@ -100,16 +102,18 @@ do_oe_setup()
             mkdir -p conf
         fi
 
-        if [ ! -f "conf/local.conf" -o "conf/local.conf" -ot "conf/local.conf-dist" ]; then
-                cp conf/local.conf-dist conf/local.conf
+	# Force generation of local.conf with latest build version
+        rm -f ${CONF_LOCAL}
+        if [ ! -f "${CONF_LOCAL}" -o "${CONF_LOCAL}" -ot "${CONF_LOCAL}-dist" ]; then
+                cp "${CONF_LOCAL}-dist" "${CONF_LOCAL}"
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 # Tarball mirror
 PREMIRRORS = "(ftp|https?)$://.*/.*/ ${OE_TARBALL_MIRROR}"
 EOF
                 fi
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 
 # Distribution feed
 XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${BRANCH}/${NAME}/packages/ipk"
@@ -131,12 +135,12 @@ OPENXT_TAG="$BRANCH"
 EOF
 
                 if [ "x$ID" != "x" ]; then
-                    echo "XENCLIENT_BUILD = \"$ID\"" >> conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$ID\"" >> ${CONF_LOCAL}
                 else
-                    echo "XENCLIENT_BUILD = \"$NAME\"" >> conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$NAME\"" >> ${CONF_LOCAL}
                 fi
 
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 XENCLIENT_BUILD_DATE = "`date +'%T %D'`"
 XENCLIENT_BUILD_BRANCH = "${BRANCH}"
 XENCLIENT_VERSION = "$VERSION"
@@ -148,7 +152,7 @@ XCT_DEB_PKGS_DIR := "${OE_BUILD_CACHE}/xct_deb_packages"
 EOF
 
                 if [ -f ${CMD_DIR}/common-config ]; then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 # xen version and source
 XEN_VERSION="${XEN_VERSION}"
 XEN_SRC_URI="${XEN_SRC_URI}"
@@ -158,7 +162,7 @@ XEN_SRC_SHA256SUM="${XEN_SRC_SHA256SUM}"
 EOF
                 fi
 
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 # Production and development repository-signing CA certificates
 REPO_PROD_CACERT="$REPO_PROD_CACERT_PATH"
 REPO_DEV_CACERT="$REPO_DEV_CACERT_PATH"
@@ -167,7 +171,7 @@ EOF
 
                 if [ $SOURCE -eq 1 ]
                 then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 
 XENCLIENT_BUILD_SRC_PACKAGES = "1"
 XENCLIENT_COLLECT_SRC_INFO = "1"
@@ -175,7 +179,7 @@ EOF
                 fi
                 if [ "x$FREEZE_URIS" = "xyes" ]
                 then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 
 INHERIT += "freezer"
 EOF
@@ -185,7 +189,7 @@ EOF
         if [ $VERBOSE -eq 1 ]
         then
             echo "Generated config is:"
-            cat conf/local.conf
+            cat ${CONF_LOCAL}
         fi
 
         if [ $VERBOSE -eq 1 ]
