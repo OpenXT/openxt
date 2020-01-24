@@ -21,6 +21,9 @@ SYSTEM_SHELL=$(basename $(readlink -f /bin/sh))
 [[ ${SYSTEM_SHELL} == "bash" ]] || \
   { echo "OpenXT build requires bash as system shell. Please symlink /bin/sh to bash"; exit 1; }
 
+# Keep bitbake memory-resident between invocations
+export BB_SERVER_TIMEOUT=30
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
