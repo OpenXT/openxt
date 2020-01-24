@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -315,28 +315,6 @@ do_oe_ndvm()
         do_oe_ndvm_copy $path
 }
 
-do_oe_nilfvm_copy()
-{
-        local path="$1"
-        do_oe_copy "$path" "nilfvm" "xenclient-nilfvm" "xenclient-nilfvm"
-
-        local binaries="tmp-glibc/deploy/images"
-        pushd "$path"
-        cp "$binaries/service-nilfvm" "$OUTPUT_DIR/$NAME/raw/service-nilfvm"
-        popd
-}
-
-do_oe_nilfvm()
-{
-        local path="$1"
-
-        echo This step is now useless, everything we need should be built as part of the tools.
-        return
-
-        do_oe "$path" "xenclient-nilfvm" "xenclient-nilfvm-image"
-        do_oe_nilfvm_copy $path
-}
-
 do_oe_syncvm_copy()
 {
         local path="$1"
@@ -348,23 +326,6 @@ do_oe_syncvm()
         local path="$1"
         do_oe "$path" "xenclient-syncvm" "xenclient-syncvm-image"
         do_oe_syncvm_copy $path
-}
-
-do_oe_syncui_copy()
-{
-        local path="$1"
-        pushd "$path"
-        mkdir -p "$OUTPUT_DIR/$NAME/raw"
-        cp tmp-glibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
-        cp tmp-glibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
-        popd
-}
-
-do_oe_syncui()
-{
-        local path="$1"
-        do_oe "$path" "xenclient-syncui" "sync-wui"
-        do_oe_syncui_copy "$path"
 }
 
 do_oe_dom0_copy()
@@ -1184,10 +1145,6 @@ do_xctools_debian_repo()
     local dest_dir="${path}/tmp-glibc/deb-xctools-image/"
     local d_output_dir="${OUTPUT_DIR}/${NAME}/xctools-debian-repo/debian"
 
-    echo "Building Debian Service VM tools"
-    do_oe "${path}" "xenclient-nilfvm" "linux-xenclient-nilfvm"
-    do_oe "${path}" "xenclient-nilfvm" "deb-servicevm-tools"
-
     echo "Building XC Tools Debian/Ubuntu repository"
     do_oe "${path}" "xenclient-dom0" "deb-xctools-image"
 
@@ -1245,26 +1202,6 @@ do_xctools() {
      do_xctools_linux "$1"
 }
 
-do_syncui()
-{
-    local name="sync-wui-${RELEASE}.tar.gz"
-    local file="$OUTPUT_DIR/$NAME/raw/$name"
-    local out="$OUTPUT_DIR/$NAME/sync"
-
-    if [ ! -r "${file}" ]; then
-      echo "syncui: Not built, skipping"
-      return 0
-    fi
-
-    echo "syncui:"
-    echo "  - copy $name"
-
-    mkdir -p "$out"
-    cp "$file" "$out"
-
-    echo
-}
-
 do_info()
 {
     local out="$OUTPUT_DIR/$NAME"
@@ -1301,7 +1238,6 @@ do_ship()
 	    do_source_iso
 	    do_source_info
 	    do_licences
-	    do_syncui
 	    do_info
 	    do_logs
 	fi
@@ -1399,15 +1335,8 @@ do_build()
                                 do_oe_uivm "$path" ;;
                         ndvm)
                                 do_oe_ndvm "$path" ;;
-                        nilfvm)
-                                do_oe_nilfvm "$path" ;;
-                        vpnvm)
-                                # for retro-compatibility
-                                do_oe_nilfvm "$path" ;;
                         syncvm)
                                 do_oe_syncvm "$path" ;;
-                        syncui)
-                                do_oe_syncui "$path" ;;
                         uivmcp)
                                 do_oe_uivm_copy "$path" ;;
                         ndvmcp)
@@ -1416,8 +1345,6 @@ do_build()
                                 do_oe_vpnvm_copy "$path" ;;
                         syncvmcp)
                                 do_oe_syncvm_copy "$path" ;;
-                        syncuicp)
-                                do_oe_syncui_copy "$path" ;;
                         xctools*)
                                 do_xctools "$path/xctools" ;;
                         debian)
