@@ -1,5 +1,9 @@
 CONF_VERSION = "1"
 
+# Enable parallel builds on multi-core machines
+BB_NUMBER_THREADS ?= "4"
+PARALLEL_MAKE ?= "-j 4"
+
 # 1) Basic config
 #
 ## TODO: DISTRO should be in auto.conf
