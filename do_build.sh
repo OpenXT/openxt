@@ -1241,6 +1241,12 @@ do_ship()
 	    do_info
 	    do_logs
 	fi
+
+	pushd $OUTPUT_DIR
+	SYMLINK_OUTPUT="_do_build_latest"
+	rm -f $SYMLINK_OUTPUT
+	ln -s $NAME $SYMLINK_OUTPUT
+	popd
 }
 
 do_copy()
