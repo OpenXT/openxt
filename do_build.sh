@@ -24,6 +24,9 @@ SYSTEM_SHELL=$(basename $(readlink -f /bin/sh))
 # Keep bitbake memory-resident between invocations
 export BB_SERVER_TIMEOUT=30
 
+# Optional interactive use: set to 1 to disable logs
+INTERACTIVE=0
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
@@ -235,7 +238,11 @@ do_oe()
         fi
         echo "STARTING OE BUILD $image $machine, started at" `date -u +'%H:%M:%S UTC'`
 
-         < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
+	if [ $INTERACTIVE -eq 1 ]; then
+            ./bb $BBFLAGS "$image"
+	else
+            < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
+	fi
         popd
 }
 
@@ -1289,12 +1296,15 @@ do_ship()
         do_updates
         do_netboots
         do_installer_isos
-        do_source_iso
-        do_source_info
-        do_licences
-        do_syncui
-        do_info
-        do_logs
+
+	if [ $INTERACTIVE -eq 0 ]; then
+	    do_source_iso
+	    do_source_info
+	    do_licences
+	    do_syncui
+	    do_info
+	    do_logs
+	fi
 }
 
 do_copy()
