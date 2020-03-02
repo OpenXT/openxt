@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,syncui,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -398,6 +398,7 @@ do_oe_installer_copy()
         cp "$binaries/$machine/grub-efi-bootx64.efi" \
                 "$OUTPUT_DIR/$NAME/raw/grubx64.efi"
         cp "$binaries/$machine/isohdpfx.bin" "$OUTPUT_DIR/$NAME/raw/"
+        cp "$binaries/$machine/control.tar.bz2" "$OUTPUT_DIR/$NAME/raw/"
 
         popd
 }
@@ -408,28 +409,6 @@ do_oe_installer()
 
         do_oe "$path" "openxt-installer" "xenclient-installer-image"
         do_oe_installer_copy $path "openxt-installer"
-}
-
-do_oe_installer_part2_copy()
-{
-        local path="$1"
-        local machine="$2"
-        local binaries="tmp-glibc/deploy/images"
-        pushd "$path"
-
-        mkdir -p "$OUTPUT_DIR/$NAME/raw"
-
-        cp "$binaries/$machine/xenclient-installer-part2-image-openxt-installer.tar.bz2" "$OUTPUT_DIR/$NAME/raw/control.tar.bz2"
-
-        popd
-}
-
-do_oe_installer_part2()
-{
-        local path="$1"
-
-        do_oe "$path" "openxt-installer" "xenclient-installer-part2-image"
-        do_oe_installer_part2_copy $path "openxt-installer"
 }
 
 do_oe_source_shrink()
@@ -1369,10 +1348,6 @@ do_build()
                                 do_oe_installer "$path" ;;
                         installercp)
                                 do_oe_installer_copy "$path" "openxt-installer";;
-                        installer2)
-                                do_oe_installer_part2 "$path" ;;
-                        installer2cp)
-                                do_oe_installer_part2_copy "$path" "xenclient-dom0";;
                         license*)
                                 do_oe_copy_licenses "$path" ;;
                         sourceinfo*)
