@@ -378,10 +378,10 @@ do_oe_installer_copy()
 
         # Copy extra installer files
         rm -rf "$OUTPUT_DIR/$NAME/raw/installer/iso"
-        cp -r "$binaries/$machine/xenclient-installer-image-$machine/iso" \
+        cp -r "$binaries/$machine/iso" \
                 "$OUTPUT_DIR/$NAME/raw/installer/iso"
         rm -rf "$OUTPUT_DIR/$NAME/raw/installer/netboot"
-        cp -r "$binaries/$machine/xenclient-installer-image-$machine/netboot" \
+        cp -r "$binaries/$machine/netboot" \
                 "$OUTPUT_DIR/$NAME/raw/installer/netboot"
         cp "$binaries/$machine/bzImage-$machine.bin" \
                 "$OUTPUT_DIR/$NAME/raw/installer/vmlinuz"
