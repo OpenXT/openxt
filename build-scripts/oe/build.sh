@@ -104,7 +104,6 @@ build_image() {
     SOURCE_BASE=tmp-glibc/deploy/images/${MACHINE}/${IMAGE_NAME}-image
     SOURCE_IMAGE=${SOURCE_BASE}-${MACHINE}.${EXTENSION}
     SOURCE_LICENSES=${SOURCE_BASE}-licences.csv
-    SOURCE_EXTRAS=${SOURCE_BASE}-${MACHINE}
     TARGET=${BUILD_USER}@${HOST_IP}:${ALL_BUILDS_SUBDIR_NAME}/${BUILD_DIR}/
 
     # Transfer image and give it the expected name
@@ -131,9 +130,12 @@ build_image() {
         $RSYNC ${SOURCE_LICENSES} ${TARGET}/licenses/
     fi
 
-    # Transfer additionnal files
-    if [ -d ${SOURCE_EXTRAS} ]; then
-        $RSYNC ${SOURCE_EXTRAS}/ ${TARGET}/${REAL_NAME}
+    # Transfer files to be deployed on install media.
+    if [ -d tmp-glibc/deploy/images/${MACHINE}/iso ]; then
+        $RSYNC tmp-glibc/deploy/images/${MACHINE}/iso ${TARGET}
+    fi
+    if [ -d tmp-glibc/deploy/images/${MACHINE}/netboot ]; then
+        $RSYNC tmp-glibc/deploy/images/${MACHINE}/netboot ${TARGET}
     fi
 
     # Transfer installer EFI files

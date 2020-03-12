@@ -339,7 +339,7 @@ build_iso() {
     rm -rf iso_tmp
     mkdir -p iso_tmp/isolinux
     cp -rf netboot/* iso_tmp/isolinux/
-    cp -rf installer/iso/* iso_tmp/isolinux/
+    cp -rf iso/* iso_tmp/isolinux/
     ln -s ../repository/packages.main iso_tmp/packages.main
     # If we already ran build_finalize(), netboot has a copy of rootfs.gz.
     # Since netboot/* was just copied into iso_tmp/isolinux, we'd now have it.
@@ -400,7 +400,6 @@ EOF
     tar -C "repository" -cf "update/update.tar" packages.main
 
     # Copy all the netboot files to the netboot directory and tar it up
-    cp installer/netboot/* netboot/
     cp raw/installer-rootfs.cpio.gz netboot/rootfs.gz
     rm -f netboot/netboot.tar.gz
     tar -C netboot -czf netboot.tar.gz .
