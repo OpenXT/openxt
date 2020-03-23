@@ -38,7 +38,7 @@ $sqlsce32Installer = "SSCERuntime_x86-ENU.exe"
 $sqlsce64Installer = "SSCERuntime_x64-ENU.exe"
 $vs2012Installer   = "vs_premium.exe"
 $win8sdkInstaller  = "sdksetup.exe"
-$wixInstaller      = "wix.exe"
+$wixInstaller      = "wix311.exe"
 $capicomInstaller  = "capicom.msi"
 $vs2012u4Installer = "VS2012.4.exe"
 $pythonInstaller   = "python.msi"
@@ -57,7 +57,7 @@ $sqlsce32Url = "https://download.microsoft.com/download/F/F/D/FFDF76E3-9E55-41DA
 $sqlsce64Url = "https://download.microsoft.com/download/F/F/D/FFDF76E3-9E55-41DA-A750-1798B971936C/ENU/SSCERuntime_x64-ENU.exe"
 $vs2012Url   = "http://download.microsoft.com/download/1/3/1/131D8A8C-95D8-41D4-892A-1DF6E3C5DF7D/vs_premium.exe"
 $win8sdkUrl  = "http://download.microsoft.com/download/F/1/3/F1300C9C-A120-4341-90DF-8A52509B23AC/standalonesdk/sdksetup.exe"
-$wixUrl      = "http://wix.codeplex.com/downloads/get/762937"
+$wixUrl      = "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe"
 $capicomUrl  = "http://download.microsoft.com/download/7/7/0/7708ec16-a770-4777-8b85-0fcd05f5ba60/capicom_dc_sdk.msi"
 $vs2012u4Url = "http://download.microsoft.com/download/D/4/8/D48D1AC2-A297-4C9E-A9D0-A218E6609F06/VSU4/VS2012.4.exe"
 $pythonUrl   = "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi"
@@ -373,34 +373,13 @@ function Install-Win8SDK {
 
 # TODO: does this work on AMD64?
 function Test-Wix {
-  return Test-Path($programFiles32+'\WiX Toolset v3.8\bin\wix.dll')
+  return Test-Path($programFiles32+'\WiX Toolset v3.11\bin\wix.dll')
 }
 
 function Install-Wix {
-  $wixhtml = $env:temp +'\wix.txt'
-  $wix = $tmp + $wixInstaller
-  echo Get-RedirectedUrl
-  PerformDownload "$wixUrl" wix.txt
-
-  #Test if file exists.
-  if (Test-Path $wixhtml){
-    #Parse Wix page.
-    $page = Get-Content $wixhtml | out-string
-    #Check if build number is present.
-    if ($page -like "*Build=*"){
-        $start = $page.indexOf("Build=")+6
-        $end = $page.indexOf('" alt="WiX&#32;Toolset"')
-        $build = $page.substring($start, $end - $start)
-
-        #Download using build number.
-        PerformDownload "http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=wix&DownloadId=762937&FileTime=130301249344430000&Build=$build" $wixInstaller
-        Invoke-CommandChecked $wix -passive
-    }else{
-        Write-Host "Unable to obtain the build number for the wix download URL. Please download it manually at:"
-        Write-Host "$wixUrl"
-        Exit 6
-    }
-  }
+  $wixsetup = "$tmp" + "$wixInstaller"
+  PerformDownload "$wixUrl" "$wixInstaller" "32-BB-76-C4-78-FC-B3-56-67-1D-4A-AF-00-6A-D8-1C-A9-3E-EA-32-C2-2A-94-01-B1-68-FC-74-71-FE-CC-D2"
+  Invoke-CommandChecked "$wixsetup" -passive
 }
 
 function Test-CAPICOM {
