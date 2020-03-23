@@ -53,8 +53,8 @@ $dotnetUrl   = "http://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-
 $winddkUrl   = "http://download.microsoft.com/download/4/A/2/4A25C7D5-EFBE-4182-B6A9-AE6850409A78/GRMWDK_EN_7600_1.ISO"
 $wdkUrl      = "http://download.microsoft.com/download/2/4/C/24CA7FB3-FF2E-4DB5-BA52-62A4399A4601/wdk/wdksetup.exe"
 $wdkCoUrl    = "http://download.microsoft.com/download/0/5/F/05FD6919-6250-425B-86ED-9B095E54065A/wdfcoinstaller.msi"
-$sqlsce32Url = "http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x86-ENU.exe"
-$sqlsce64Url = "http://download.microsoft.com/download/0/5/D/05DCCDB5-57E0-4314-A016-874F228A8FAD/SSCERuntime_x64-ENU.exe"
+$sqlsce32Url = "https://download.microsoft.com/download/F/F/D/FFDF76E3-9E55-41DA-A750-1798B971936C/ENU/SSCERuntime_x86-ENU.exe"
+$sqlsce64Url = "https://download.microsoft.com/download/F/F/D/FFDF76E3-9E55-41DA-A750-1798B971936C/ENU/SSCERuntime_x64-ENU.exe"
 $vs2012Url   = "http://download.microsoft.com/download/1/3/1/131D8A8C-95D8-41D4-892A-1DF6E3C5DF7D/vs_premium.exe"
 $win8sdkUrl  = "http://download.microsoft.com/download/F/1/3/F1300C9C-A120-4341-90DF-8A52509B23AC/standalonesdk/sdksetup.exe"
 $wixUrl      = "http://wix.codeplex.com/downloads/get/762937"
@@ -314,7 +314,7 @@ function Test-SqlSce32 {
 
 function Install-SqlSce32 {
   $ssce32 = $tmp + $sqlsce32Installer
-  PerformDownload "$sqlsce32Url" $sqlsce32Installer "0C-1E-76-83-EC-B6-4C-A9-1E-6C-74-C5-D3-35-FC-B0-EC-33-DB-AF-F2-05-4D-F3-F1-F4-1C-7F-51-D6-17-FF"
+  PerformDownload "$sqlsce32Url" $sqlsce32Installer "EB-46-3C-0F-ED-ED-F1-77-C9-C2-8A-59-26-D9-8B-1B-AC-95-76-12-67-9E-3D-4F-0E-9A-D5-AD-A1-08-24-E7"
   Invoke-CommandChecked $ssce32 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
   Exit 4
@@ -329,7 +329,7 @@ function Test-SqlSce64 {
 
 function Install-SqlSce64 {
   $ssce64 = $tmp + $sqlsce64Installer
-  PerformDownload "$sqlsce64Url" $sqlsce64Installer "96-70-F4-B3-BD-59-C2-06-52-A0-25-9B-92-E4-2E-8F-3E-A8-48-6C-11-39-B6-4D-63-61-A4-17-9E-77-49-65"
+  PerformDownload "$sqlsce64Url" $sqlsce64Installer "29-E5-FF-4B-47-8C-D6-70-9A-C2-A0-D4-A5-E0-65-CC-EC-14-E5-B7-B9-72-B6-AF-C8-52-B4-98-C0-3C-40-D0"
   Invoke-CommandChecked $ssce64 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
   Exit 5
