@@ -14,9 +14,6 @@ $global:builddir
 $global:logddir
 $global:cfgfile
 $global:logfile
-New-Variable -Name success -option constant -scope Global -value 0
-New-Variable -Name warning -option constant -scope Global -value 1
-New-Variable -Name failure -option constant -scope Global -value 2
 
 function IsNumeric([string]$s)
 {
