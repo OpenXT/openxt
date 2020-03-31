@@ -10,6 +10,7 @@
 	path = build/repos/meta-java
 	url = git://git.yoctoproject.org/meta-java
 	branch = zeus
+	update = none
 [submodule "build/repos/meta-openembedded"]
 	path = build/repos/meta-openembedded
 	url = git://git.openembedded.org/meta-openembedded
