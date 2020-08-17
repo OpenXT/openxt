@@ -314,7 +314,7 @@ function Test-SqlSce32 {
 
 function Install-SqlSce32 {
   $ssce32 = $tmp + $sqlsce32Installer
-  PerformDownload "$sqlsce32Url" $sqlsce32Installer "EB-46-3C-0F-ED-ED-F1-77-C9-C2-8A-59-26-D9-8B-1B-AC-95-76-12-67-9E-3D-4F-0E-9A-D5-AD-A1-08-24-E7"
+  PerformDownload "$sqlsce32Url" $sqlsce32Installer "44-CA-25-85-C7-BD-9E-F6-69-79-C1-C9-03-A8-A0-53-B9-22-A6-9B-EA-AD-4D-CC-47-01-5C-D9-9F-CF-3C-D4"
   Invoke-CommandChecked $ssce32 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
   Exit 4
@@ -329,7 +329,7 @@ function Test-SqlSce64 {
 
 function Install-SqlSce64 {
   $ssce64 = $tmp + $sqlsce64Installer
-  PerformDownload "$sqlsce64Url" $sqlsce64Installer "29-E5-FF-4B-47-8C-D6-70-9A-C2-A0-D4-A5-E0-65-CC-EC-14-E5-B7-B9-72-B6-AF-C8-52-B4-98-C0-3C-40-D0"
+  PerformDownload "$sqlsce64Url" $sqlsce64Installer "44-3D-14-9C-7A-1A-3D-5C-26-18-9B-F7-27-A5-52-87-34-1F-AD-62-02-25-FD-7A-ED-61-0B-A1-76-22-86-E4"
   Invoke-CommandChecked $ssce64 /package /passive
   Write-Host "Please reboot your machine now then rerun this script. Otherwise the Visual Studio 2012 install will probably fail."
   Exit 5
