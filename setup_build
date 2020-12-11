@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # OpenXT git repo setup file.
 
 die() {
