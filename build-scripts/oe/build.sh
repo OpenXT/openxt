@@ -108,8 +108,9 @@ build_image() {
 
     # Transfer image and give it the expected name
     if [ -f ${SOURCE_IMAGE} ]; then
-        if [ "$IMAGE_NAME" = "xenclient-installer-part2" ]; then
-            $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/control.${EXTENSION}
+        if [ "$IMAGE_NAME" = "xenclient-installer" ]; then
+            $RSYNC tmp-glibc/deploy/images/${MACHINE}/control.tar.bz2 \
+                   ${TARGET}/raw/control.tar.bz2
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/*.acm \
                    tmp-glibc/deploy/images/${MACHINE}/tboot.gz \
                    tmp-glibc/deploy/images/${MACHINE}/xen.gz \
@@ -120,9 +121,8 @@ build_image() {
             fi
             $RSYNC tmp-glibc/deploy/images/${MACHINE}/bzImage-${MACHINE}.bin \
                    ${TARGET}/netboot/vmlinuz
-        else
-            $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.${EXTENSION}
         fi
+        $RSYNC ${SOURCE_IMAGE} ${TARGET}/raw/${REAL_NAME}-rootfs.${EXTENSION}
     fi
 
     # Transfer licenses
