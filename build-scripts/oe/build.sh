@@ -176,8 +176,22 @@ if [ ! -d openxt ] ; then
     cd openxt
 
     # Fetch the "upstream" layers
-    # Initialise the submodules using .gitmodules
+
     git submodule init
+
+    # Initialise the submodules from the local git mirror by updating .git/config
+    # If there is a copy of the submodule in the local git mirror, use it.
+    for SUBMODULE in $(git config -f .gitmodules --get-regexp path | cut -f2 -d' ')
+    do
+        REPONAME=${SUBMODULE##*/}
+        MIRROR_URL="git://${HOST_IP}/${BUILD_USER}/${REPONAME}"
+        # Detect presence of a mirror repo by using git's ls-remote command:
+        if git ls-remote "${MIRROR_URL}" >/dev/null 2>/dev/null
+        then
+            git config -f .git/config --replace-all submodule."${SUBMODULE}".url "${MIRROR_URL}"
+        fi
+    done
+
     # Clone the submodules, using their saved HEAD
     git submodule update --checkout
     # Update the submodules that follow a branch (update != none)
