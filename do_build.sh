@@ -1,7 +1,7 @@
 #! /bin/bash -e
 set -o pipefail
 
-STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,syncui,source,sdk,license,sourceinfo,ship"
+STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer2,source,sdk,license,sourceinfo,ship"
 
 # Additional steps:
 
@@ -16,6 +16,17 @@ STEPS="setupoe,initramfs,stubinitramfs,dom0,uivm,ndvm,syncvm,installer,installer
 # Packages tree can use hardlinks to save disk space, if $SYNC_CACHE_OE/oe-archives is populated
 # Requires a valid NETBOOT_HTTP_URL in .config
 
+# OpenXT build requires system shell to be bash
+SYSTEM_SHELL=$(basename $(readlink -f /bin/sh))
+[[ ${SYSTEM_SHELL} == "bash" ]] || \
+  { echo "OpenXT build requires bash as system shell. Please symlink /bin/sh to bash"; exit 1; }
+
+# Keep bitbake memory-resident between invocations
+export BB_SERVER_TIMEOUT=30
+
+# Optional interactive use: set to 1 to disable logs
+INTERACTIVE=0
+
 TOPDIR=`pwd`
 OUTPUT_DIR="$TOPDIR/build-output"
 CMD="$0"
@@ -29,6 +40,17 @@ OE_BUILD_CACHE="$TOPDIR/build"
 BRANCH=master
 BUILD_UID=`id -u`
 export BUILD_UID
+
+DEBUG=""
+CONFIG=""
+XC_TOOLS_BUILD=""
+ARGNAME=""
+OE_BUILD_CACHE_DL=""
+OE_TARBALL_MIRROR=""
+NETBOOT_HTTP_URL=""
+FREEZE_URIS=""
+
+CONF_LOCAL="conf/local.conf"
 
 # TODO: move some of the above definitions into common-config
 
@@ -89,16 +111,18 @@ do_oe_setup()
             mkdir -p conf
         fi
 
-        if [ ! -f "conf/local.conf" -o "conf/local.conf" -ot "conf/local.conf-dist" ]; then
-                cp conf/local.conf-dist conf/local.conf
+	# Force generation of local.conf with latest build version
+        rm -f ${CONF_LOCAL}
+        if [ ! -f "${CONF_LOCAL}" -o "${CONF_LOCAL}" -ot "${CONF_LOCAL}-dist" ]; then
+                cp "${CONF_LOCAL}-dist" "${CONF_LOCAL}"
 
                 if [ ! -z "${OE_TARBALL_MIRROR}" ] ; then
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 # Tarball mirror
 PREMIRRORS = "(ftp|https?)$://.*/.*/ ${OE_TARBALL_MIRROR}"
 EOF
                 fi
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 
 # Distribution feed
 XENCLIENT_PACKAGE_FEED_URI="${NETBOOT_HTTP_URL}/${BRANCH}/${NAME}/packages/ipk"
@@ -120,12 +144,12 @@ OPENXT_TAG="$BRANCH"
 EOF
 
                 if [ "x$ID" != "x" ]; then
-                    echo "XENCLIENT_BUILD = \"$ID\"" >> conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$ID\"" >> ${CONF_LOCAL}
                 else
-                    echo "XENCLIENT_BUILD = \"$NAME\"" >> conf/local.conf
+                    echo "XENCLIENT_BUILD = \"$NAME\"" >> ${CONF_LOCAL}
                 fi
 
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 XENCLIENT_BUILD_DATE = "`date +'%T %D'`"
 XENCLIENT_BUILD_BRANCH = "${BRANCH}"
 XENCLIENT_VERSION = "$VERSION"
@@ -137,7 +161,7 @@ XCT_DEB_PKGS_DIR := "${OE_BUILD_CACHE}/xct_deb_packages"
 EOF
 
                 if [ -f ${CMD_DIR}/common-config ]; then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 # xen version and source
 XEN_VERSION="${XEN_VERSION}"
 XEN_SRC_URI="${XEN_SRC_URI}"
@@ -147,7 +171,7 @@ XEN_SRC_SHA256SUM="${XEN_SRC_SHA256SUM}"
 EOF
                 fi
 
-                cat >> conf/local.conf <<EOF
+                cat >> ${CONF_LOCAL} <<EOF
 # Production and development repository-signing CA certificates
 REPO_PROD_CACERT="$REPO_PROD_CACERT_PATH"
 REPO_DEV_CACERT="$REPO_DEV_CACERT_PATH"
@@ -156,7 +180,7 @@ EOF
 
                 if [ $SOURCE -eq 1 ]
                 then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 
 XENCLIENT_BUILD_SRC_PACKAGES = "1"
 XENCLIENT_COLLECT_SRC_INFO = "1"
@@ -164,7 +188,7 @@ EOF
                 fi
                 if [ "x$FREEZE_URIS" = "xyes" ]
                 then
-                    cat >> conf/local.conf <<EOF
+                    cat >> ${CONF_LOCAL} <<EOF
 
 INHERIT += "freezer"
 EOF
@@ -174,7 +198,7 @@ EOF
         if [ $VERBOSE -eq 1 ]
         then
             echo "Generated config is:"
-            cat conf/local.conf
+            cat ${CONF_LOCAL}
         fi
 
         if [ $VERBOSE -eq 1 ]
@@ -227,7 +251,11 @@ do_oe()
         fi
         echo "STARTING OE BUILD $image $machine, started at" `date -u +'%H:%M:%S UTC'`
 
-         < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
+	if [ $INTERACTIVE -eq 1 ]; then
+            ./bb $BBFLAGS "$image"
+	else
+            < /dev/null ./bb $BBFLAGS "$image" | do_oe_log
+	fi
         popd
 }
 
@@ -300,28 +328,6 @@ do_oe_ndvm()
         do_oe_ndvm_copy $path
 }
 
-do_oe_nilfvm_copy()
-{
-        local path="$1"
-        do_oe_copy "$path" "nilfvm" "xenclient-nilfvm" "xenclient-nilfvm"
-
-        local binaries="tmp-glibc/deploy/images"
-        pushd "$path"
-        cp "$binaries/service-nilfvm" "$OUTPUT_DIR/$NAME/raw/service-nilfvm"
-        popd
-}
-
-do_oe_nilfvm()
-{
-        local path="$1"
-
-        echo This step is now useless, everything we need should be built as part of the tools.
-        return
-
-        do_oe "$path" "xenclient-nilfvm" "xenclient-nilfvm-image"
-        do_oe_nilfvm_copy $path
-}
-
 do_oe_syncvm_copy()
 {
         local path="$1"
@@ -333,23 +339,6 @@ do_oe_syncvm()
         local path="$1"
         do_oe "$path" "xenclient-syncvm" "xenclient-syncvm-image"
         do_oe_syncvm_copy $path
-}
-
-do_oe_syncui_copy()
-{
-        local path="$1"
-        pushd "$path"
-        mkdir -p "$OUTPUT_DIR/$NAME/raw"
-        cp tmp-glibc/deploy/tar/sync-wui-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-${RELEASE}.tar.gz"
-        cp tmp-glibc/deploy/tar/sync-wui-sources-0+git*.tar.gz "$OUTPUT_DIR/$NAME/raw/sync-wui-sources-${RELEASE}.tar.gz"
-        popd
-}
-
-do_oe_syncui()
-{
-        local path="$1"
-        do_oe "$path" "xenclient-syncui" "sync-wui"
-        do_oe_syncui_copy "$path"
 }
 
 do_oe_dom0_copy()
@@ -1169,10 +1158,6 @@ do_xctools_debian_repo()
     local dest_dir="${path}/tmp-glibc/deb-xctools-image/"
     local d_output_dir="${OUTPUT_DIR}/${NAME}/xctools-debian-repo/debian"
 
-    echo "Building Debian Service VM tools"
-    do_oe "${path}" "xenclient-nilfvm" "linux-xenclient-nilfvm"
-    do_oe "${path}" "xenclient-nilfvm" "deb-servicevm-tools"
-
     echo "Building XC Tools Debian/Ubuntu repository"
     do_oe "${path}" "xenclient-dom0" "deb-xctools-image"
 
@@ -1230,26 +1215,6 @@ do_xctools() {
      do_xctools_linux "$1"
 }
 
-do_syncui()
-{
-    local name="sync-wui-${RELEASE}.tar.gz"
-    local file="$OUTPUT_DIR/$NAME/raw/$name"
-    local out="$OUTPUT_DIR/$NAME/sync"
-
-    if [ ! -r "${file}" ]; then
-      echo "syncui: Not built, skipping"
-      return 0
-    fi
-
-    echo "syncui:"
-    echo "  - copy $name"
-
-    mkdir -p "$out"
-    cp "$file" "$out"
-
-    echo
-}
-
 do_info()
 {
     local out="$OUTPUT_DIR/$NAME"
@@ -1281,12 +1246,20 @@ do_ship()
         do_updates
         do_netboots
         do_installer_isos
-        do_source_iso
-        do_source_info
-        do_licences
-        do_syncui
-        do_info
-        do_logs
+
+	if [ $INTERACTIVE -eq 0 ]; then
+	    do_source_iso
+	    do_source_info
+	    do_licences
+	    do_info
+	    do_logs
+	fi
+
+	pushd $OUTPUT_DIR
+	SYMLINK_OUTPUT="_do_build_latest"
+	rm -f $SYMLINK_OUTPUT
+	ln -s $NAME $SYMLINK_OUTPUT
+	popd
 }
 
 do_copy()
@@ -1381,15 +1354,8 @@ do_build()
                                 do_oe_uivm "$path" ;;
                         ndvm)
                                 do_oe_ndvm "$path" ;;
-                        nilfvm)
-                                do_oe_nilfvm "$path" ;;
-                        vpnvm)
-                                # for retro-compatibility
-                                do_oe_nilfvm "$path" ;;
                         syncvm)
                                 do_oe_syncvm "$path" ;;
-                        syncui)
-                                do_oe_syncui "$path" ;;
                         uivmcp)
                                 do_oe_uivm_copy "$path" ;;
                         ndvmcp)
@@ -1398,8 +1364,6 @@ do_build()
                                 do_oe_vpnvm_copy "$path" ;;
                         syncvmcp)
                                 do_oe_syncvm_copy "$path" ;;
-                        syncuicp)
-                                do_oe_syncui_copy "$path" ;;
                         xctools*)
                                 do_xctools "$path/xctools" ;;
                         debian)
